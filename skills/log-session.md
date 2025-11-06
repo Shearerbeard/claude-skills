@@ -25,6 +25,30 @@ Generate a session log from the current Claude Code session based on interactive
 - May span zero commits, one commit, or many commits
 - Focus is on learnings and context, not git history
 
+## Important: Claude's Role
+
+**Claude analyzes the ENTIRE conversation first**, then proposes answers.
+
+Claude should:
+1. Review all tool calls (Read, Write, Edit, Bash, etc.) made in this session
+2. Identify files created/modified and their purposes
+3. Extract decisions from the conversation (architectural choices, tool selections)
+4. Note learnings and challenges discussed
+5. **Present findings with concrete evidence** (not vague summaries)
+6. Ask user to confirm or override each finding
+
+**Example of good analysis:**
+✅ "I see you modified README.md to add streaming documentation (lines 211-214)"
+✅ "We decided to use session-based numbering instead of date-based (discussed around the log-session redesign)"
+✅ "You encountered Skills not being recognized - solved by manually executing skill instructions"
+
+**Example of bad analysis:**
+❌ "You worked on some documentation"
+❌ "Some decisions were made"
+❌ "Things went well"
+
+Be specific. Use evidence. Let the user correct if you missed something.
+
 ## Steps
 
 ### 1. Determine Session Number
@@ -42,72 +66,150 @@ If last session is session-042, next is session-043.
 
 **Filename:** `docs/internal/sessions/session-NNN.md` (zero-padded 3 digits)
 
-### 2. Interactive Session Capture
+### 2. Analyze Session & Propose Answers
 
-Use `AskUserQuestion` tool to gather session details:
+**First, Claude analyzes the conversation to extract:**
 
-```markdown
-# Question 1: Session Focus
-question: "What was the main focus of this Claude session?"
-header: "Session Focus"
-options:
-  - label: "Bug fix"
-    description: "Fixed one or more bugs"
-  - label: "New feature"
-    description: "Implemented new functionality"
-  - label: "Refactoring"
-    description: "Code cleanup or restructuring"
-  - label: "Documentation"
-    description: "Updated docs, READMEs, or comments"
-  - label: "Exploration"
-    description: "Research, investigation, or learning"
-  - label: "Multiple areas"
-    description: "Worked on several different things"
+From tool calls and conversation history:
+- Files that were created, modified, or read
+- Commands that were run (Bash tool usage)
+- Errors encountered and solutions found
+- Decisions discussed and made
+- New skills or techniques learned
+- Problems solved
+- Features implemented
 
-# Question 2: Key Accomplishments
-question: "What were the key accomplishments in this session?"
-header: "Accomplishments"
-multiSelect: true
-options:
-  - label: "Implemented feature"
-    description: "Built new functionality"
-  - label: "Fixed bugs"
-    description: "Resolved existing issues"
-  - label: "Improved performance"
-    description: "Optimizations or speedups"
-  - label: "Enhanced documentation"
-    description: "Better docs or examples"
-  - label: "Made architectural decisions"
-    description: "Important design choices"
-  - label: "Learned something new"
-    description: "Gained new understanding"
+**Then propose answers with evidence:**
 
-# Question 3: Decisions Made
-question: "Were any significant decisions made this session?"
-header: "Decisions"
-options:
-  - label: "Yes, architectural"
-    description: "Design or architecture choices"
-  - label: "Yes, technical"
-    description: "Tool/library/approach choices"
-  - label: "Yes, process"
-    description: "Workflow or methodology decisions"
-  - label: "No major decisions"
-    description: "Incremental work, no big choices"
+Example analysis output:
+```
+📊 SESSION ANALYSIS
+
+Based on this conversation, I observed:
+
+Focus Area: Documentation
+  Evidence:
+  - Ran /consolidate skill
+  - Ran /docs-check skill
+  - Modified README.md to add streaming documentation
+  - Modified docs/architecture-decisions.md to renumber ADRs
+  - Enhanced /docs-check skill with automatic fixes
+
+Accomplishments:
+  ✓ Enhanced documentation (README streaming docs added)
+  ✓ Made architectural decisions (skills library structure)
+  ✓ Learned something new (Claude Code skills patterns)
+
+Key Activities:
+  - Installed Claude Code skills from central repository
+  - Trimmed CLAUDE.md from 690 to 257 lines
+  - Fixed documentation inconsistencies (P1/P2 issues)
+  - Enhanced /docs-check skill with auto-fix capability
+  - Created session log for 2025-11-05
+
+Decisions Made:
+  - Skills library location: ~/dev/claude-skills/
+  - Use .claude/skills/ nomenclature (modern)
+  - Enhanced /docs-check with automatic fixes
+
+Files Modified (8 files):
+  - .claude/skills/docs-check.md (+162 lines)
+  - README.md (+7 lines)
+  - docs/architecture-decisions.md (-22 lines)
+  - CLAUDE.md (-433 lines)
+  - TODO.md (converted to pointer)
+  - ARCHITECTURE.md (converted to pointer)
+  - Multiple files moved/archived
+
+Key Learnings:
+  - CLAUDE.md should stay <500 lines
+  - Skills can both report AND fix issues
+  - Central skills repo enables cross-project reuse
+  - Session = one Claude Code context window
+
+Challenges Encountered:
+  - Skills not recognized by Claude Code initially
+  - Duplicate TODO.md files (installer vs existing)
+  - CLI tests hanging (Test 1.2)
+
+Duration Estimate: ~4 hours (based on conversation length)
 ```
 
-After getting responses, ask follow-up questions to capture details:
-- **Brief description** of what was done (1-2 sentences)
-- **Key learnings** from this session (if any)
-- **Next steps** for the next session
+**Then use `AskUserQuestion` to confirm or override:**
 
-### 3. Capture Context from Conversation
+```markdown
+# Question 1: Confirm Session Focus
+question: "I analyzed this session as focused on 'Documentation'. Is this correct?"
+header: "Session Focus"
+options:
+  - label: "Yes, Documentation"
+    description: "Confirmed - main focus was documentation"
+  - label: "Actually, Multiple areas"
+    description: "Override - worked on several things"
+  - label: "Actually, [specify other]"
+    description: "Override with different focus"
+
+# Question 2: Confirm Accomplishments
+question: "I identified these accomplishments:\n- Enhanced documentation\n- Made architectural decisions\n- Learned something new\n\nAre these correct?"
+header: "Accomplishments"
+options:
+  - label: "Yes, all correct"
+    description: "Confirmed - these are the accomplishments"
+  - label: "Partially correct"
+    description: "Some are right, but need to adjust"
+  - label: "Let me specify"
+    description: "I'll provide the accomplishments"
+
+# Question 3: Confirm Decisions
+question: "I found these decisions:\n- Skills library at ~/dev/claude-skills/\n- Use .claude/skills/ nomenclature\n- Enhanced /docs-check with auto-fixes\n\nDid I capture the important decisions?"
+header: "Decisions"
+options:
+  - label: "Yes, captured correctly"
+    description: "Confirmed - these are the key decisions"
+  - label: "Missing some"
+    description: "Add more decisions I didn't catch"
+  - label: "Different decisions"
+    description: "Override with correct decisions"
+
+# Question 4: Key Learnings
+question: "I identified these learnings:\n- CLAUDE.md should stay <500 lines\n- Skills can report AND fix issues\n- Central repo enables reuse\n\nAnything to add or change?"
+header: "Learnings"
+options:
+  - label: "Looks good"
+    description: "Confirmed - captured the learnings"
+  - label: "Add more"
+    description: "I have additional learnings"
+  - label: "Override"
+    description: "Different learnings to capture"
+```
+
+**If user selects override/modify options:**
+- Prompt for details using free-text follow-up
+- Example: "What additional accomplishments should I include?"
+- Example: "What was the actual focus area?"
+- Example: "What key learnings did I miss?"
+
+### 3. Capture Context from Conversation (Automatic)
+
+**This happens automatically during step 2 analysis.**
 
 From the Claude session conversation, extract:
-- **Files modified** (from tool calls)
+- **Files modified** (from Write, Edit tool calls)
+- **Files read** (from Read tool calls - for context)
 - **Commands run** (from Bash tool usage)
-- **Problems encountered** (from error messages)
-- **Solutions found** (from successful approaches)
+- **Problems encountered** (from error messages in tool results)
+- **Solutions found** (from successful approaches after errors)
+- **Tools used** (Git operations, grep searches, file manipulations)
+- **Skills executed** (if any Claude Code skills were run)
+
+**Evidence-based extraction:**
+- Parse tool call parameters and results
+- Count file modifications (additions/deletions if available)
+- Track command execution patterns
+- Note any error → solution sequences
+- Identify decision points in conversation
+
+This provides concrete evidence for the session log instead of vague summaries.
 
 ### 4. Create Session Log
 
@@ -222,7 +324,165 @@ If `docs/internal/sessions/README.md` exists, add entry:
 
 If doesn't exist, offer to create it.
 
-### 6. Prompt for ADR Creation
+### 6. Session Ending & Handoff Documentation
+
+**Detect why the session is ending:**
+
+Use `AskUserQuestion` to determine session ending reason:
+
+```markdown
+# Question: Session Ending Reason
+question: "How are you ending this session?"
+header: "Session End"
+options:
+  - label: "Work Complete"
+    description: "Finished what I set out to do"
+  - label: "Context Limit Approaching"
+    description: "Running low on context window"
+  - label: "Need to Stop Mid-Work"
+    description: "Interrupting before completion"
+  - label: "Switching Focus"
+    description: "Moving to different task/project"
+```
+
+**If "Context Limit Approaching" or "Need to Stop Mid-Work":**
+
+Create handoff documentation to enable next session to pick up cold.
+
+#### A. Update TODO.md with Current State
+
+Add to top of `docs/TODO.md`:
+
+```markdown
+## ⏸️ WORK IN PROGRESS (Session NNN - YYYY-MM-DD)
+
+**Status:** [Describe current state in 1 sentence]
+
+**What's Done:**
+- [Completed item 1]
+- [Completed item 2]
+
+**What's In Progress:**
+- [Current work item - describe exact state]
+  - Files modified but uncommitted: [list]
+  - Next step: [exact action needed]
+
+**What's Blocked:**
+- [Any blockers preventing progress]
+
+**Continue by:**
+1. [First step to resume work]
+2. [Second step]
+
+**Context:** See session-NNN.md for full details
+
+---
+```
+
+#### B. Document Ephemeral State in Session Log
+
+Add section to session log:
+
+```markdown
+## 🔄 HANDOFF TO NEXT SESSION
+
+**Session Status:** INCOMPLETE - Ending due to [reason]
+
+### Current State
+
+**Work Completed:**
+- [What's fully done]
+
+**Work In Progress:**
+- [What's partially done]
+- Files modified but not committed:
+  - `path/to/file.rs` - [state: added function X, not tested]
+  - `path/to/test.rs` - [state: started writing test, incomplete]
+
+**What Was I About To Do Next:**
+[The EXACT next step you were going to take]
+Example: "Was about to run `cargo test` to verify new function"
+
+### How to Continue (Cold Start)
+
+**Files to Review First:**
+1. `path/to/file.rs` - See the new function added
+2. `docs/TODO.md` - See the WIP section at top
+
+**Commands to Run:**
+```bash
+# First, check current state
+git status
+git diff
+
+# Then resume work
+[exact command to continue]
+```
+
+**Context You Need:**
+- [Important context from this session]
+- [Decisions made that affect next steps]
+- [Any gotchas or things to remember]
+
+**Where We Left Off:**
+[1-2 sentence summary of exact state]
+Example: "Added parse_config() function to src/config.rs but haven't written tests yet. Need to add test in tests/config_tests.rs for happy path and error cases."
+```
+
+#### C. Preserve Uncommitted Changes Context
+
+If files are modified but not committed:
+
+```markdown
+### Uncommitted Changes
+
+**Modified Files:** [count] files with changes
+
+```bash
+# View changes
+git status
+git diff
+```
+
+**Changes Summary:**
+- `file1.rs` - [What changed: added function X, refactored Y]
+- `file2.rs` - [What changed: updated tests]
+
+**Reason Not Committed:**
+[Why these aren't committed yet]
+Example: "Tests not passing yet" or "Need to verify logic first"
+
+**Before Committing:**
+- [ ] [Checklist item 1]
+- [ ] [Checklist item 2]
+```
+
+#### D. Create "Resume Work" Script (Optional)
+
+For complex handoffs, offer to create resume script:
+
+```bash
+#!/bin/bash
+# Resume Session NNN work
+# Created: YYYY-MM-DD
+# Context: [Brief description]
+
+echo "🔄 Resuming Session NNN work..."
+echo ""
+echo "Current state:"
+git status
+echo ""
+echo "Next steps:"
+echo "1. Review src/config.rs changes"
+echo "2. Run: cargo test tests::config_tests"
+echo "3. If tests pass, commit with: git commit -m 'Add config parsing'"
+echo ""
+echo "Full context: docs/internal/sessions/session-NNN.md"
+```
+
+Save as `scripts/resume-session-NNN.sh`
+
+### 7. Prompt for ADR Creation
 
 If user indicated architectural decisions were made:
 
@@ -237,6 +497,8 @@ Create ADR now? (y/N)
 If yes, use ADR template from `.claude/templates/adr-template.md`.
 
 ## Output Format
+
+### Standard Output (Work Complete)
 
 ```
 📝 SESSION LOG CREATED
@@ -278,6 +540,60 @@ Next steps:
 3. Continue work or end session
 
 Session log saved ✓
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+### Handoff Output (Context Limit / Mid-Work)
+
+```
+📝 SESSION LOG CREATED + HANDOFF DOCUMENTATION
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📄 Files Created:
+   - docs/internal/sessions/session-NNN.md (session log)
+   - docs/TODO.md (updated with WIP section)
+   - scripts/resume-session-NNN.sh (optional resume script)
+
+📊 Session Summary:
+   Session: #NNN (INCOMPLETE)
+   Date: YYYY-MM-DD
+   Duration: ~2 hours
+   Focus: [Main focus area]
+   Status: Ending due to [reason]
+
+🎯 What's Complete:
+   - [Completed item 1]
+   - [Completed item 2]
+
+⏸️  Work In Progress:
+   - [Current work item]
+   - Files modified but uncommitted: [count] files
+
+🔄 Handoff Documentation:
+   ✓ TODO.md updated with current state
+   ✓ Session log includes handoff section
+   ✓ Uncommitted changes documented
+   ✓ Resume instructions provided
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 TO RESUME WORK (Next Session):
+
+1. Read: docs/TODO.md (WIP section at top)
+2. Read: docs/internal/sessions/session-NNN.md (handoff section)
+3. Run: git status && git diff (see uncommitted changes)
+4. Continue: [exact next step]
+
+💡 Quick Resume:
+   $ scripts/resume-session-NNN.sh
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Session documented with handoff ✓
+
+Next session can pick up cold with full context.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
