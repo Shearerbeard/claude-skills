@@ -184,10 +184,32 @@ options:
 ```
 
 **If user selects override/modify options:**
-- Prompt for details using free-text follow-up
-- Example: "What additional accomplishments should I include?"
-- Example: "What was the actual focus area?"
-- Example: "What key learnings did I miss?"
+
+⚠️ **CRITICAL UX REQUIREMENT**: Always re-display the original content being clarified so the user doesn't have to work from memory.
+
+Example flow when user selects "Partially correct" for accomplishments:
+
+```
+You selected "Partially correct" for accomplishments.
+
+Here's what I identified:
+- Created central skills library
+- Installed 8 skills
+- Created installation script
+- Enhanced docs-check with automatic fixes
+- Redesigned log-session skill twice
+- Added session boundary handling
+
+What needs adjustment? What did I miss or get wrong?
+```
+
+Then wait for user's clarification before proceeding.
+
+**Pattern for all clarification follow-ups:**
+1. Acknowledge user's selection ("You selected X")
+2. Re-display the original content verbatim
+3. Ask specific follow-up question
+4. Wait for answer before moving to next question
 
 ### 3. Capture Context from Conversation (Automatic)
 
