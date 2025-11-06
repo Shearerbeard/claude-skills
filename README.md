@@ -2,6 +2,19 @@
 
 **Multi-project, a la carte installation of Claude Code quality and documentation skills**
 
+---
+
+## 📖 Quick Navigation
+
+| Document | Purpose | Read This If... |
+|----------|---------|-----------------|
+| **[QUICK-START.md](QUICK-START.md)** | One-page reference | You want daily commands and workflows |
+| **[ARCHITECTURE.md](ARCHITECTURE.md)** | Visual flowcharts | You want to understand how it all fits together |
+| **[README.md](README.md)** | Full documentation | You want complete details (this file) |
+| **[docs/MAINTENANCE.md](docs/MAINTENANCE.md)** | Sync workflows | You're updating skills or guidelines |
+
+---
+
 ## 🎯 What This Is
 
 A centralized library of Claude Code Skills that you can selectively install into any project. Perfect for:
