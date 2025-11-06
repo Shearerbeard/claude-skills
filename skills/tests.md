@@ -8,6 +8,12 @@ description: Verify test coverage for new functions (60 seconds)
 ## Task
 Ensure recently added/modified public functions have tests.
 
+## Standards Reference
+
+**Source:** `.claude/guidelines/project-standards.md` Section 4 (Testing Standards)
+
+This skill checks the testing requirements defined in the project guidelines.
+
 ## Steps
 
 1. **Find modified files:**

@@ -8,6 +8,12 @@ description: Check documentation completeness (30 seconds)
 ## Task
 Verify that recently modified public functions have proper documentation.
 
+## Standards Reference
+
+**Source:** `.claude/guidelines/project-standards.md` Section 3 (Documentation Guidelines)
+
+This skill checks the documentation standards defined in the project guidelines.
+
 ## Steps
 
 1. **Find recent changes:**

@@ -54,12 +54,18 @@ Files checked: X
 
 ## Standards Checked
 
+**Source:** `.claude/guidelines/project-standards.md`
+
+This skill implements checks from the project standards guideline:
+
 ### Error Handling Standards
+**Guideline:** `project-standards.md` Section 1 & 2
 - No `unwrap()` or `expect()` in production code (tests are OK)
 - Use `?` operator for error propagation
 - Provide context with errors using `.context()`
 
 ### Unsafe Code Standards
+**Guideline:** `project-standards.md` Section 2
 - Every `unsafe` block must have a SAFETY comment
 - SAFETY comment must explain:
   - Why unsafe is necessary
@@ -67,12 +73,14 @@ Files checked: X
   - Why it's safe in this context
 
 ### Documentation Standards
+**Guideline:** `project-standards.md` Section 3 & 9
 - All public functions have doc comments (`///`)
 - Functions returning `Result` have `# Errors` section
 - Functions that can panic have `# Panics` section
 - Complex functions have `# Examples` section
 
 ### Code Quality Standards
+**Guideline:** `project-standards.md` Section 6 & 8
 - No `panic!()` in production code
 - No hardcoded magic values without explanation
 - Follow clippy recommendations

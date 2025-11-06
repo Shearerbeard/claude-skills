@@ -1,6 +1,9 @@
 # Project Rust Standards
 
-**Purpose:** These are our team's agreed-upon coding standards. Update this file as your standards evolve.
+**Purpose:** These are your team's agreed-upon coding standards. Update this file as your standards evolve.
+
+**Context Window Impact:** ~10KB (~2,500 tokens, <2% of Claude's 200K context)
+**Referenced by:** `/standards`, `/docs`, `/tests`, `/perf`, `/review`
 
 ---
 

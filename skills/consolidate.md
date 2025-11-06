@@ -8,6 +8,16 @@ description: Consolidate scattered documentation and clean up temporary artifact
 ## Task
 Find scattered documentation artifacts, consolidate them into proper locations, and clean up temporary files created during Claude Code sessions.
 
+## Standards Reference
+
+**Source:** `.claude/guidelines/project-documentation-standards.md`
+
+This skill implements the documentation lifecycle and structure rules defined in the guidelines:
+- Rule 1: CLAUDE.md must stay <500 lines
+- Rule 2: No orphaned ephemeral docs
+- Rule 4: Pointer files at root
+- Documentation hierarchy and organization
+
 ## Common Problems This Fixes
 
 1. **CLAUDE.md bloat** - Session notes, TODOs, temp observations

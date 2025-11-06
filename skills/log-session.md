@@ -11,6 +11,15 @@ Create a structured log documenting the current Claude Code development session.
 
 Generate a session log from the current Claude Code session based on interactive prompts. Documents what was accomplished in THIS context window.
 
+## Standards Reference
+
+**Source:** `.claude/guidelines/project-documentation-standards.md`
+
+This skill enforces the session logging and ephemeral documentation lifecycle rules:
+- Rule 3: Session logs must reference ephemeral docs
+- Ephemeral doc lifecycle (CREATE → ITERATE → ARCHIVE/PROMOTE/KEEP)
+- Session boundary handling (context limits, handoff documentation)
+
 ## Workflow Philosophy
 
 **Session = One Claude Code Context Window**

@@ -8,6 +8,12 @@ description: Quick performance anti-pattern check (30 seconds)
 ## Task
 Flag obvious performance issues in recent changes.
 
+## Standards Reference
+
+**Source:** `.claude/guidelines/project-standards.md` Section 5 (Performance Guidelines)
+
+This skill checks for performance anti-patterns defined in the project guidelines.
+
 ## Steps
 
 1. **Find recent files:**

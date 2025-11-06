@@ -40,7 +40,7 @@ TARGET_DIR="$(pwd)"
 
 # Skill categories
 QUALITY_SKILLS=("standards" "docs" "tests" "perf" "review")
-DOCS_SKILLS=("consolidate" "docs-check" "log-session")
+DOCS_SKILLS=("consolidate" "docs-check" "log-session" "plan-session")
 ALL_SKILLS=("${QUALITY_SKILLS[@]}" "${DOCS_SKILLS[@]}")
 SELECTED_SKILLS=()
 
@@ -212,13 +212,50 @@ if [[ -f "$SKILLS_LIB/templates/session-template.md" ]]; then
     echo -e "  ✓ Installed: session-template.md"
 fi
 
-# Step 4: Install guidelines (only if not exists or force mode)
+# Step 4: Install guidelines (smart based on skill types)
 echo -e "${GREEN}[4/5] Installing guidelines...${NC}"
-if [[ ! -f ".claude/guidelines/project-standards.md" ]] || [[ "$FORCE_MODE" == true ]]; then
-    cp "$SKILLS_LIB/guidelines/project-standards.md" ".claude/guidelines/"
-    echo -e "  ✓ Installed: project-standards.md"
-else
-    echo -e "  ⤳ Preserved: project-standards.md (use --force to overwrite)"
+
+# Determine which guidelines to install based on skills
+NEED_CODE_STANDARDS=false
+NEED_DOC_STANDARDS=false
+
+# Check if any quality skills are being installed
+for skill in "${SKILLS_TO_INSTALL[@]}"; do
+    if [[ " ${QUALITY_SKILLS[@]} " =~ " ${skill} " ]]; then
+        NEED_CODE_STANDARDS=true
+    fi
+    if [[ " ${DOCS_SKILLS[@]} " =~ " ${skill} " ]] || [[ "$skill" == "plan-session" ]]; then
+        NEED_DOC_STANDARDS=true
+    fi
+done
+
+# Install code quality guidelines (for /standards, /docs, /tests, /perf, /review)
+if [[ "$NEED_CODE_STANDARDS" == true ]]; then
+    if [[ ! -f ".claude/guidelines/project-standards.md" ]] || [[ "$FORCE_MODE" == true ]]; then
+        cp "$SKILLS_LIB/guidelines/project-standards.md" ".claude/guidelines/"
+        echo -e "  ✓ Installed: project-standards.md (~10KB, for quality skills)"
+    else
+        echo -e "  ⤳ Preserved: project-standards.md (use --force to overwrite)"
+    fi
+fi
+
+# Install documentation guidelines (for /consolidate, /docs-check, /log-session, /plan-session)
+if [[ "$NEED_DOC_STANDARDS" == true ]]; then
+    if [[ ! -f ".claude/guidelines/project-documentation-standards.md" ]] || [[ "$FORCE_MODE" == true ]]; then
+        cp "$SKILLS_LIB/guidelines/project-documentation-standards.md" ".claude/guidelines/"
+        echo -e "  ✓ Installed: project-documentation-standards.md (~14KB, for doc skills)"
+    else
+        echo -e "  ⤳ Preserved: project-documentation-standards.md (use --force to overwrite)"
+    fi
+fi
+
+# Show what was skipped
+if [[ "$NEED_CODE_STANDARDS" == false ]] && [[ "$NEED_DOC_STANDARDS" == false ]]; then
+    echo -e "  ⤳ No guidelines needed for selected skills"
+elif [[ "$NEED_CODE_STANDARDS" == false ]]; then
+    echo -e "  ⤳ Skipped: project-standards.md (no quality skills selected)"
+elif [[ "$NEED_DOC_STANDARDS" == false ]]; then
+    echo -e "  ⤳ Skipped: project-documentation-standards.md (no doc skills selected)"
 fi
 
 # Step 5: Create project files

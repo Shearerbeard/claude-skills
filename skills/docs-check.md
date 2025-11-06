@@ -8,6 +8,15 @@ description: Check documentation consistency between internal and external docs
 ## Task
 Verify consistency between internal developer docs and external public API documentation.
 
+## Standards Reference
+
+**Source:** `.claude/guidelines/project-documentation-standards.md`
+
+This skill checks documentation consistency rules:
+- Internal vs External documentation separation
+- Feature claims vs implementation reality
+- Documentation lifecycle compliance
+
 ## Documentation Categories
 
 ### External Documentation (Public API)

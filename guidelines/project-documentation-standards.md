@@ -2,6 +2,9 @@
 
 **Purpose:** Enforce consistent documentation structure and lifecycle management for Claude Code projects.
 
+**Context Window Impact:** ~14KB (~3,500 tokens, <2% of Claude's 200K context)
+**Referenced by:** `/consolidate`, `/docs-check`, `/log-session`, `/plan-session`
+
 ---
 
 ## 📋 Documentation Hierarchy
