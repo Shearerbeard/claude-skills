@@ -299,11 +299,87 @@ mkdir ~/dev/claude-skills-v1
 mkdir ~/dev/claude-skills-v2
 ```
 
+## 🏗️ Architecture: Source of Truth
+
+**Guidelines = WHAT to check (rules, principles, examples)**
+**Skills = HOW to check (implementation, commands, reporting)**
+
+```
+guidelines/project-standards.md
+  ↓ defines "No unwrap() in production code"
+  ↓
+skills/standards.md
+  ↓ implements: grep for unwrap(), check context
+  ↓ references: guideline sections
+```
+
+**Why this matters:**
+- Guidelines are source of truth for rules
+- Skills implement the checks
+- Update guidelines first, then skills
+- Avoid duplication and drift
+
+**See:** `docs/MAINTENANCE.md` for complete maintenance workflow
+
+### Current Guidelines
+
+| Guideline | Purpose | Referenced By |
+|-----------|---------|---------------|
+| `project-standards.md` | Rust code quality rules | `/standards`, `/docs`, `/tests`, `/perf` |
+| `project-documentation-standards.md` | Doc lifecycle management | `/consolidate`, `/docs-check`, `/log-session`, `/plan-session` |
+
+### Current Skills
+
+**Quality Skills:**
+- `/standards` - Checks: unwrap(), unsafe, doc comments (refs: project-standards.md)
+- `/docs` - Checks: documentation completeness (refs: project-standards.md)
+- `/tests` - Checks: test coverage (refs: project-standards.md)
+- `/perf` - Checks: performance anti-patterns (refs: project-standards.md)
+- `/review` - Comprehensive audit (uses all above + clippy)
+
+**Documentation Skills:**
+- `/consolidate` - Cleanup (refs: project-documentation-standards.md)
+- `/docs-check` - Consistency check + auto-fixes (refs: project-documentation-standards.md)
+- `/log-session` - Session logging with lifecycle (refs: project-documentation-standards.md)
+- `/plan-session` - Planning/research docs (refs: project-documentation-standards.md)
+
+## 🔧 Maintenance
+
+**Adding a new standard:**
+
+1. Update guideline first (source of truth)
+2. Update implementing skill
+3. Document mapping in `docs/MAINTENANCE.md`
+4. Test changes
+
+**Syncing skills and guidelines:**
+
+```bash
+# Check references
+grep -r "guidelines/" skills/
+
+# Verify mapping
+cat docs/MAINTENANCE.md
+```
+
+**LLM-assisted maintenance:**
+
+Use Claude to help maintain consistency:
+
+```
+Review guidelines/project-standards.md and skills/standards.md
+for consistency. Report discrepancies and suggest fixes.
+```
+
+**See:** `docs/MAINTENANCE.md` for complete workflows
+
 ## 📚 Related Documentation
 
+- `docs/MAINTENANCE.md` - **Maintenance guide (skills ↔ guidelines sync)**
 - `QUICK-REFERENCE-v2.txt` - One-page command reference
 - `COMPLETE-IMPLEMENTATION-GUIDE.md` - Detailed setup guide
 - `skills/*.md` - Individual skill documentation
+- `guidelines/*.md` - Standards and rules
 
 ## 🔗 Source
 
