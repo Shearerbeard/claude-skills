@@ -127,11 +127,11 @@ if [[ "$DRY_RUN" == true ]]; then
 fi
 
 # Check if already installed
-if [[ -d ".claude/skills" ]] && [[ "$UPDATE_MODE" == false ]] && [[ "$FORCE_MODE" == false ]]; then
-    echo -e "${YELLOW}⚠️  Claude skills already installed in this project!${NC}"
+if [[ -d ".claude/commands" ]] && [[ "$UPDATE_MODE" == false ]] && [[ "$FORCE_MODE" == false ]]; then
+    echo -e "${YELLOW}⚠️  Claude slash commands already installed in this project!${NC}"
     echo ""
     echo "Options:"
-    echo "  1. Run with --update to update skills (preserves customizations)"
+    echo "  1. Run with --update to update commands (preserves customizations)"
     echo "  2. Run with --force to reinstall (overwrites customizations)"
     echo ""
     exit 1
@@ -140,12 +140,12 @@ fi
 # Display installation plan
 echo -e "${GREEN}Installation Plan:${NC}"
 echo ""
-echo "Skills to install (${#SKILLS_TO_INSTALL[@]}):"
+echo "Slash commands to install (${#SKILLS_TO_INSTALL[@]}):"
 for skill in "${SKILLS_TO_INSTALL[@]}"; do
     if [[ -f "$SKILLS_LIB/skills/${skill}.md" ]]; then
-        echo -e "  ✓ ${skill}"
+        echo -e "  ✓ /${skill}"
     else
-        echo -e "  ${RED}✗ ${skill} (not found)${NC}"
+        echo -e "  ${RED}✗ /${skill} (not found)${NC}"
     fi
 done
 echo ""
@@ -172,7 +172,7 @@ fi
 
 # Step 1: Create directory structure
 echo -e "${GREEN}[1/5] Creating directory structure...${NC}"
-mkdir -p .claude/skills
+mkdir -p .claude/commands
 mkdir -p .claude/guidelines
 mkdir -p .claude/templates
 mkdir -p docs/internal/sessions
@@ -181,12 +181,12 @@ mkdir -p ADR
 mkdir -p scripts
 echo -e "  ✓ Directories created"
 
-# Step 2: Install skills
-echo -e "${GREEN}[2/5] Installing skills...${NC}"
+# Step 2: Install slash commands
+echo -e "${GREEN}[2/5] Installing slash commands...${NC}"
 INSTALLED_COUNT=0
 for skill in "${SKILLS_TO_INSTALL[@]}"; do
     src_file="$SKILLS_LIB/skills/${skill}.md"
-    dst_file=".claude/skills/${skill}.md"
+    dst_file=".claude/commands/${skill}.md"
 
     if [[ -f "$src_file" ]]; then
         cp "$src_file" "$dst_file"
@@ -196,7 +196,7 @@ for skill in "${SKILLS_TO_INSTALL[@]}"; do
         echo -e "  ${YELLOW}⚠️  Skipped: ${skill} (not found in library)${NC}"
     fi
 done
-echo -e "  ${GREEN}Installed ${INSTALLED_COUNT}/${#SKILLS_TO_INSTALL[@]} skills${NC}"
+echo -e "  ${GREEN}Installed ${INSTALLED_COUNT}/${#SKILLS_TO_INSTALL[@]} slash commands${NC}"
 
 # Step 3: Install templates
 echo -e "${GREEN}[3/5] Installing templates...${NC}"
@@ -315,16 +315,16 @@ fi
 
 # .claude/README.md
 cat > .claude/README.md << EOF
-# Claude Code Skills
+# Claude Code Slash Commands
 
 Installed from: ~/dev/claude-skills
 Installation date: $(date +%Y-%m-%d)
 Installation mode: $INSTALL_MODE
 
-## Installed Skills
+## Installed Commands
 
 $(for skill in "${SKILLS_TO_INSTALL[@]}"; do
-    if [[ -f ".claude/skills/${skill}.md" ]]; then
+    if [[ -f ".claude/commands/${skill}.md" ]]; then
         echo "- /${skill}"
     fi
 done)
@@ -332,19 +332,19 @@ done)
 ## Usage
 
 \`\`\`bash
-# Run a skill
+# Run a slash command
 claude
 /${SKILLS_TO_INSTALL[0]}
 exit
 
-# Update skills from library
+# Update commands from library
 ~/dev/claude-skills/install-to-project.sh --update
 \`\`\`
 
 ## Customization
 
 - Edit \`.claude/guidelines/project-standards.md\` for project-specific standards
-- Skills are updated from central library, don't edit directly
+- Commands are updated from central library, don't edit directly
 EOF
 echo -e "  ✓ Created: .claude/README.md"
 
@@ -369,7 +369,7 @@ echo -e "${GREEN}✓ Installation Complete!${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 echo "Installed to: $TARGET_DIR"
-echo "Skills installed: ${#SKILLS_TO_INSTALL[@]}"
+echo "Slash commands installed: ${#SKILLS_TO_INSTALL[@]}"
 echo ""
 echo "Next steps:"
 echo ""
@@ -384,7 +384,7 @@ echo "   vim .claude/guidelines/project-standards.md"
 echo ""
 echo "3. Add to git:"
 echo "   git add .claude/ docs/ ADR/ TODO.md ARCHITECTURE.md"
-echo "   git commit -m 'Add Claude Code skills'"
+echo "   git commit -m 'Add Claude Code slash commands'"
 echo ""
 echo "4. Update later:"
 echo "   ~/dev/claude-skills/install-to-project.sh --update"

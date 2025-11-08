@@ -2,6 +2,8 @@
 
 **Multi-project, a la carte installation of Claude Code quality and documentation skills**
 
+> **Note:** These are implemented as **slash commands** (user-invoked with `/command`), not Skills (model-invoked). The library is called "skills" but they install as slash commands in `.claude/commands/`.
+
 ---
 
 ## 📖 Quick Navigation
@@ -57,7 +59,7 @@ This creates:
 ```
 your-project/
 ├── .claude/
-│   ├── skills/              # Copied from this library
+│   ├── commands/            # Slash commands (invoked with /command)
 │   └── guidelines/          # Customizable per-project
 ├── docs/internal/sessions/  # For session logs
 ├── ADR/                     # For architecture decisions

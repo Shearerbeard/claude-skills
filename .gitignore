@@ -12,3 +12,8 @@
 *.tmp
 *.bak
 *.backup.*
+
+# Claude Code temporary files
+scripts/temp/
+docs/internal/sessions/*.tmp.md
+*.backup.*
