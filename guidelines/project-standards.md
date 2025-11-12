@@ -421,6 +421,86 @@ pub fn parse_config(path: &Path) -> Result<Config> {
 
 ---
 
+## 📝 Emoji Usage Standards
+
+### No Emojis in Production Code
+
+Emojis should NOT appear in:
+- Source code (comments, identifiers, strings)
+- End-user facing logs
+- Error messages
+- API responses
+
+❌ **Bad - Emojis in code:**
+```rust
+// 🚀 This function is super fast!
+pub fn process_data(items: Vec<String>) -> Result<()> {
+    tracing::info!("✅ Processing {} items", items.len());  // Bad: emoji in log
+
+    if items.is_empty() {
+        return Err(Error::EmptyInput("❌ No items provided".into()));  // Bad: emoji in error
+    }
+
+    Ok(())
+}
+
+// Variable with emoji (extremely bad!)
+let result_✅ = compute();  // Will likely cause issues
+```
+
+✅ **Good - Plain text:**
+```rust
+/// This function processes data efficiently
+pub fn process_data(items: Vec<String>) -> Result<()> {
+    tracing::info!("Processing {} items", items.len());
+
+    if items.is_empty() {
+        return Err(Error::EmptyInput("No items provided".into()));
+    }
+
+    Ok(())
+}
+```
+
+**Rationale:**
+- Emojis break in many terminals and log aggregators
+- Not searchable or parseable by standard tools
+- Unprofessional in production systems
+- Can cause encoding issues in databases/APIs
+- Make logs harder to grep/filter
+
+**Exception:** Documentation and developer-facing content
+- ✅ README.md, ARCHITECTURE.md (for visual organization)
+- ✅ Internal comments in examples/demos (sparingly)
+- ✅ Development-only debug output (if helpful)
+- ❌ Never in production logs or error messages
+
+### Limited Emojis in Documentation
+
+**Use sparingly in technical documentation:**
+
+✅ **Acceptable use (visual organization):**
+```markdown
+## 🚨 Critical Issues
+## ✅ Completed Features
+## 🔧 Configuration
+```
+
+❌ **Overuse that reduces professionalism:**
+```markdown
+## 🎉🎊 Super Amazing Feature! 💯✨
+The code is 🔥🔥🔥 and works like 🚀!!!
+```
+
+**Guidelines:**
+- Max 1-2 emojis per heading
+- Use standard, widely recognized emojis
+- Be consistent (same emoji for same concept)
+- Consider your audience (internal vs public docs)
+- When in doubt, leave it out
+
+---
+
 ## 🎯 Things We Care About Most
 
 Priority order:

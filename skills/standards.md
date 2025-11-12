@@ -23,6 +23,7 @@ find src -name "*.rs" -mmin -30 -type f 2>/dev/null || echo "No recent changes"
    - Missing error propagation (should use `?` operator)
    - Missing doc comments on public items
    - Non-idiomatic patterns
+   - Emojis in source code, logs, or error messages
 
 3. **Run clippy for additional lints:**
 ```bash
@@ -48,6 +49,11 @@ Files checked: X
 ❌ src/api/users.rs:23 - Public function missing doc comment
    Violates: Documentation standard
    Fix: Add /// doc comment with description and examples
+
+❌ src/api/handler.rs:67 - Emoji in production log
+   Code: tracing::info!("✅ Request processed successfully");
+   Violates: Emoji usage standard
+   Fix: Remove emoji - use plain text: tracing::info!("Request processed successfully");
 
 ✅ No standards violations found.
 ```
@@ -85,6 +91,14 @@ This skill implements checks from the project standards guideline:
 - No hardcoded magic values without explanation
 - Follow clippy recommendations
 - Use idiomatic Rust patterns
+
+### Emoji Usage Standards
+**Guideline:** `project-standards.md` Emoji Usage Standards section
+- No emojis in source code (comments, identifiers)
+- No emojis in production logs (tracing::info!, tracing::error!, println!)
+- No emojis in error messages
+- No emojis in API responses
+- Exception: Documentation files (README.md, etc.)
 
 ## Best Practices
 
