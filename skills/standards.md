@@ -65,13 +65,14 @@ Files checked: X
 This skill implements checks from the project standards guideline:
 
 ### Error Handling Standards
-**Guideline:** `project-standards.md` Section 1 & 2
+**Guideline:** `project-standards.md` → "🚨 Critical Rules" → "No unwrap() or expect()"
+**Guideline:** `project-standards.md` → "📋 Error Handling Standards"
 - No `unwrap()` or `expect()` in production code (tests are OK)
 - Use `?` operator for error propagation
 - Provide context with errors using `.context()`
 
 ### Unsafe Code Standards
-**Guideline:** `project-standards.md` Section 2
+**Guideline:** `project-standards.md` → "🚨 Critical Rules" → "All unsafe Must Have SAFETY Comments"
 - Every `unsafe` block must have a SAFETY comment
 - SAFETY comment must explain:
   - Why unsafe is necessary
@@ -79,21 +80,23 @@ This skill implements checks from the project standards guideline:
   - Why it's safe in this context
 
 ### Documentation Standards
-**Guideline:** `project-standards.md` Section 3 & 9
+**Guideline:** `project-standards.md` → "🚨 Critical Rules" → "Public Items Must Be Documented"
+**Guideline:** `project-standards.md` → "📝 Documentation Guidelines"
 - All public functions have doc comments (`///`)
 - Functions returning `Result` have `# Errors` section
 - Functions that can panic have `# Panics` section
 - Complex functions have `# Examples` section
 
 ### Code Quality Standards
-**Guideline:** `project-standards.md` Section 6 & 8
+**Guideline:** `project-standards.md` → "📋 Error Handling Standards"
+**Guideline:** `project-standards.md` → "🔧 Tools We Use"
 - No `panic!()` in production code
 - No hardcoded magic values without explanation
 - Follow clippy recommendations
 - Use idiomatic Rust patterns
 
 ### Emoji Usage Standards
-**Guideline:** `project-standards.md` Emoji Usage Standards section
+**Guideline:** `project-standards.md` → "📝 Emoji Usage Standards"
 - No emojis in source code (comments, identifiers)
 - No emojis in production logs (tracing::info!, tracing::error!, println!)
 - No emojis in error messages

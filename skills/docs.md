@@ -10,7 +10,8 @@ Verify that recently modified public functions have proper documentation.
 
 ## Standards Reference
 
-**Source:** `.claude/guidelines/project-standards.md` Section 3 (Documentation Guidelines)
+**Source:** `.claude/guidelines/project-standards.md` → "🚨 Critical Rules" → "Public Items Must Be Documented"
+**Source:** `.claude/guidelines/project-standards.md` → "📝 Documentation Guidelines"
 
 This skill checks the documentation standards defined in the project guidelines.
 

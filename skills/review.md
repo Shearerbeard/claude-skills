@@ -11,9 +11,11 @@ Complete quality check before you commit or end your coding session.
 ## Steps
 
 1. **Load guidelines:**
-   - Read `.claude/guidelines/microsoft-rust.txt` (if exists)
    - Read `.claude/guidelines/project-standards.md` (if exists)
+   - Read `.claude/guidelines/type-driven-design.md` (if exists)
+   - Read `.claude/guidelines/project-documentation-standards.md` (if exists)
    - Read `CLAUDE.md` for project context
+   - Optional: Read `.claude/guidelines/microsoft-rust.txt` (if you added Microsoft Rust guidelines)
 
 2. **Analyze changes:**
 ```bash

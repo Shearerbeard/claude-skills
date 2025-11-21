@@ -10,7 +10,7 @@ Ensure recently added/modified public functions have tests.
 
 ## Standards Reference
 
-**Source:** `.claude/guidelines/project-standards.md` Section 4 (Testing Standards)
+**Source:** `.claude/guidelines/project-standards.md` → "🧪 Testing Standards"
 
 This skill checks the testing requirements defined in the project guidelines.
 

@@ -16,16 +16,23 @@ skills/standards.md
 
 ## Guideline → Skill Mapping
 
-| Guideline | Section | Checked By | How |
-|-----------|---------|------------|-----|
-| `project-standards.md` | Error Handling | `/standards` | grep unwrap/expect, clippy |
-| `project-standards.md` | Unsafe Code | `/standards` | grep unsafe, check SAFETY comments |
-| `project-standards.md` | Documentation | `/standards`, `/docs` | Check /// comments on pub items |
-| `project-standards.md` | Testing | `/tests` | Check test coverage |
-| `project-standards.md` | Performance | `/perf` | grep clone, string allocations |
-| `project-documentation-standards.md` | CLAUDE.md size | `/consolidate` | wc -l CLAUDE.md |
-| `project-documentation-standards.md` | Ephemeral docs | `/log-session` | Document lifecycle status |
-| `project-documentation-standards.md` | Consistency | `/docs-check` | README vs CLAUDE.md claims |
+| Guideline | Section/Rule | Checked By | How |
+|-----------|--------------|------------|-----|
+| `project-standards.md` | 🚨 Critical Rules → No unwrap() | `/standards` | grep unwrap/expect |
+| `project-standards.md` | 🚨 Critical Rules → unsafe SAFETY comments | `/standards` | grep unsafe, verify SAFETY comment |
+| `project-standards.md` | 🚨 Critical Rules → Public items documented | `/standards`, `/docs` | Check /// comments on pub items |
+| `project-standards.md` | 📋 Error Handling Standards | `/standards` | Check Result types, context usage |
+| `project-standards.md` | 🧪 Testing Standards | `/tests` | Check test coverage, naming |
+| `project-standards.md` | ⚡ Performance Guidelines | `/perf` | grep clone, allocations in loops |
+| `project-standards.md` | 📝 Emoji Usage Standards | `/standards` | grep emojis in code/logs |
+| `project-documentation-standards.md` | 🚨 Critical Rules → CLAUDE.md <500 lines | `/consolidate` | wc -l CLAUDE.md |
+| `project-documentation-standards.md` | 🔄 Ephemeral Documentation Lifecycle | `/log-session` | Document lifecycle status |
+| `project-documentation-standards.md` | 📊 Documentation Types & Locations | `/docs-check` | Consistency check |
+| `type-driven-design.md` | Protected Concrete Types | `/type-check` | Check pub fields, smart constructors |
+| `type-driven-design.md` | No Primitive Obsession | `/type-check` | Check function signatures for raw types |
+| `type-driven-design.md` | Making Illegal States Unrepresentable | `/type-check` | Check state machines, boolean flags |
+| `type-driven-design.md` | Railway-Oriented Programming | `/type-check` | Check Result usage, unwrap/expect |
+| `type-driven-design.md` | Event Sourcing Patterns | `/type-check` | Check Decider/Evolver purity |
 
 ## When to Update
 

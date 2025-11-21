@@ -10,7 +10,7 @@ Flag obvious performance issues in recent changes.
 
 ## Standards Reference
 
-**Source:** `.claude/guidelines/project-standards.md` Section 5 (Performance Guidelines)
+**Source:** `.claude/guidelines/project-standards.md` → "⚡ Performance Guidelines"
 
 This skill checks for performance anti-patterns defined in the project guidelines.
 
