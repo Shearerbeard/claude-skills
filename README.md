@@ -48,30 +48,141 @@ Both methods use the same skill files via symlinks.
 
 ### Quality Skills (Code Review)
 
-| Skill | Purpose | Example Prompt |
-|-------|---------|----------------|
-| `/code-safety` | Check unwrap, unsafe, error handling | "Check this code for unwrap and unsafe usage" |
-| `/type-check` | Type-driven design patterns (ADTs, newtypes) | "Review these types for domain modeling" |
-| `/test-coverage` | Verify tests exist for new code | "Do my changes have test coverage?" |
-| `/perf-scan` | Performance anti-patterns (clone abuse) | "Scan for performance issues" |
-| `/pre-commit` | Full quality review (runs all checks) | "Review my changes before I commit" |
-| `/async-check` | Async pitfalls (blocking, Send+Sync) | "Check my async code for issues" |
+#### `/code-safety`
+Check unwrap, unsafe, error handling patterns.
+
+```
+/code-safety                                    # Explicit command
+"Check this module for unwrap usage"            # Contextual triggers
+"Are there any unsafe blocks I should review?"
+"Scan src/parser.rs for error handling issues"
+"Review the error handling in my recent changes"
+```
+
+#### `/type-check`
+Type-driven design patterns (ADTs, newtypes, smart constructors).
+
+```
+/type-check                                     # Explicit command
+"Review these domain types"                     # Contextual triggers
+"Is this struct using type-driven design correctly?"
+"Check if I'm using primitive obsession anywhere"
+"Should this use a newtype wrapper?"
+```
+
+#### `/test-coverage`
+Verify tests exist for new code.
+
+```
+/test-coverage                                  # Explicit command
+"Do my changes have tests?"                     # Contextual triggers
+"What's missing test coverage?"
+"Check if the new functions are tested"
+"Review test coverage for this PR"
+```
+
+#### `/perf-scan`
+Performance anti-patterns (clone abuse, allocations).
+
+```
+/perf-scan                                      # Explicit command
+"Look for unnecessary clones"                   # Contextual triggers
+"Check for performance anti-patterns"
+"Is there any clone abuse in this code?"
+"Review this for allocation overhead"
+```
+
+#### `/pre-commit`
+Full quality review - runs all checks before committing.
+
+```
+/pre-commit                                     # Explicit command
+"Ready to commit, please review"                # Contextual triggers
+"Pre-commit check"
+"Full quality review before I push"
+"Review all my changes"
+```
+
+#### `/async-check`
+Async pitfalls (blocking calls, Send+Sync bounds).
+
+```
+/async-check                                    # Explicit command
+"Check my async code"                           # Contextual triggers
+"Are there blocking calls in async context?"
+"Review Send+Sync bounds"
+"Look for async pitfalls"
+```
 
 ### Documentation Skills
 
-| Skill | Purpose | Example Prompt |
-|-------|---------|----------------|
-| `/docs-consolidate` | Clean up CLAUDE.md, organize docs | "CLAUDE.md is getting too long, clean it up" |
-| `/docs-audit` | Check markdown file consistency | "Audit the documentation for consistency" |
-| `/log-session` | Document session work | "Let's document what we did today" |
-| `/plan-session` | Create planning/research docs | "I need to plan out this feature" |
+#### `/docs-consolidate`
+Clean up CLAUDE.md, organize and archive documentation.
+
+```
+/docs-consolidate                               # Explicit command
+"CLAUDE.md is too long"                         # Contextual triggers
+"Clean up the documentation"
+"Consolidate the docs"
+"Organize session history"
+```
+
+#### `/docs-audit`
+Check markdown file consistency and structure.
+
+```
+/docs-audit                                     # Explicit command
+"Audit the documentation"                       # Contextual triggers
+"Check markdown files for consistency"
+"Review doc structure"
+"Are the docs organized correctly?"
+```
+
+#### `/log-session`
+Document session work at end of day.
+
+```
+/log-session                                    # Explicit command
+"Document today's session"                      # Contextual triggers
+"Let's log what we accomplished"
+"End of day summary"
+"Create a session log"
+```
+
+#### `/plan-session`
+Create planning or research documents.
+
+```
+/plan-session                                   # Explicit command
+"I need to plan this feature"                   # Contextual triggers
+"Let's create a planning doc"
+"Start a research document"
+"Plan out the implementation"
+```
 
 ### Setup Skills
 
-| Skill | Purpose | Example Prompt |
-|-------|---------|----------------|
-| `/claudefile-audit` | Audit CLAUDE.md and .claude/ structure | "Audit my Claude Code setup" |
-| `/bootstrap` | Initialize new projects with skills | "Set up Claude Code for this project" |
+#### `/claudefile-audit`
+Audit CLAUDE.md and .claude/ directory structure.
+
+```
+/claudefile-audit                               # Explicit command
+"Audit my Claude Code setup"                    # Contextual triggers
+"Is my .claude/ configured correctly?"
+"Check CLAUDE.md structure"
+"Review project configuration"
+```
+
+#### `/bootstrap`
+Initialize new projects with Claude Code structure.
+
+```
+/bootstrap                                      # Explicit command
+"Set up Claude Code for this project"           # Contextual triggers
+"Bootstrap the .claude/ directory"
+"Initialize Claude Code config"
+"Add Claude Code to this repo"
+```
 
 ## Installation Options
 
@@ -216,110 +327,6 @@ cd ~/workspace/cli-tool
 # Project C: Library - specific skills
 cd ~/workspace/my-lib
 ~/dev/claude-skills/install-to-project.sh --skills="code-safety,type-check,test-coverage"
-```
-
-## Example Prompts by Skill
-
-### Quality Skills
-
-**code-safety** - Error handling and safety checks:
-```
-"Check this module for unwrap usage"
-"Are there any unsafe blocks I should review?"
-"Scan src/parser.rs for error handling issues"
-"Review the error handling in my recent changes"
-```
-
-**type-check** - Type-driven design:
-```
-"Review these domain types"
-"Is this struct using type-driven design correctly?"
-"Check if I'm using primitive obsession anywhere"
-"Should this use a newtype wrapper?"
-```
-
-**test-coverage** - Test verification:
-```
-"Do my changes have tests?"
-"What's missing test coverage?"
-"Check if the new functions are tested"
-"Review test coverage for this PR"
-```
-
-**perf-scan** - Performance review:
-```
-"Look for unnecessary clones"
-"Check for performance anti-patterns"
-"Is there any clone abuse in this code?"
-"Review this for allocation overhead"
-```
-
-**pre-commit** - Full quality review:
-```
-"Ready to commit, please review"
-"Pre-commit check"
-"Full quality review before I push"
-"Review all my changes"
-```
-
-**async-check** - Async/await issues:
-```
-"Check my async code"
-"Are there blocking calls in async context?"
-"Review Send+Sync bounds"
-"Look for async pitfalls"
-```
-
-### Documentation Skills
-
-**docs-consolidate** - Documentation cleanup:
-```
-"CLAUDE.md is too long"
-"Clean up the documentation"
-"Consolidate the docs"
-"Organize session history"
-```
-
-**docs-audit** - Markdown consistency:
-```
-"Audit the documentation"
-"Check markdown files for consistency"
-"Review doc structure"
-"Are the docs organized correctly?"
-```
-
-**log-session** - Session documentation:
-```
-"Document today's session"
-"Let's log what we accomplished"
-"End of day summary"
-"Create a session log"
-```
-
-**plan-session** - Planning documents:
-```
-"I need to plan this feature"
-"Let's create a planning doc"
-"Start a research document"
-"Plan out the implementation"
-```
-
-### Setup Skills
-
-**claudefile-audit** - Project setup audit:
-```
-"Audit my Claude Code setup"
-"Is my .claude/ configured correctly?"
-"Check CLAUDE.md structure"
-"Review project configuration"
-```
-
-**bootstrap** - New project setup:
-```
-"Set up Claude Code for this project"
-"Bootstrap the .claude/ directory"
-"Initialize Claude Code config"
-"Add Claude Code to this repo"
 ```
 
 ## Adding Custom Skills
