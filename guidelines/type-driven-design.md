@@ -2,9 +2,19 @@
 
 **Purpose:** Enforce type-driven design patterns, algebraic data types (ADT), and domain modeling practices inspired by Scott Wlaschin's "Domain Modeling Made Functional".
 
+**Language:** Rust (patterns may apply to other languages with strong type systems)
 **Context Window Impact:** ~12KB (~3,000 tokens, <2% of Claude's 200K context)
 **Referenced by:** `/type-check`, `/review`
 **Source:** Based on trucker_buddy coding practices
+
+## When This Applies
+
+Apply these standards when:
+- Writing or reviewing Rust domain code
+- Designing new types, structs, or enums
+- Implementing command/event patterns
+- Reviewing function signatures for type safety
+- User mentions: "type safety", "ADT", "newtype", "smart constructor", "impossible states", "railway oriented"
 
 ---
 
@@ -27,7 +37,7 @@
 
 **Principle:** All domain types must have private fields with smart constructors for validation.
 
-❌ **WRONG: Public fields allow invalid states**
+**WRONG: Public fields allow invalid states**
 ```rust
 pub struct UserEmail {
     pub str: String,  // Anyone can set invalid email!
@@ -37,7 +47,7 @@ pub struct UserEmail {
 let email = UserEmail { str: "not-an-email".to_string() };
 ```
 
-✅ **CORRECT: Protected with validation**
+**CORRECT: Protected with validation**
 ```rust
 #[derive(Debug, Clone, Serialize, Deserialize, Hash, PartialEq, Eq)]
 pub struct UserEmail {
@@ -85,7 +95,7 @@ impl UserEmail {
 
 **Principle:** Never use raw primitives (`String`, `usize`, `Uuid`, `f64`) for domain concepts.
 
-❌ **WRONG: Primitive obsession**
+**WRONG: Primitive obsession**
 ```rust
 fn add_expense(
     truck_id: Uuid,          // Which UUID? Truck? User?
@@ -97,7 +107,7 @@ fn add_expense(
 add_expense(user_id, gallons_value, amount_value);  // Compiles but wrong!
 ```
 
-✅ **CORRECT: Domain types prevent mistakes**
+**CORRECT: Domain types prevent mistakes**
 ```rust
 fn add_expense(
     truck_id: &TruckId,      // Type-safe ID
@@ -163,7 +173,7 @@ impl Display for UserId {
 
 **Principle:** Represent state explicitly with enums to prevent invalid state transitions.
 
-❌ **WRONG: Boolean flags create invalid states**
+**WRONG: Boolean flags create invalid states**
 ```rust
 pub struct Truck {
     pub id: TruckId,
@@ -181,7 +191,7 @@ let truck = Truck {
 };
 ```
 
-✅ **CORRECT: Enum states are mutually exclusive**
+**CORRECT: Enum states are mutually exclusive**
 ```rust
 #[derive(Debug)]
 pub enum TruckState {
@@ -340,7 +350,7 @@ match expense_entry {
 
 **Principle:** Never panic in business logic. Use `Result<T, E>` for all operations that can fail.
 
-❌ **WRONG: Panics on invalid input**
+**WRONG: Panics on invalid input**
 ```rust
 pub fn new(str: &str) -> Self {
     Self {
@@ -349,7 +359,7 @@ pub fn new(str: &str) -> Self {
 }
 ```
 
-✅ **CORRECT: Explicit error handling**
+**CORRECT: Explicit error handling**
 ```rust
 pub fn new(str: &str) -> Result<Self, UserFieldError> {
     let email = Self {
@@ -641,7 +651,7 @@ Examples:
 
 ## 8. Anti-Patterns to Avoid
 
-### ❌ Public Mutable Fields
+### Avoid: Public Mutable Fields
 ```rust
 // WRONG
 pub struct UserEmail {
@@ -649,19 +659,19 @@ pub struct UserEmail {
 }
 ```
 
-### ❌ Primitive Obsession
+### Avoid: Primitive Obsession
 ```rust
 // WRONG
 fn add_expense(truck_id: Uuid, amount: usize) -> Result<(), Error>
 ```
 
-### ❌ Unwrap/Expect in Business Logic
+### Avoid: Unwrap/Expect in Business Logic
 ```rust
 // WRONG
 let email = UserEmail::new(str).unwrap();  // Panics!
 ```
 
-### ❌ Mixing Domain and Infrastructure
+### Avoid: Mixing Domain and Infrastructure
 ```rust
 // WRONG
 impl User {
@@ -671,13 +681,13 @@ impl User {
 }
 ```
 
-### ❌ Stringly-Typed Data
+### Avoid: Stringly-Typed Data
 ```rust
 // WRONG
 fn add_expense(truck_id: String, user_id: String) -> Result<(), Error>
 ```
 
-### ❌ Boolean State Flags
+### Avoid: Boolean State Flags
 ```rust
 // WRONG
 pub struct Truck {
@@ -755,6 +765,6 @@ use crate::domain::truck::TruckId;
 
 ---
 
-**Last Updated:** 2025-11-21
+**Last Updated:** 2025-12-11
 
 **Note:** This guideline is based on trucker_buddy coding practices and Scott Wlaschin's "Domain Modeling Made Functional".

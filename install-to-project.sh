@@ -5,13 +5,13 @@
 #   cd your-project && ~/dev/claude-skills/install-to-project.sh
 #   ~/dev/claude-skills/install-to-project.sh --path=/path/to/project
 #   ~/dev/claude-skills/install-to-project.sh --quality-only
-#   ~/dev/claude-skills/install-to-project.sh --skills="standards,review,consolidate"
+#   ~/dev/claude-skills/install-to-project.sh --skills="code-safety,pre-commit,docs-consolidate"
 #   ~/dev/claude-skills/install-to-project.sh --update
 #
 # Options:
 #   --all             Install all skills (default)
-#   --quality-only    Install only quality skills (standards, docs, tests, perf, review)
-#   --docs-only       Install only documentation skills (consolidate, docs-check, log-session)
+#   --quality-only    Install only quality skills (code-safety, type-check, test-coverage, etc.)
+#   --docs-only       Install only documentation skills (docs-consolidate, docs-audit, log-session)
 #   --skills=LIST     Install specific skills (comma-separated)
 #   --update          Update existing installation (preserve customizations)
 #   --force           Force reinstall (overwrite customizations)
@@ -38,10 +38,11 @@ FORCE_MODE=false
 DRY_RUN=false
 TARGET_DIR="$(pwd)"
 
-# Skill categories
-QUALITY_SKILLS=("standards" "docs" "tests" "perf" "review")
-DOCS_SKILLS=("consolidate" "docs-check" "log-session" "plan-session")
-ALL_SKILLS=("${QUALITY_SKILLS[@]}" "${DOCS_SKILLS[@]}")
+# Skill categories (updated names)
+QUALITY_SKILLS=("code-safety" "type-check" "test-coverage" "perf-scan" "pre-commit" "async-check")
+DOCS_SKILLS=("docs-consolidate" "docs-audit" "log-session" "plan-session")
+SETUP_SKILLS=("claudefile-audit" "bootstrap")
+ALL_SKILLS=("${QUALITY_SKILLS[@]}" "${DOCS_SKILLS[@]}" "${SETUP_SKILLS[@]}")
 SELECTED_SKILLS=()
 
 # Parse arguments
@@ -57,6 +58,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --docs-only)
             INSTALL_MODE="docs"
+            shift
+            ;;
+        --setup-only)
+            INSTALL_MODE="setup"
             shift
             ;;
         --skills=*)
@@ -82,7 +87,7 @@ while [[ $# -gt 0 ]]; do
             ;;
         *)
             echo -e "${RED}Unknown option: $1${NC}"
-            echo "Usage: $0 [--all|--quality-only|--docs-only|--skills=LIST] [--update] [--dry-run] [--path=PATH]"
+            echo "Usage: $0 [--all|--quality-only|--docs-only|--setup-only|--skills=LIST] [--update] [--dry-run] [--path=PATH]"
             exit 1
             ;;
     esac
@@ -99,15 +104,18 @@ case $INSTALL_MODE in
     docs)
         SKILLS_TO_INSTALL=("${DOCS_SKILLS[@]}")
         ;;
+    setup)
+        SKILLS_TO_INSTALL=("${SETUP_SKILLS[@]}")
+        ;;
     custom)
         SKILLS_TO_INSTALL=("${SELECTED_SKILLS[@]}")
         ;;
 esac
 
 # Header
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}============================================================${NC}"
 echo -e "${BLUE}    Claude Code Skills - Project Installation${NC}"
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}============================================================${NC}"
 echo ""
 
 # Validate target directory
@@ -127,11 +135,11 @@ if [[ "$DRY_RUN" == true ]]; then
 fi
 
 # Check if already installed
-if [[ -d ".claude/commands" ]] && [[ "$UPDATE_MODE" == false ]] && [[ "$FORCE_MODE" == false ]]; then
-    echo -e "${YELLOW}⚠️  Claude slash commands already installed in this project!${NC}"
+if [[ -d ".claude/skills" ]] && [[ "$UPDATE_MODE" == false ]] && [[ "$FORCE_MODE" == false ]]; then
+    echo -e "${YELLOW}[WARN] Claude skills already installed in this project!${NC}"
     echo ""
     echo "Options:"
-    echo "  1. Run with --update to update commands (preserves customizations)"
+    echo "  1. Run with --update to update skills (preserves customizations)"
     echo "  2. Run with --force to reinstall (overwrites customizations)"
     echo ""
     exit 1
@@ -140,12 +148,19 @@ fi
 # Display installation plan
 echo -e "${GREEN}Installation Plan:${NC}"
 echo ""
-echo "Slash commands to install (${#SKILLS_TO_INSTALL[@]}):"
+echo "Skills to install (${#SKILLS_TO_INSTALL[@]}):"
 for skill in "${SKILLS_TO_INSTALL[@]}"; do
-    if [[ -f "$SKILLS_LIB/skills/${skill}.md" ]]; then
-        echo -e "  ✓ /${skill}"
+    # Handle log-session directory specially
+    if [[ "$skill" == "log-session" ]]; then
+        if [[ -d "$SKILLS_LIB/skills/log-session" ]]; then
+            echo -e "  [OK] /log-session (directory)"
+        else
+            echo -e "  ${RED}[MISSING] /log-session${NC}"
+        fi
+    elif [[ -f "$SKILLS_LIB/skills/${skill}.md" ]]; then
+        echo -e "  [OK] /${skill}"
     else
-        echo -e "  ${RED}✗ /${skill} (not found)${NC}"
+        echo -e "  ${RED}[MISSING] /${skill}${NC}"
     fi
 done
 echo ""
@@ -172,44 +187,62 @@ fi
 
 # Step 1: Create directory structure
 echo -e "${GREEN}[1/5] Creating directory structure...${NC}"
-mkdir -p .claude/commands
+mkdir -p .claude/skills
 mkdir -p .claude/guidelines
 mkdir -p .claude/templates
 mkdir -p docs/internal/sessions
+mkdir -p docs/internal/planning
+mkdir -p docs/internal/research
 mkdir -p docs/archive/$(date +%Y)
-mkdir -p ADR
-mkdir -p scripts
-echo -e "  ✓ Directories created"
+echo -e "  [OK] Directories created"
 
-# Step 2: Install slash commands
-echo -e "${GREEN}[2/5] Installing slash commands...${NC}"
+# Step 2: Install skills
+echo -e "${GREEN}[2/5] Installing skills...${NC}"
 INSTALLED_COUNT=0
 for skill in "${SKILLS_TO_INSTALL[@]}"; do
-    src_file="$SKILLS_LIB/skills/${skill}.md"
-    dst_file=".claude/commands/${skill}.md"
-
-    if [[ -f "$src_file" ]]; then
-        cp "$src_file" "$dst_file"
-        echo -e "  ✓ Installed: /${skill}"
-        ((INSTALLED_COUNT++))
+    # Handle log-session directory specially
+    if [[ "$skill" == "log-session" ]]; then
+        if [[ -d "$SKILLS_LIB/skills/log-session" ]]; then
+            cp -r "$SKILLS_LIB/skills/log-session" ".claude/skills/"
+            echo -e "  [OK] Installed: /log-session (directory)"
+            ((INSTALLED_COUNT++))
+        else
+            echo -e "  ${YELLOW}[SKIP] log-session (not found)${NC}"
+        fi
     else
-        echo -e "  ${YELLOW}⚠️  Skipped: ${skill} (not found in library)${NC}"
+        src_file="$SKILLS_LIB/skills/${skill}.md"
+        dst_file=".claude/skills/${skill}.md"
+
+        if [[ -f "$src_file" ]]; then
+            cp "$src_file" "$dst_file"
+            echo -e "  [OK] Installed: /${skill}"
+            ((INSTALLED_COUNT++))
+        else
+            echo -e "  ${YELLOW}[SKIP] ${skill} (not found in library)${NC}"
+        fi
     fi
 done
-echo -e "  ${GREEN}Installed ${INSTALLED_COUNT}/${#SKILLS_TO_INSTALL[@]} slash commands${NC}"
+echo -e "  ${GREEN}Installed ${INSTALLED_COUNT}/${#SKILLS_TO_INSTALL[@]} skills${NC}"
 
 # Step 3: Install templates
 echo -e "${GREEN}[3/5] Installing templates...${NC}"
+TEMPLATES_INSTALLED=0
+
 if [[ -f "$SKILLS_LIB/templates/adr-template.md" ]]; then
     cp "$SKILLS_LIB/templates/adr-template.md" ".claude/templates/"
-    cp "$SKILLS_LIB/templates/adr-template.md" "ADR/template.md"
-    echo -e "  ✓ Installed: adr-template.md"
+    echo -e "  [OK] Installed: adr-template.md"
+    ((TEMPLATES_INSTALLED++))
 fi
 
 if [[ -f "$SKILLS_LIB/templates/session-template.md" ]]; then
     cp "$SKILLS_LIB/templates/session-template.md" ".claude/templates/"
     cp "$SKILLS_LIB/templates/session-template.md" "docs/internal/sessions/template.md"
-    echo -e "  ✓ Installed: session-template.md"
+    echo -e "  [OK] Installed: session-template.md"
+    ((TEMPLATES_INSTALLED++))
+fi
+
+if [[ $TEMPLATES_INSTALLED -eq 0 ]]; then
+    echo -e "  [SKIP] No templates found in library"
 fi
 
 # Step 4: Install guidelines (smart based on skill types)
@@ -217,176 +250,152 @@ echo -e "${GREEN}[4/5] Installing guidelines...${NC}"
 
 # Determine which guidelines to install based on skills
 NEED_CODE_STANDARDS=false
+NEED_TYPE_DESIGN=false
 NEED_DOC_STANDARDS=false
 
-# Check if any quality skills are being installed
+# Check skill categories
 for skill in "${SKILLS_TO_INSTALL[@]}"; do
     if [[ " ${QUALITY_SKILLS[@]} " =~ " ${skill} " ]]; then
         NEED_CODE_STANDARDS=true
+        # type-check needs type-driven-design guideline
+        if [[ "$skill" == "type-check" ]]; then
+            NEED_TYPE_DESIGN=true
+        fi
     fi
-    if [[ " ${DOCS_SKILLS[@]} " =~ " ${skill} " ]] || [[ "$skill" == "plan-session" ]]; then
+    if [[ " ${DOCS_SKILLS[@]} " =~ " ${skill} " ]]; then
+        NEED_DOC_STANDARDS=true
+    fi
+    if [[ " ${SETUP_SKILLS[@]} " =~ " ${skill} " ]]; then
+        # Setup skills need all guidelines
+        NEED_CODE_STANDARDS=true
+        NEED_TYPE_DESIGN=true
         NEED_DOC_STANDARDS=true
     fi
 done
 
-# Install code quality guidelines (for /standards, /docs, /tests, /perf, /review)
+# Install project-standards.md (for code-safety, test-coverage, perf-scan, pre-commit, async-check)
 if [[ "$NEED_CODE_STANDARDS" == true ]]; then
     if [[ ! -f ".claude/guidelines/project-standards.md" ]] || [[ "$FORCE_MODE" == true ]]; then
         cp "$SKILLS_LIB/guidelines/project-standards.md" ".claude/guidelines/"
-        echo -e "  ✓ Installed: project-standards.md (~10KB, for quality skills)"
+        echo -e "  [OK] Installed: project-standards.md (~15KB)"
     else
-        echo -e "  ⤳ Preserved: project-standards.md (use --force to overwrite)"
+        echo -e "  [KEEP] project-standards.md (use --force to overwrite)"
     fi
 fi
 
-# Install documentation guidelines (for /consolidate, /docs-check, /log-session, /plan-session)
+# Install type-driven-design.md (for type-check)
+if [[ "$NEED_TYPE_DESIGN" == true ]]; then
+    if [[ ! -f ".claude/guidelines/type-driven-design.md" ]] || [[ "$FORCE_MODE" == true ]]; then
+        if [[ -f "$SKILLS_LIB/guidelines/type-driven-design.md" ]]; then
+            cp "$SKILLS_LIB/guidelines/type-driven-design.md" ".claude/guidelines/"
+            echo -e "  [OK] Installed: type-driven-design.md (~20KB)"
+        fi
+    else
+        echo -e "  [KEEP] type-driven-design.md (use --force to overwrite)"
+    fi
+fi
+
+# Install project-documentation-standards.md (for docs-consolidate, docs-audit, log-session, plan-session)
 if [[ "$NEED_DOC_STANDARDS" == true ]]; then
     if [[ ! -f ".claude/guidelines/project-documentation-standards.md" ]] || [[ "$FORCE_MODE" == true ]]; then
         cp "$SKILLS_LIB/guidelines/project-documentation-standards.md" ".claude/guidelines/"
-        echo -e "  ✓ Installed: project-documentation-standards.md (~14KB, for doc skills)"
+        echo -e "  [OK] Installed: project-documentation-standards.md (~14KB)"
     else
-        echo -e "  ⤳ Preserved: project-documentation-standards.md (use --force to overwrite)"
+        echo -e "  [KEEP] project-documentation-standards.md (use --force to overwrite)"
     fi
 fi
 
 # Show what was skipped
 if [[ "$NEED_CODE_STANDARDS" == false ]] && [[ "$NEED_DOC_STANDARDS" == false ]]; then
-    echo -e "  ⤳ No guidelines needed for selected skills"
-elif [[ "$NEED_CODE_STANDARDS" == false ]]; then
-    echo -e "  ⤳ Skipped: project-standards.md (no quality skills selected)"
-elif [[ "$NEED_DOC_STANDARDS" == false ]]; then
-    echo -e "  ⤳ Skipped: project-documentation-standards.md (no doc skills selected)"
+    echo -e "  [SKIP] No guidelines needed for selected skills"
 fi
 
-# Step 5: Create project files
-echo -e "${GREEN}[5/5] Creating project files...${NC}"
+# Step 5: Create .claude/README.md
+echo -e "${GREEN}[5/5] Creating documentation...${NC}"
 
-# TODO.md
-if [[ ! -f "TODO.md" ]]; then
-    cat > TODO.md << 'EOF'
-# TODO
-
-Last updated: $(date +%Y-%m-%d)
-
-## 🔥 High Priority
-
-
-## 📋 Medium Priority
-
-
-## 💡 Low Priority / Ideas
-
-
-## ✅ Recently Completed
-
-EOF
-    echo -e "  ✓ Created: TODO.md"
-else
-    echo -e "  ⤳ Skipped: TODO.md (already exists)"
-fi
-
-# ARCHITECTURE.md
-if [[ ! -f "ARCHITECTURE.md" ]]; then
-    cat > ARCHITECTURE.md << 'EOF'
-# Architecture
-
-## Overview
-
-High-level system design and component interactions.
-
-## Components
-
-### Core Components
-
-(Describe your main components here)
-
-## Data Flow
-
-(How data moves through the system)
-
-## Key Design Decisions
-
-See ADR/ directory for detailed architecture decision records.
-EOF
-    echo -e "  ✓ Created: ARCHITECTURE.md"
-else
-    echo -e "  ⤳ Skipped: ARCHITECTURE.md (already exists)"
-fi
-
-# .claude/README.md
 cat > .claude/README.md << EOF
-# Claude Code Slash Commands
+# Claude Code Skills
 
 Installed from: ~/dev/claude-skills
 Installation date: $(date +%Y-%m-%d)
 Installation mode: $INSTALL_MODE
 
-## Installed Commands
+## Installed Skills
 
 $(for skill in "${SKILLS_TO_INSTALL[@]}"; do
-    if [[ -f ".claude/commands/${skill}.md" ]]; then
+    if [[ -f ".claude/skills/${skill}.md" ]] || [[ -d ".claude/skills/${skill}" ]]; then
         echo "- /${skill}"
     fi
 done)
 
+## Skill Categories
+
+**Quality Skills** (code review):
+- /code-safety - Check unwrap, unsafe, error handling
+- /type-check - Type-driven design patterns
+- /test-coverage - Verify test coverage
+- /perf-scan - Performance anti-patterns
+- /pre-commit - Full quality review
+- /async-check - Async/await pitfalls
+
+**Documentation Skills**:
+- /docs-consolidate - Clean up CLAUDE.md, organize docs
+- /docs-audit - Check markdown consistency
+- /log-session - Document session work
+- /plan-session - Create planning/research docs
+
+**Setup Skills**:
+- /claudefile-audit - Audit project setup
+- /bootstrap - Initialize new projects
+
 ## Usage
 
 \`\`\`bash
-# Run a slash command
+# Start Claude Code and run a skill
 claude
-/${SKILLS_TO_INSTALL[0]}
+/pre-commit
 exit
 
-# Update commands from library
+# Update skills from library
 ~/dev/claude-skills/install-to-project.sh --update
 \`\`\`
 
-## Customization
+## Guidelines
 
-- Edit \`.claude/guidelines/project-standards.md\` for project-specific standards
-- Commands are updated from central library, don't edit directly
+Guidelines are in \`.claude/guidelines/\`:
+- \`project-standards.md\` - Rust code standards (error handling, safety, docs)
+- \`type-driven-design.md\` - Type safety patterns (ADTs, newtypes)
+- \`project-documentation-standards.md\` - Documentation organization
+
+Customize these for your project. Use --force to reset to defaults.
 EOF
-echo -e "  ✓ Created: .claude/README.md"
-
-# .gitignore additions
-if [[ -f ".gitignore" ]]; then
-    if ! grep -q "# Claude Code" ".gitignore"; then
-        cat >> .gitignore << 'EOF'
-
-# Claude Code temporary files
-scripts/temp/
-docs/internal/sessions/*.tmp.md
-*.backup.*
-EOF
-        echo -e "  ✓ Updated: .gitignore"
-    fi
-fi
+echo -e "  [OK] Created: .claude/README.md"
 
 # Summary
 echo ""
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${GREEN}✓ Installation Complete!${NC}"
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}============================================================${NC}"
+echo -e "${GREEN}Installation Complete${NC}"
+echo -e "${BLUE}============================================================${NC}"
 echo ""
 echo "Installed to: $TARGET_DIR"
-echo "Slash commands installed: ${#SKILLS_TO_INSTALL[@]}"
+echo "Skills installed: $INSTALLED_COUNT"
 echo ""
 echo "Next steps:"
 echo ""
 echo "1. Test the installation:"
 echo "   cd $TARGET_DIR"
 echo "   claude"
-echo "   /${SKILLS_TO_INSTALL[0]}"
+echo "   /pre-commit"
 echo "   exit"
 echo ""
-echo "2. Customize project standards:"
+echo "2. Customize guidelines (optional):"
 echo "   vim .claude/guidelines/project-standards.md"
 echo ""
 echo "3. Add to git:"
-echo "   git add .claude/ docs/ ADR/ TODO.md ARCHITECTURE.md"
-echo "   git commit -m 'Add Claude Code slash commands'"
+echo "   git add .claude/ docs/"
+echo "   git commit -m 'Add Claude Code skills'"
 echo ""
 echo "4. Update later:"
 echo "   ~/dev/claude-skills/install-to-project.sh --update"
 echo ""
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}============================================================${NC}"

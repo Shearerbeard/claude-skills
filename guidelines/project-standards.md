@@ -2,16 +2,28 @@
 
 **Purpose:** These are your team's agreed-upon coding standards. Update this file as your standards evolve.
 
-**Context Window Impact:** ~10KB (~2,500 tokens, <2% of Claude's 200K context)
-**Referenced by:** `/standards`, `/docs`, `/tests`, `/perf`, `/review`
+**Language:** Rust
+**Context Window Impact:** ~15KB (~3,750 tokens, <2% of Claude's 200K context)
+**Referenced by:** `/code-safety`, `/test-coverage`, `/perf-scan`, `/pre-commit`, `/async-check`
+
+## When This Applies
+
+Apply these standards when:
+- Writing or reviewing Rust code
+- Checking error handling patterns
+- Reviewing documentation completeness
+- Running pre-commit quality checks
+- Writing async/await code with Tokio
+- Setting up structured logging
+- User mentions: "code standards", "rust guidelines", "error handling", "unsafe", "documentation", "async", "logging"
 
 ---
 
-## 🚨 Critical Rules (Zero Tolerance)
+## Critical Rules (Zero Tolerance)
 
 ### 1. No unwrap() or expect() in Production Code
 
-❌ **Never do this:**
+**WRONG:**
 ```rust
 fn get_user(id: UserId) -> User {
     let user = db.find(id).unwrap();  // Will panic on None!
@@ -19,7 +31,7 @@ fn get_user(id: UserId) -> User {
 }
 ```
 
-✅ **Always do this:**
+**CORRECT:**
 ```rust
 fn get_user(id: UserId) -> Result<User, Error> {
     let user = db.find(id)
@@ -46,14 +58,14 @@ fn test_user_creation() {
 
 ### 2. All unsafe Must Have SAFETY Comments
 
-❌ **Missing justification:**
+**WRONG - Missing justification:**
 ```rust
 unsafe {
     ptr::write(dest, value);
 }
 ```
 
-✅ **Proper documentation:**
+**CORRECT - Proper documentation:**
 ```rust
 // SAFETY: `dest` is a valid pointer obtained from Box::into_raw(),
 // and we have exclusive access as guaranteed by the borrow checker.
@@ -65,14 +77,14 @@ unsafe {
 
 ### 3. Public Items Must Be Documented
 
-❌ **No documentation:**
+**WRONG - No documentation:**
 ```rust
 pub fn process_payment(amount: f64) -> Result<Receipt> {
     // ...
 }
 ```
 
-✅ **Properly documented:**
+**CORRECT - Properly documented:**
 ```rust
 /// Processes a payment transaction.
 ///
@@ -101,7 +113,7 @@ pub fn process_payment(amount: f64) -> Result<Receipt> {
 
 ---
 
-## 📋 Error Handling Standards
+## Error Handling Standards
 
 ### Use anyhow for Applications, thiserror for Libraries
 
@@ -143,13 +155,13 @@ pub enum ConfigError {
 
 ### Always Provide Context
 
-❌ **No context:**
+**WRONG - No context:**
 ```rust
 let data = fs::read_to_string(path)?;
 let config = serde_json::from_str(&data)?;
 ```
 
-✅ **With context:**
+**CORRECT - With context:**
 ```rust
 let data = fs::read_to_string(path)
     .with_context(|| format!("Failed to read config from {}", path.display()))?;
@@ -160,14 +172,14 @@ let config = serde_json::from_str(&data)
 
 ---
 
-## 🧪 Testing Standards
+## Testing Standards
 
 ### Every Public Function Needs Tests
 
 **Minimum requirements:**
-1. ✅ Happy path test (normal case works)
-2. ✅ Error case test (handles errors correctly)
-3. ✅ Edge case test (boundary conditions)
+1. Happy path test (normal case works)
+2. Error case test (handles errors correctly)
+3. Edge case test (boundary conditions)
 
 ```rust
 #[cfg(test)]
@@ -199,7 +211,7 @@ mod tests {
 
 ### Use Descriptive Test Names
 
-❌ **Vague:**
+**WRONG - Vague:**
 ```rust
 #[test]
 fn test_user() { }
@@ -208,7 +220,7 @@ fn test_user() { }
 fn test1() { }
 ```
 
-✅ **Clear:**
+**CORRECT - Clear:**
 ```rust
 #[test]
 fn test_user_creation_with_valid_email_succeeds() { }
@@ -219,11 +231,11 @@ fn test_user_creation_with_duplicate_email_fails() { }
 
 ---
 
-## ⚡ Performance Guidelines
+## Performance Guidelines
 
 ### Avoid Unnecessary Clones
 
-❌ **Wasteful:**
+**WRONG - Wasteful:**
 ```rust
 fn process_items(items: Vec<String>) {
     for item in items.clone() {  // Unnecessary clone!
@@ -233,7 +245,7 @@ fn process_items(items: Vec<String>) {
 }
 ```
 
-✅ **Efficient:**
+**CORRECT - Efficient:**
 ```rust
 // Option 1: Borrow
 fn process_items(items: &[String]) {
@@ -253,17 +265,17 @@ fn process_items(items: Vec<String>) {
 ### Use Appropriate String Types
 
 ```rust
-// ✅ Good: Accept &str for flexibility
+// Good: Accept &str for flexibility
 fn validate_email(email: &str) -> bool {
     email.contains('@')
 }
 
-// ❌ Bad: Forces allocation
+// Bad: Forces allocation
 fn validate_email(email: String) -> bool {
     email.contains('@')
 }
 
-// ✅ Good: Return String only when creating new data
+// Good: Return String only when creating new data
 fn format_name(first: &str, last: &str) -> String {
     format!("{} {}", first, last)
 }
@@ -271,7 +283,7 @@ fn format_name(first: &str, last: &str) -> String {
 
 ### Pre-allocate Collections When Size is Known
 
-❌ **Less efficient:**
+**WRONG - Less efficient:**
 ```rust
 let mut items = Vec::new();
 for i in 0..1000 {
@@ -279,7 +291,7 @@ for i in 0..1000 {
 }
 ```
 
-✅ **Better:**
+**CORRECT - Better:**
 ```rust
 let mut items = Vec::with_capacity(1000);  // Single allocation
 for i in 0..1000 {
@@ -289,7 +301,206 @@ for i in 0..1000 {
 
 ---
 
-## 📐 Code Organization
+## Async Code Standards
+
+### Never Block in Async Context
+
+**WRONG - Blocking in async:**
+```rust
+async fn fetch_data() -> Result<Data> {
+    std::thread::sleep(Duration::from_secs(1));  // Blocks entire runtime thread!
+    let data = std::fs::read_to_string("file.txt")?;  // Sync I/O blocks!
+    Ok(data)
+}
+```
+
+**CORRECT - Use async equivalents:**
+```rust
+async fn fetch_data() -> Result<Data> {
+    tokio::time::sleep(Duration::from_secs(1)).await;  // Async sleep
+    let data = tokio::fs::read_to_string("file.txt").await?;  // Async I/O
+    Ok(data)
+}
+
+// For CPU-bound work, use spawn_blocking
+async fn compute_hash(data: Vec<u8>) -> Result<Hash> {
+    tokio::task::spawn_blocking(move || {
+        expensive_hash_computation(&data)
+    }).await?
+}
+```
+
+### Send + Sync Requirements for Spawned Tasks
+
+**WRONG - Type not Send across await:**
+```rust
+async fn process() {
+    let rc = Rc::new(data);  // Rc is !Send
+    tokio::spawn(async move {
+        use_data(&rc).await;  // Won't compile!
+    });
+}
+```
+
+**CORRECT - Use Arc for shared ownership across tasks:**
+```rust
+async fn process() {
+    let arc = Arc::new(data);  // Arc is Send + Sync
+    tokio::spawn(async move {
+        use_data(&arc).await;  // Works!
+    });
+}
+```
+
+### Use Async-Aware Synchronization
+
+**WRONG - std::sync::Mutex in async:**
+```rust
+async fn update_state(state: Arc<std::sync::Mutex<State>>) {
+    let mut guard = state.lock().unwrap();  // Blocks thread while held!
+    expensive_async_operation().await;  // Still holding lock across await!
+    guard.value = new_value;
+}
+```
+
+**CORRECT - Use tokio::sync::Mutex:**
+```rust
+async fn update_state(state: Arc<tokio::sync::Mutex<State>>) {
+    let mut guard = state.lock().await;  // Async-aware lock
+    guard.value = new_value;
+    // Drop guard before await if possible
+}
+
+// Even better: minimize lock scope
+async fn update_state(state: Arc<tokio::sync::Mutex<State>>) {
+    let new_value = expensive_async_operation().await;  // Compute first
+    state.lock().await.value = new_value;  // Lock only for update
+}
+```
+
+### Handle Spawned Task Errors
+
+**WRONG - Ignoring JoinHandle:**
+```rust
+async fn fire_and_forget() {
+    tokio::spawn(async {
+        might_fail().await?;  // Error silently lost!
+        Ok::<_, Error>(())
+    });
+}
+```
+
+**CORRECT - Handle or log errors:**
+```rust
+async fn spawn_with_handling() {
+    let handle = tokio::spawn(async {
+        might_fail().await
+    });
+
+    // Option 1: Await and handle
+    if let Err(e) = handle.await {
+        tracing::error!("Task panicked: {e}");
+    }
+
+    // Option 2: Spawn error logging task
+    tokio::spawn(async move {
+        if let Err(e) = handle.await {
+            tracing::error!("Background task failed: {e}");
+        }
+    });
+}
+```
+
+### Never Use block_on Inside Async
+
+**WRONG - Deadlock risk:**
+```rust
+async fn outer() {
+    // This will deadlock if runtime is single-threaded!
+    futures::executor::block_on(inner());
+}
+```
+
+**CORRECT - Just await:**
+```rust
+async fn outer() {
+    inner().await;  // Simply await
+}
+
+// If you need sync-to-async bridge, do it at the boundary
+fn main() {
+    let rt = tokio::runtime::Runtime::new().unwrap();
+    rt.block_on(async_main());  // Only at top level
+}
+```
+
+---
+
+## Structured Logging Standards
+
+### Use tracing with Context Fields
+
+**WRONG - Unstructured logging:**
+```rust
+println!("Processing request for user {}", user_id);
+log::info!("Request failed: {}", error);
+```
+
+**CORRECT - Structured with tracing:**
+```rust
+use tracing::{info, error, instrument, Span};
+
+#[instrument(skip(payload), fields(user_id = %user_id))]
+async fn handle_request(user_id: UserId, payload: Payload) -> Result<Response> {
+    info!("Processing request");
+
+    let result = process(payload).await
+        .map_err(|e| {
+            error!(error = %e, "Request processing failed");
+            e
+        })?;
+
+    info!(response_size = result.len(), "Request completed");
+    Ok(result)
+}
+```
+
+### Include Request Context
+
+**WRONG - No correlation:**
+```rust
+async fn handle(req: Request) -> Response {
+    tracing::info!("Handling request");  // Which request?
+}
+```
+
+**CORRECT - Include request ID and auth context:**
+```rust
+async fn handle(req: Request) -> Response {
+    let span = tracing::info_span!(
+        "request",
+        request_id = %req.id(),
+        auth_scope = %req.auth_context().scope(),
+        method = %req.method(),
+        path = %req.path(),
+    );
+    let _guard = span.enter();
+
+    tracing::info!("Handling request");  // Now has full context
+}
+```
+
+### Log Levels Guide
+
+- **ERROR**: Something failed that shouldn't have (requires attention)
+- **WARN**: Unexpected but handled (monitor for patterns)
+- **INFO**: Normal operations (request start/end, major state changes)
+- **DEBUG**: Detailed flow (function entry/exit, intermediate values)
+- **TRACE**: Very verbose (loop iterations, wire protocol)
+
+---
+
+## Code Organization
 
 ### Module Structure
 
@@ -326,14 +537,14 @@ src/
 
 ---
 
-## 🔒 Security Standards
+## Security Standards
 
 ### Input Validation
 
 **Always validate user input at entry points:**
 
 ```rust
-// ✅ Validate at API boundary
+// Validate at API boundary
 pub async fn create_user(
     Json(payload): Json<CreateUserRequest>,
 ) -> Result<Json<User>> {
@@ -354,13 +565,13 @@ pub async fn create_user(
 
 ### No Hardcoded Secrets
 
-❌ **Never:**
+**WRONG:**
 ```rust
 const API_KEY: &str = "sk_live_1234567890";  // Exposed in binary!
 const DB_PASSWORD: &str = "supersecret";
 ```
 
-✅ **Use environment variables:**
+**CORRECT - Use environment variables:**
 ```rust
 use std::env;
 
@@ -372,19 +583,19 @@ fn get_api_key() -> Result<String> {
 
 ---
 
-## 📝 Documentation Guidelines
+## Documentation Guidelines
 
 ### First Sentence Must Be < 15 Words
 
 Follows Microsoft guideline M-FIRST-DOC-SENTENCE
 
-❌ **Too long:**
+**WRONG - Too long:**
 ```rust
 /// This function takes a user ID and queries the database to retrieve
 /// the corresponding user record if it exists, otherwise returning an error.
 ```
 
-✅ **Concise:**
+**CORRECT - Concise:**
 ```rust
 /// Retrieves a user by ID from the database.
 ///
@@ -421,7 +632,7 @@ pub fn parse_config(path: &Path) -> Result<Config> {
 
 ---
 
-## 📝 Emoji Usage Standards
+## Emoji Usage Standards
 
 ### No Emojis in Production Code
 
@@ -431,7 +642,7 @@ Emojis should NOT appear in:
 - Error messages
 - API responses
 
-❌ **Bad - Emojis in code:**
+**WRONG - Emojis in code:**
 ```rust
 // 🚀 This function is super fast!
 pub fn process_data(items: Vec<String>) -> Result<()> {
@@ -448,7 +659,7 @@ pub fn process_data(items: Vec<String>) -> Result<()> {
 let result_✅ = compute();  // Will likely cause issues
 ```
 
-✅ **Good - Plain text:**
+**CORRECT - Plain text:**
 ```rust
 /// This function processes data efficiently
 pub fn process_data(items: Vec<String>) -> Result<()> {
@@ -470,23 +681,23 @@ pub fn process_data(items: Vec<String>) -> Result<()> {
 - Make logs harder to grep/filter
 
 **Exception:** Documentation and developer-facing content
-- ✅ README.md, ARCHITECTURE.md (for visual organization)
-- ✅ Internal comments in examples/demos (sparingly)
-- ✅ Development-only debug output (if helpful)
-- ❌ Never in production logs or error messages
+- OK: README.md, ARCHITECTURE.md (for visual organization)
+- OK: Internal comments in examples/demos (sparingly)
+- OK: Development-only debug output (if helpful)
+- NO: Never in production logs or error messages
 
 ### Limited Emojis in Documentation
 
 **Use sparingly in technical documentation:**
 
-✅ **Acceptable use (visual organization):**
+**Acceptable use (visual organization):**
 ```markdown
 ## 🚨 Critical Issues
 ## ✅ Completed Features
 ## 🔧 Configuration
 ```
 
-❌ **Overuse that reduces professionalism:**
+**WRONG - Overuse that reduces professionalism:**
 ```markdown
 ## 🎉🎊 Super Amazing Feature! 💯✨
 The code is 🔥🔥🔥 and works like 🚀!!!
@@ -501,7 +712,7 @@ The code is 🔥🔥🔥 and works like 🚀!!!
 
 ---
 
-## 🎯 Things We Care About Most
+## Things We Care About Most
 
 Priority order:
 
@@ -514,7 +725,7 @@ Priority order:
 
 ---
 
-## 🔧 Tools We Use
+## Tools We Use
 
 **Required before commit:**
 ```bash
@@ -533,7 +744,7 @@ cargo bloat --release           # Binary size analysis
 
 ---
 
-## 📚 Learning Resources
+## Learning Resources
 
 - [Microsoft Rust Guidelines](https://microsoft.github.io/rust-guidelines/)
 - [Rust API Guidelines](https://rust-lang.github.io/api-guidelines/)
@@ -542,6 +753,6 @@ cargo bloat --release           # Binary size analysis
 
 ---
 
-**Last Updated:** [Add date when you modify this file]
+**Last Updated:** 2025-12-12
 
 **Note:** This is a living document. Update it as your team's practices evolve.

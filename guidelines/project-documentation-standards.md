@@ -3,11 +3,20 @@
 **Purpose:** Enforce consistent documentation structure and lifecycle management for Claude Code projects.
 
 **Context Window Impact:** ~14KB (~3,500 tokens, <2% of Claude's 200K context)
-**Referenced by:** `/consolidate`, `/docs-check`, `/log-session`, `/plan-session`
+**Referenced by:** `/docs-consolidate`, `/docs-audit`, `/log-session`, `/plan-session`
+
+## When This Applies
+
+Apply these standards when:
+- Creating or organizing documentation files
+- Starting or ending Claude Code sessions
+- CLAUDE.md exceeds 500 lines
+- Creating planning or research documents
+- User mentions: "documentation structure", "session logs", "CLAUDE.md cleanup", "consolidate docs"
 
 ---
 
-## 📋 Documentation Hierarchy
+## Documentation Hierarchy
 
 ### Root Directory
 **Rule:** Root should be clean - use pointer files only
@@ -36,15 +45,15 @@ docs/
 ├── technical-achievements.md            # Major milestones
 │
 ├── internal/                            # Developer documentation
-│   ├── planning/                        # 🔄 Ephemeral planning docs
+│   ├── planning/                        # Ephemeral planning docs
 │   │   ├── session-NNN-planning.md      # Session planning (temporary)
 │   │   └── [feature-name]-plan.md       # Feature planning (temporary)
 │   │
-│   ├── research/                        # 🔄 Ephemeral research docs
+│   ├── research/                        # Ephemeral research docs
 │   │   ├── session-NNN-research.md      # Session research (temporary)
 │   │   └── [topic]-research.md          # Topic research (temporary)
 │   │
-│   └── sessions/                        # ✅ Permanent session logs
+│   └── sessions/                        # Permanent session logs
 │       ├── README.md                    # Session index
 │       ├── session-001.md               # First session
 │       ├── session-002.md               # Second session
@@ -59,7 +68,7 @@ docs/
 
 ---
 
-## 🔄 Ephemeral Documentation Lifecycle
+## Ephemeral Documentation Lifecycle
 
 ### When to Create Ephemeral Docs
 
@@ -154,8 +163,8 @@ docs/internal/research/zero-copy-parsing-research.md
 - `docs/internal/planning/session-042-oauth-plan.md`
 
 **Status at end of session:**
-- ✅ PROMOTED to ADR-018: OAuth Provider Selection
-- 🗄️ ARCHIVED to docs/archive/2025/session-042-oauth-plan.md
+- PROMOTED to ADR-018: OAuth Provider Selection
+- ARCHIVED to docs/archive/2025/session-042-oauth-plan.md
 
 **Next Session:**
 - No ephemeral docs carried forward
@@ -163,7 +172,7 @@ docs/internal/research/zero-copy-parsing-research.md
 
 ---
 
-## 📊 Documentation Types & Locations
+## Documentation Types & Locations
 
 ### Permanent Documentation
 
@@ -215,7 +224,7 @@ docs/internal/research/zero-copy-parsing-research.md
 
 ---
 
-## 🚨 Critical Rules
+## Critical Rules
 
 ### Rule 1: CLAUDE.md Must Stay Under 500 Lines
 
@@ -229,7 +238,7 @@ docs/internal/research/zero-copy-parsing-research.md
 - Extract session history → `docs/archive/YYYY/`
 - Move detailed docs → `docs/[topic].md`
 - Use pointers, not full content
-- Run `/consolidate` skill regularly
+- Run `/docs-consolidate` skill regularly
 
 **Check during:**
 - End of session
@@ -285,7 +294,7 @@ See: [docs/TODO.md](docs/TODO.md)
 
 ---
 
-## 🛠️ Enforcing These Standards
+## Enforcing These Standards
 
 ### 1. Claude Code Guidelines
 
@@ -307,8 +316,8 @@ This file lives at `.claude/guidelines/project-documentation-standards.md`
 ### 3. Weekly Maintenance
 
 Run these skills:
-- `/consolidate` - Clean up documentation structure
-- `/docs-check` - Verify consistency
+- `/docs-consolidate` - Clean up documentation structure
+- `/docs-audit` - Verify consistency
 
 ### 4. Pre-commit Hook (Optional)
 
@@ -320,8 +329,8 @@ Add to `.git/hooks/pre-commit`:
 # Check CLAUDE.md size
 lines=$(wc -l < CLAUDE.md)
 if [ "$lines" -gt 500 ]; then
-    echo "❌ CLAUDE.md is $lines lines (max 500)"
-    echo "Run: claude → /consolidate → exit"
+    echo "ERROR: CLAUDE.md is $lines lines (max 500)"
+    echo "Run: claude → /docs-consolidate → exit"
     exit 1
 fi
 
@@ -337,7 +346,7 @@ fi
 
 ---
 
-## 📝 CLAUDE.md Structure
+## CLAUDE.md Structure
 
 **Keep CLAUDE.md focused on:**
 
@@ -369,7 +378,7 @@ fi
 
 ---
 
-## 🎯 Starting a Session with Planning Mode
+## Starting a Session with Planning Mode
 
 ### Pattern: Session Planning Doc
 
@@ -414,8 +423,8 @@ Implement OAuth 2.0 authentication with Google and GitHub providers.
 ---
 
 **Status at end of session:**
-✅ PROMOTED to ADR-018: OAuth Provider Selection
-🗄️ ARCHIVED to docs/archive/2025/session-042-oauth-plan.md
+PROMOTED to ADR-018: OAuth Provider Selection
+ARCHIVED to docs/archive/2025/session-042-oauth-plan.md
 ```
 
 ### Pattern: Session Research Doc
@@ -463,19 +472,19 @@ test parse_with_cow       ...   863 ns/iter  (30% faster)
 ---
 
 **Status at end of session:**
-✅ PROMOTED to docs/zero-copy-parser-design.md
+PROMOTED to docs/zero-copy-parser-design.md
 ```
 
 ---
 
-## 🔍 Weekly Maintenance Checklist
+## Weekly Maintenance Checklist
 
 Run this weekly to keep documentation clean:
 
 ```bash
 # 1. Check CLAUDE.md size
 wc -l CLAUDE.md
-# If > 500 lines: run /consolidate
+# If > 500 lines: run /docs-consolidate
 
 # 2. Find old ephemeral docs
 find docs/internal/{planning,research} -name "*.md" -mtime +14
@@ -488,14 +497,14 @@ find docs/internal/{planning,research} -name "*.md" -mtime +14
 
 # 5. Run documentation skills
 claude
-/docs-check
-/consolidate  # if needed
+/docs-audit
+/docs-consolidate  # if needed
 exit
 ```
 
 ---
 
-## 🎓 Examples
+## Examples
 
 ### Good: Clean Documentation Structure
 
@@ -537,14 +546,14 @@ docs/
 
 ---
 
-## 📖 Related
+## Related
 
-- **Skills:** `/log-session`, `/consolidate`, `/docs-check`
+- **Skills:** `/log-session`, `/docs-consolidate`, `/docs-audit`
 - **Templates:** `.claude/templates/session-template.md`, `.claude/templates/adr-template.md`
 - **CLAUDE.md:** Document structure and lifecycle in project context
 
 ---
 
-**Last Updated:** 2025-11-05
+**Last Updated:** 2025-12-11
 
 **Note:** This is a living document. Update as your documentation practices evolve.
