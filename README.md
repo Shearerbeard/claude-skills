@@ -15,34 +15,63 @@ cd ~/path/to/your-project
 ~/dev/claude-skills/install-to-project.sh --setup-only
 ```
 
+## How Skills Work
+
+Skills can be invoked two ways:
+
+### Contextual (Conversational)
+The model auto-discovers skills based on conversation context. Just describe what you need:
+
+```
+You: "Check this code for unwrap and unsafe usage"
+Claude: [Uses code-safety skill automatically]
+
+You: "I'm done coding for today, let's document what we did"
+Claude: [Uses log-session skill automatically]
+
+You: "Review my changes before I commit"
+Claude: [Uses pre-commit skill automatically]
+```
+
+### Explicit (Command)
+Use `/command` syntax for direct invocation:
+
+```
+/pre-commit
+/code-safety
+/log-session
+```
+
+Both methods use the same skill files via symlinks.
+
 ## Skills Reference
 
 ### Quality Skills (Code Review)
 
-| Skill | Purpose | Use When |
-|-------|---------|----------|
-| `/code-safety` | Check unwrap, unsafe, error handling | After writing code |
-| `/type-check` | Type-driven design patterns (ADTs, newtypes) | Designing domain types |
-| `/test-coverage` | Verify tests exist for new code | Before commits |
-| `/perf-scan` | Performance anti-patterns (clone abuse) | Optimizing |
-| `/pre-commit` | Full quality review (runs all checks) | Before every commit |
-| `/async-check` | Async pitfalls (blocking, Send+Sync) | Writing async code |
+| Skill | Purpose | Example Prompt |
+|-------|---------|----------------|
+| `/code-safety` | Check unwrap, unsafe, error handling | "Check this code for unwrap and unsafe usage" |
+| `/type-check` | Type-driven design patterns (ADTs, newtypes) | "Review these types for domain modeling" |
+| `/test-coverage` | Verify tests exist for new code | "Do my changes have test coverage?" |
+| `/perf-scan` | Performance anti-patterns (clone abuse) | "Scan for performance issues" |
+| `/pre-commit` | Full quality review (runs all checks) | "Review my changes before I commit" |
+| `/async-check` | Async pitfalls (blocking, Send+Sync) | "Check my async code for issues" |
 
 ### Documentation Skills
 
-| Skill | Purpose | Use When |
-|-------|---------|----------|
-| `/docs-consolidate` | Clean up CLAUDE.md, organize docs | Weekly maintenance |
-| `/docs-audit` | Check markdown file consistency | Before releases |
-| `/log-session` | Document session work | End of day |
-| `/plan-session` | Create planning/research docs | Starting complex work |
+| Skill | Purpose | Example Prompt |
+|-------|---------|----------------|
+| `/docs-consolidate` | Clean up CLAUDE.md, organize docs | "CLAUDE.md is getting too long, clean it up" |
+| `/docs-audit` | Check markdown file consistency | "Audit the documentation for consistency" |
+| `/log-session` | Document session work | "Let's document what we did today" |
+| `/plan-session` | Create planning/research docs | "I need to plan out this feature" |
 
 ### Setup Skills
 
-| Skill | Purpose | Use When |
-|-------|---------|----------|
-| `/claudefile-audit` | Audit CLAUDE.md and .claude/ structure | Reviewing project setup |
-| `/bootstrap` | Initialize new projects with skills | Starting new projects |
+| Skill | Purpose | Example Prompt |
+|-------|---------|----------------|
+| `/claudefile-audit` | Audit CLAUDE.md and .claude/ structure | "Audit my Claude Code setup" |
+| `/bootstrap` | Initialize new projects with skills | "Set up Claude Code for this project" |
 
 ## Installation Options
 
@@ -80,7 +109,7 @@ cd ~/path/to/your-project
 ```
 your-project/
 ├── .claude/
-│   ├── skills/              # Skill files
+│   ├── skills/              # Skill files (model auto-discovers)
 │   │   ├── code-safety.md
 │   │   ├── type-check.md
 │   │   ├── test-coverage.md
@@ -93,17 +122,21 @@ your-project/
 │   │   ├── plan-session.md
 │   │   ├── claudefile-audit.md
 │   │   └── bootstrap.md
+│   ├── commands/            # Symlinks for /command invocation
+│   │   ├── code-safety.md -> ../skills/code-safety.md
+│   │   ├── pre-commit.md -> ../skills/pre-commit.md
+│   │   └── ...              # (all 12 skills symlinked)
 │   ├── guidelines/          # Customizable standards
 │   │   ├── project-standards.md
 │   │   ├── type-driven-design.md
 │   │   └── project-documentation-standards.md
-│   └── templates/           # Document templates
+│   ├── templates/           # Document templates
+│   └── README.md            # Installation info
 ├── docs/
 │   └── internal/
 │       ├── sessions/        # Session logs
 │       ├── planning/        # Ephemeral planning docs
 │       └── research/        # Ephemeral research docs
-└── .claude/README.md        # Installation info
 ```
 
 ## Guidelines
@@ -185,6 +218,110 @@ cd ~/workspace/my-lib
 ~/dev/claude-skills/install-to-project.sh --skills="code-safety,type-check,test-coverage"
 ```
 
+## Example Prompts by Skill
+
+### Quality Skills
+
+**code-safety** - Error handling and safety checks:
+```
+"Check this module for unwrap usage"
+"Are there any unsafe blocks I should review?"
+"Scan src/parser.rs for error handling issues"
+"Review the error handling in my recent changes"
+```
+
+**type-check** - Type-driven design:
+```
+"Review these domain types"
+"Is this struct using type-driven design correctly?"
+"Check if I'm using primitive obsession anywhere"
+"Should this use a newtype wrapper?"
+```
+
+**test-coverage** - Test verification:
+```
+"Do my changes have tests?"
+"What's missing test coverage?"
+"Check if the new functions are tested"
+"Review test coverage for this PR"
+```
+
+**perf-scan** - Performance review:
+```
+"Look for unnecessary clones"
+"Check for performance anti-patterns"
+"Is there any clone abuse in this code?"
+"Review this for allocation overhead"
+```
+
+**pre-commit** - Full quality review:
+```
+"Ready to commit, please review"
+"Pre-commit check"
+"Full quality review before I push"
+"Review all my changes"
+```
+
+**async-check** - Async/await issues:
+```
+"Check my async code"
+"Are there blocking calls in async context?"
+"Review Send+Sync bounds"
+"Look for async pitfalls"
+```
+
+### Documentation Skills
+
+**docs-consolidate** - Documentation cleanup:
+```
+"CLAUDE.md is too long"
+"Clean up the documentation"
+"Consolidate the docs"
+"Organize session history"
+```
+
+**docs-audit** - Markdown consistency:
+```
+"Audit the documentation"
+"Check markdown files for consistency"
+"Review doc structure"
+"Are the docs organized correctly?"
+```
+
+**log-session** - Session documentation:
+```
+"Document today's session"
+"Let's log what we accomplished"
+"End of day summary"
+"Create a session log"
+```
+
+**plan-session** - Planning documents:
+```
+"I need to plan this feature"
+"Let's create a planning doc"
+"Start a research document"
+"Plan out the implementation"
+```
+
+### Setup Skills
+
+**claudefile-audit** - Project setup audit:
+```
+"Audit my Claude Code setup"
+"Is my .claude/ configured correctly?"
+"Check CLAUDE.md structure"
+"Review project configuration"
+```
+
+**bootstrap** - New project setup:
+```
+"Set up Claude Code for this project"
+"Bootstrap the .claude/ directory"
+"Initialize Claude Code config"
+"Add Claude Code to this repo"
+```
+
 ## Adding Custom Skills
 
 Create `~/dev/claude-skills/skills/my-skill.md`:
@@ -208,9 +345,20 @@ Then update projects:
 
 ## Troubleshooting
 
+**Skills not working contextually:**
+- Check that `.claude/skills/` contains the skill files
+- Verify the skill's `description:` field contains trigger words
+- Try using more explicit language that matches the skill description
+
+**Commands not working with /command:**
+```bash
+ls -la .claude/commands/  # Should see symlinks to ../skills/
+```
+
 **Skills not found after installation:**
 ```bash
 ls .claude/skills/  # Should see *.md files
+ls .claude/commands/  # Should see symlinks
 ```
 
 **Update not working:**
@@ -221,6 +369,12 @@ ls .claude/skills/  # Should see *.md files
 **Check what's installed:**
 ```bash
 cat .claude/README.md
+```
+
+**Symlinks broken after git clone:**
+```bash
+# Re-run installer to recreate symlinks
+~/dev/claude-skills/install-to-project.sh --update
 ```
 
 ---
