@@ -186,8 +186,9 @@ if [[ "$UPDATE_MODE" == false ]] && [[ "$FORCE_MODE" == false ]]; then
 fi
 
 # Step 1: Create directory structure
-echo -e "${GREEN}[1/5] Creating directory structure...${NC}"
+echo -e "${GREEN}[1/6] Creating directory structure...${NC}"
 mkdir -p .claude/skills
+mkdir -p .claude/commands
 mkdir -p .claude/guidelines
 mkdir -p .claude/templates
 mkdir -p docs/internal/sessions
@@ -197,7 +198,7 @@ mkdir -p docs/archive/$(date +%Y)
 echo -e "  [OK] Directories created"
 
 # Step 2: Install skills
-echo -e "${GREEN}[2/5] Installing skills...${NC}"
+echo -e "${GREEN}[2/6] Installing skills...${NC}"
 INSTALLED_COUNT=0
 for skill in "${SKILLS_TO_INSTALL[@]}"; do
     # Handle log-session directory specially
@@ -224,8 +225,30 @@ for skill in "${SKILLS_TO_INSTALL[@]}"; do
 done
 echo -e "  ${GREEN}Installed ${INSTALLED_COUNT}/${#SKILLS_TO_INSTALL[@]} skills${NC}"
 
-# Step 3: Install templates
-echo -e "${GREEN}[3/5] Installing templates...${NC}"
+# Step 3: Create command symlinks (for explicit /command invocation)
+echo -e "${GREEN}[3/6] Creating command symlinks...${NC}"
+SYMLINK_COUNT=0
+for skill in "${SKILLS_TO_INSTALL[@]}"; do
+    if [[ "$skill" == "log-session" ]]; then
+        # For directory skills, symlink the SKILL.md as the command
+        if [[ -d ".claude/skills/log-session" ]]; then
+            ln -sf "../skills/log-session/SKILL.md" ".claude/commands/log-session.md"
+            echo -e "  [OK] Symlinked: /log-session -> skills/log-session/SKILL.md"
+            ((SYMLINK_COUNT++))
+        fi
+    else
+        if [[ -f ".claude/skills/${skill}.md" ]]; then
+            ln -sf "../skills/${skill}.md" ".claude/commands/${skill}.md"
+            echo -e "  [OK] Symlinked: /${skill} -> skills/${skill}.md"
+            ((SYMLINK_COUNT++))
+        fi
+    fi
+done
+echo -e "  ${GREEN}Created ${SYMLINK_COUNT} command symlinks${NC}"
+echo -e "  ${BLUE}Skills work contextually; commands work with /${NC}"
+
+# Step 4: Install templates
+echo -e "${GREEN}[4/6] Installing templates...${NC}"
 TEMPLATES_INSTALLED=0
 
 if [[ -f "$SKILLS_LIB/templates/adr-template.md" ]]; then
@@ -245,8 +268,8 @@ if [[ $TEMPLATES_INSTALLED -eq 0 ]]; then
     echo -e "  [SKIP] No templates found in library"
 fi
 
-# Step 4: Install guidelines (smart based on skill types)
-echo -e "${GREEN}[4/5] Installing guidelines...${NC}"
+# Step 5: Install guidelines (smart based on skill types)
+echo -e "${GREEN}[5/6] Installing guidelines...${NC}"
 
 # Determine which guidelines to install based on skills
 NEED_CODE_STANDARDS=false
@@ -310,8 +333,8 @@ if [[ "$NEED_CODE_STANDARDS" == false ]] && [[ "$NEED_DOC_STANDARDS" == false ]]
     echo -e "  [SKIP] No guidelines needed for selected skills"
 fi
 
-# Step 5: Create .claude/README.md
-echo -e "${GREEN}[5/5] Creating documentation...${NC}"
+# Step 6: Create .claude/README.md
+echo -e "${GREEN}[6/6] Creating documentation...${NC}"
 
 cat > .claude/README.md << EOF
 # Claude Code Skills
