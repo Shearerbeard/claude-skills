@@ -1,226 +1,166 @@
-# Claude Code Skills - Personal Library
+# Claude Code Skills Library
 
-**Multi-project, a la carte installation of Claude Code quality and documentation skills**
+A centralized library of Claude Code skills for Rust projects. Install selectively into any project.
 
-> **Note:** These are implemented as **slash commands** (user-invoked with `/command`), not Skills (model-invoked). The library is called "skills" but they install as slash commands in `.claude/commands/`.
-
----
-
-## 📖 Quick Navigation
-
-| Document | Purpose | Read This If... |
-|----------|---------|-----------------|
-| **[QUICK-START.md](QUICK-START.md)** | One-page reference | You want daily commands and workflows |
-| **[ARCHITECTURE.md](ARCHITECTURE.md)** | Visual flowcharts | You want to understand how it all fits together |
-| **[README.md](README.md)** | Full documentation | You want complete details (this file) |
-| **[docs/MAINTENANCE.md](docs/MAINTENANCE.md)** | Sync workflows | You're updating skills or guidelines |
-
----
-
-## 🎯 What This Is
-
-A centralized library of Claude Code Skills that you can selectively install into any project. Perfect for:
-- ✅ Using same skills across multiple projects
-- ✅ Maintaining one source of truth
-- ✅ A la carte adoption (install what you need)
-- ✅ Individual developer workflow (not team-wide)
-
-## 📦 What's Included
-
-### Quality Control Skills (5 skills)
-- `/standards` - Quick safety check (unwrap, unsafe, panics) - 30s
-- `/docs` - Documentation completeness check - 30s
-- `/tests` - Test coverage verification - 60s
-- `/perf` - Performance anti-pattern scan - 30s
-- `/review` - Comprehensive quality audit - 2-3min
-
-### Documentation Skills (3 skills)
-- `/consolidate` - Clean up scattered documentation - 1min
-- `/docs-check` - Check internal/external doc consistency - 1min
-- `/log-session` - Create session log from git activity - 2min
-
-### Templates (2 templates)
-- `adr-template.md` - Architecture Decision Records
-- `session-template.md` - Session logging
-
-### Guidelines (1 guideline)
-- `project-standards.md` - Rust coding standards template
-
-## 🚀 Quick Start
-
-### 1. Install to a Project
+## Quick Start
 
 ```bash
+# Install all skills to current project
 cd ~/path/to/your-project
 ~/dev/claude-skills/install-to-project.sh
-```
 
-This creates:
-```
-your-project/
-├── .claude/
-│   ├── commands/            # Slash commands (invoked with /command)
-│   └── guidelines/          # Customizable per-project
-├── docs/internal/sessions/  # For session logs
-├── ADR/                     # For architecture decisions
-└── TODO.md                  # Task tracking
-```
-
-### 2. Choose What to Install (A la Carte)
-
-```bash
-# Install only quality skills
+# Or install specific categories
 ~/dev/claude-skills/install-to-project.sh --quality-only
-
-# Install only documentation skills
 ~/dev/claude-skills/install-to-project.sh --docs-only
-
-# Install specific skills
-~/dev/claude-skills/install-to-project.sh --skills="standards,review,consolidate"
+~/dev/claude-skills/install-to-project.sh --setup-only
 ```
 
-### 3. Test It
+## Skills Reference
+
+### Quality Skills (Code Review)
+
+| Skill | Purpose | Use When |
+|-------|---------|----------|
+| `/code-safety` | Check unwrap, unsafe, error handling | After writing code |
+| `/type-check` | Type-driven design patterns (ADTs, newtypes) | Designing domain types |
+| `/test-coverage` | Verify tests exist for new code | Before commits |
+| `/perf-scan` | Performance anti-patterns (clone abuse) | Optimizing |
+| `/pre-commit` | Full quality review (runs all checks) | Before every commit |
+| `/async-check` | Async pitfalls (blocking, Send+Sync) | Writing async code |
+
+### Documentation Skills
+
+| Skill | Purpose | Use When |
+|-------|---------|----------|
+| `/docs-consolidate` | Clean up CLAUDE.md, organize docs | Weekly maintenance |
+| `/docs-audit` | Check markdown file consistency | Before releases |
+| `/log-session` | Document session work | End of day |
+| `/plan-session` | Create planning/research docs | Starting complex work |
+
+### Setup Skills
+
+| Skill | Purpose | Use When |
+|-------|---------|----------|
+| `/claudefile-audit` | Audit CLAUDE.md and .claude/ structure | Reviewing project setup |
+| `/bootstrap` | Initialize new projects with skills | Starting new projects |
+
+## Installation Options
 
 ```bash
-cd your-project
-claude
-/standards
-exit
-```
-
-## 📁 Directory Structure
-
-```
-~/dev/claude-skills/
-├── README.md                    # This file
-├── install-to-project.sh        # Installation script
-├── skills/
-│   ├── standards.md             # Safety check
-│   ├── docs.md                  # Documentation check
-│   ├── tests.md                 # Test coverage
-│   ├── perf.md                  # Performance check
-│   ├── review.md                # Full review
-│   ├── consolidate.md           # Doc cleanup
-│   ├── docs-check.md            # Doc consistency
-│   └── log-session.md           # Session logging
-├── templates/
-│   ├── adr-template.md
-│   └── session-template.md
-└── guidelines/
-    └── project-standards.md     # Template for projects
-```
-
-## 🔄 Updating Skills
-
-### Update This Library
-
-```bash
-cd ~/dev/claude-skills
-git pull  # If tracking updates
-```
-
-### Update Installed Projects
-
-```bash
-cd ~/path/to/your-project
-~/dev/claude-skills/install-to-project.sh --update
-```
-
-This preserves your customized guidelines but updates skills.
-
-## 💡 Multi-Project Workflow
-
-### Scenario: You have 3 projects
-
-**Project A (Full stack Rust web app)**
-```bash
-cd ~/workspace/project-a
-~/dev/claude-skills/install-to-project.sh --all
-# Uses: All skills, needs comprehensive quality checks
-```
-
-**Project B (Small CLI tool)**
-```bash
-cd ~/workspace/project-b
-~/dev/claude-skills/install-to-project.sh --quality-only
-# Uses: Only quality skills, minimal docs needed
-```
-
-**Project C (Library)**
-```bash
-cd ~/workspace/project-c
-~/dev/claude-skills/install-to-project.sh --skills="standards,docs,review"
-# Uses: Quality + docs, no session logging
-```
-
-### All Projects Use Same Source
-
-- Update skills in `~/dev/claude-skills/` once
-- Re-run `install-to-project.sh --update` in each project
-- Customizations (guidelines, templates) stay project-specific
-
-## 📋 Installation Options
-
-```bash
-# Full installation
+# Full installation (all 12 skills)
 ./install-to-project.sh --all
 
-# Quality skills only
+# Quality skills only (6 skills)
 ./install-to-project.sh --quality-only
 
-# Documentation skills only
+# Documentation skills only (4 skills)
 ./install-to-project.sh --docs-only
 
+# Setup skills only (2 skills)
+./install-to-project.sh --setup-only
+
 # Specific skills (comma-separated)
-./install-to-project.sh --skills="standards,review,docs-check"
+./install-to-project.sh --skills="code-safety,pre-commit,docs-consolidate"
 
 # Update existing installation (preserves customizations)
 ./install-to-project.sh --update
 
+# Force reinstall (overwrites customizations)
+./install-to-project.sh --force
+
 # Dry run (show what would be installed)
 ./install-to-project.sh --dry-run
+
+# Install to specific path
+./install-to-project.sh --path=/path/to/project
 ```
 
-## 🎯 When to Use What
+## What Gets Installed
 
-### Use `/standards` every 30 minutes
-Quick safety check while coding. Catches unwrap(), unsafe, panics.
-
-### Use `/review` before every commit
-Comprehensive quality audit. Runs clippy, checks tests, docs.
-
-### Use `/consolidate` weekly
-Cleans up scattered documentation, keeps CLAUDE.md < 500 lines.
-
-### Use `/log-session` end of day
-Captures session learnings from git activity.
-
-## 🔧 Customization Per Project
-
-After installation, customize in your project:
-
-```bash
-cd your-project
-
-# Edit project-specific standards
-vim .claude/guidelines/project-standards.md
-
-# Edit templates if needed
-vim .claude/templates/adr-template.md
+```
+your-project/
+├── .claude/
+│   ├── skills/              # Skill files
+│   │   ├── code-safety.md
+│   │   ├── type-check.md
+│   │   ├── test-coverage.md
+│   │   ├── perf-scan.md
+│   │   ├── pre-commit.md
+│   │   ├── async-check.md
+│   │   ├── docs-consolidate.md
+│   │   ├── docs-audit.md
+│   │   ├── log-session/     # Directory with templates
+│   │   ├── plan-session.md
+│   │   ├── claudefile-audit.md
+│   │   └── bootstrap.md
+│   ├── guidelines/          # Customizable standards
+│   │   ├── project-standards.md
+│   │   ├── type-driven-design.md
+│   │   └── project-documentation-standards.md
+│   └── templates/           # Document templates
+├── docs/
+│   └── internal/
+│       ├── sessions/        # Session logs
+│       ├── planning/        # Ephemeral planning docs
+│       └── research/        # Ephemeral research docs
+└── .claude/README.md        # Installation info
 ```
 
-Skills remain unchanged (updated from central library).
+## Guidelines
 
-## 📊 Maintenance
+Skills reference these guidelines (installed to `.claude/guidelines/`):
 
-### Keep Skills Up to Date
+| Guideline | Size | Used By |
+|-----------|------|---------|
+| `project-standards.md` | ~15KB | code-safety, test-coverage, perf-scan, pre-commit, async-check |
+| `type-driven-design.md` | ~20KB | type-check |
+| `project-documentation-standards.md` | ~14KB | docs-consolidate, docs-audit, log-session, plan-session |
+
+Customize guidelines per-project. Skills stay synced with central library.
+
+## Directory Structure
+
+```
+~/dev/claude-skills/
+├── README.md                 # This file
+├── install-to-project.sh     # Installation script
+├── skills/
+│   ├── code-safety.md        # Unwrap, unsafe, error handling
+│   ├── type-check.md         # ADTs, newtypes, smart constructors
+│   ├── test-coverage.md      # Test coverage verification
+│   ├── perf-scan.md          # Performance anti-patterns
+│   ├── pre-commit.md         # Full quality review
+│   ├── async-check.md        # Async/await pitfalls
+│   ├── docs-consolidate.md   # Documentation cleanup
+│   ├── docs-audit.md         # Markdown consistency
+│   ├── log-session/          # Session logging (directory)
+│   ├── plan-session.md       # Planning/research docs
+│   ├── claudefile-audit.md   # Project setup audit
+│   └── bootstrap.md          # New project initialization
+├── guidelines/
+│   ├── project-standards.md
+│   ├── type-driven-design.md
+│   └── project-documentation-standards.md
+└── templates/
+    ├── adr-template.md
+    └── session-template.md
+```
+
+## Updating Skills
 
 ```bash
-# In skills library
+# Update this library
 cd ~/dev/claude-skills
 git pull
 
-# Update all your projects
+# Update installed projects
+cd ~/path/to/your-project
+~/dev/claude-skills/install-to-project.sh --update
+```
+
+Update all projects at once:
+
+```bash
 for project in ~/workspace/*/; do
   if [ -d "$project/.claude/skills" ]; then
     echo "Updating $project"
@@ -229,187 +169,62 @@ for project in ~/workspace/*/; do
 done
 ```
 
-### Track Your Changes
+## Multi-Project Workflow
 
 ```bash
-cd ~/dev/claude-skills
-git init
-git add .
-git commit -m "Initial skills library"
+# Project A: Full Rust web app - install everything
+cd ~/workspace/web-app
+~/dev/claude-skills/install-to-project.sh --all
 
-# Optional: Push to private repo
-git remote add origin git@github.com:yourusername/claude-skills.git
-git push -u origin main
+# Project B: Small CLI tool - quality only
+cd ~/workspace/cli-tool
+~/dev/claude-skills/install-to-project.sh --quality-only
+
+# Project C: Library - specific skills
+cd ~/workspace/my-lib
+~/dev/claude-skills/install-to-project.sh --skills="code-safety,type-check,test-coverage"
 ```
 
-## 🎨 Customization Tips
-
-### Add Your Own Skills
+## Adding Custom Skills
 
 Create `~/dev/claude-skills/skills/my-skill.md`:
 
 ```markdown
 ---
 name: my-skill
-description: Custom check for my workflow
+description: Custom check for my workflow. Use when [trigger conditions].
 ---
 
 # My Custom Skill
 
-Check for:
-- Project-specific patterns
-- Domain-specific issues
+[Skill implementation]
 ```
 
-Install to projects:
+Then update projects:
+
 ```bash
 ~/dev/claude-skills/install-to-project.sh --update
 ```
 
-### Per-Project Variations
+## Troubleshooting
 
-Some projects need different standards:
-
+**Skills not found after installation:**
 ```bash
-# Project A: Strict standards (web app)
-cd ~/workspace/project-a
-vim .claude/guidelines/project-standards.md
-# Add: "No unwrap() in any code"
-
-# Project B: Relaxed standards (personal tool)
-cd ~/workspace/project-b
-vim .claude/guidelines/project-standards.md
-# Add: "unwrap() OK in main.rs only"
-```
-
-Skills stay the same, guidelines differ.
-
-## 💰 Cost Estimate
-
-Per project, per month:
-- Light usage (1-2 checks/day): $5-10
-- Regular usage (5-10 checks/day): $20-40
-- Heavy usage (20+ checks/day): $50-100
-
-Using same skills across 3 projects doesn't triple cost—it's about usage frequency.
-
-## 🐛 Troubleshooting
-
-### Skills not found after installation
-```bash
-cd your-project
 ls .claude/skills/  # Should see *.md files
 ```
 
-### Update not working
+**Update not working:**
 ```bash
-# Force reinstall
 ~/dev/claude-skills/install-to-project.sh --force
 ```
 
-### Different projects need different skill versions
-Create separate skill libraries:
+**Check what's installed:**
 ```bash
-mkdir ~/dev/claude-skills-v1
-mkdir ~/dev/claude-skills-v2
+cat .claude/README.md
 ```
-
-## 🏗️ Architecture: Source of Truth
-
-**Guidelines = WHAT to check (rules, principles, examples)**
-**Skills = HOW to check (implementation, commands, reporting)**
-
-```
-guidelines/project-standards.md
-  ↓ defines "No unwrap() in production code"
-  ↓
-skills/standards.md
-  ↓ implements: grep for unwrap(), check context
-  ↓ references: guideline sections
-```
-
-**Why this matters:**
-- Guidelines are source of truth for rules
-- Skills implement the checks
-- Update guidelines first, then skills
-- Avoid duplication and drift
-
-**See:** `docs/MAINTENANCE.md` for complete maintenance workflow
-
-### Current Guidelines
-
-| Guideline | Purpose | Referenced By |
-|-----------|---------|---------------|
-| `project-standards.md` | Rust code quality rules | `/standards`, `/docs`, `/tests`, `/perf` |
-| `project-documentation-standards.md` | Doc lifecycle management | `/consolidate`, `/docs-check`, `/log-session`, `/plan-session` |
-
-### Current Skills
-
-**Quality Skills:**
-- `/standards` - Checks: unwrap(), unsafe, doc comments (refs: project-standards.md)
-- `/docs` - Checks: documentation completeness (refs: project-standards.md)
-- `/tests` - Checks: test coverage (refs: project-standards.md)
-- `/perf` - Checks: performance anti-patterns (refs: project-standards.md)
-- `/review` - Comprehensive audit (uses all above + clippy)
-
-**Documentation Skills:**
-- `/consolidate` - Cleanup (refs: project-documentation-standards.md)
-- `/docs-check` - Consistency check + auto-fixes (refs: project-documentation-standards.md)
-- `/log-session` - Session logging with lifecycle (refs: project-documentation-standards.md)
-- `/plan-session` - Planning/research docs (refs: project-documentation-standards.md)
-
-## 🔧 Maintenance
-
-**Adding a new standard:**
-
-1. Update guideline first (source of truth)
-2. Update implementing skill
-3. Document mapping in `docs/MAINTENANCE.md`
-4. Test changes
-
-**Syncing skills and guidelines:**
-
-```bash
-# Check references
-grep -r "guidelines/" skills/
-
-# Verify mapping
-cat docs/MAINTENANCE.md
-```
-
-**LLM-assisted maintenance:**
-
-Use Claude to help maintain consistency:
-
-```
-Review guidelines/project-standards.md and skills/standards.md
-for consistency. Report discrepancies and suggest fixes.
-```
-
-**See:** `docs/MAINTENANCE.md` for complete workflows
-
-## 📚 Related Documentation
-
-- `docs/MAINTENANCE.md` - **Maintenance guide (skills ↔ guidelines sync)**
-- `QUICK-REFERENCE-v2.txt` - One-page command reference
-- `COMPLETE-IMPLEMENTATION-GUIDE.md` - Detailed setup guide
-- `skills/*.md` - Individual skill documentation
-- `guidelines/*.md` - Standards and rules
-
-## 🔗 Source
-
-Skills extracted from:
-- rust-quality-starter-kit.tar.gz
-- documentation-addon.tar.gz
-
-Organized for multi-project, a la carte installation.
 
 ---
 
-**Last Updated:** 2025-11-05
-
-**Maintained By:** Your name
+**Last Updated:** 2025-12-12
 
 **License:** Personal use
-
-**Note:** This is your personal skills library. Customize freely!
