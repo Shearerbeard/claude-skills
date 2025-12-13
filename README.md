@@ -329,6 +329,34 @@ cd ~/workspace/my-lib
 ~/dev/claude-skills/install-to-project.sh --skills="code-safety,type-check,test-coverage"
 ```
 
+## Session Handoff
+
+The `/log-session` skill supports context window handoff - documenting work in progress so the next session can resume cold.
+
+### How It Works
+
+1. **During session**: Work normally
+2. **At session end**: Run `/log-session` and select "Context Limit" or "Stopping Mid-Work"
+3. **Handoff created**: WIP section added to `docs/TODO.md`, full context in session log
+4. **Next session**: Claude reads WIP and resumes automatically
+
+### CLAUDE.md Requirement
+
+Your project's CLAUDE.md **must** have a "Starting a Session" section for handoff to work:
+
+```markdown
+## Starting a Session
+
+At the beginning of each Claude Code session:
+
+1. **Check for work in progress:** Read `docs/TODO.md` - look for "WORK IN PROGRESS" section at top
+2. **If WIP exists:** Read the referenced session log in `docs/internal/sessions/` for full context
+3. **Check uncommitted changes:** Run `git status` and `git diff` to see current state
+4. **Resume or start fresh:** Either continue from documented state or confirm starting new work
+```
+
+Without this, Claude won't know to check for handoff documentation at session start.
+
 ## Adding Custom Skills
 
 Create `~/dev/claude-skills/skills/my-skill.md`:
@@ -386,6 +414,6 @@ cat .claude/README.md
 
 ---
 
-**Last Updated:** 2025-12-12
+**Last Updated:** 2025-12-13
 
 **License:** Personal use
