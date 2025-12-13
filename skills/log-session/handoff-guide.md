@@ -2,6 +2,23 @@
 
 When a session ends due to context limits or mid-work interruption, create handoff documentation to enable the next session to pick up cold.
 
+## Prerequisites
+
+**CLAUDE.md must have a "Starting a Session" section** that tells Claude to check for WIP at session start. If missing, add:
+
+```markdown
+## Starting a Session
+
+At the beginning of each Claude Code session:
+
+1. **Check for work in progress:** Read `docs/TODO.md` - look for "WORK IN PROGRESS" section at top
+2. **If WIP exists:** Read the referenced session log in `docs/internal/sessions/` for full context
+3. **Check uncommitted changes:** Run `git status` and `git diff` to see current state
+4. **Resume or start fresh:** Either continue from documented state or confirm starting new work
+```
+
+Without this, handoff docs exist but Claude won't know to look for them.
+
 ## When to Create Handoff Docs
 
 - Context window approaching limit

@@ -136,6 +136,19 @@ Template for Rust projects:
 
 ---
 
+## Starting a Session
+
+At the beginning of each Claude Code session:
+
+1. **Check for work in progress:** Read `docs/TODO.md` - look for "WORK IN PROGRESS" section at top
+2. **If WIP exists:** Read the referenced session log in `docs/internal/sessions/` for full context
+3. **Check uncommitted changes:** Run `git status` and `git diff` to see current state
+4. **Resume or start fresh:** Either continue from documented state or confirm starting new work
+
+This ensures continuity across context window limits and session breaks.
+
+---
+
 ## Quick Start
 
 ```bash
