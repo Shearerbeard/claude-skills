@@ -1,5 +1,8 @@
 {
   "name": "docs",
   "description": "Documentation quality review and bus test audits",
-  "skills": "./skills/"
+  "version": "1.0.0",
+  "author": {
+    "name": "Mike Shearer"
+  }
 }

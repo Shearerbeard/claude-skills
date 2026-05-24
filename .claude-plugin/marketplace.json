@@ -1,3 +1,31 @@
 {
-  "plugins": ["python", "docs", "rust", "workflow"]
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "my-skills",
+  "description": "Personal skills library for Python, Rust, documentation, and workflow quality",
+  "owner": {
+    "name": "Mike Shearer",
+    "email": "shearerbeard@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "python",
+      "description": "Python coding quality and review standards",
+      "source": "./plugins/python"
+    },
+    {
+      "name": "docs",
+      "description": "Documentation quality review and bus test audits",
+      "source": "./plugins/docs"
+    },
+    {
+      "name": "rust",
+      "description": "Rust coding quality and LLM anti-pattern prevention",
+      "source": "./plugins/rust"
+    },
+    {
+      "name": "workflow",
+      "description": "Planning discipline and universal quality gate probes",
+      "source": "./plugins/workflow"
+    }
+  ]
 }

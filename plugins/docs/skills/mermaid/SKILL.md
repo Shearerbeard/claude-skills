@@ -10,7 +10,7 @@ Render a Mermaid diagram and open it in the browser.
 ## Usage
 
 1. Identify the file (from `$ARGUMENTS` or the most recently discussed `.mmd` or mermaid-containing `.md` file)
-2. Run: `~/dev/claude-skills/bin/mermaid-view <file-path>`
+2. Run: `scripts/mermaid-view <file-path>`
 3. Report the output path and confirm it opened
 
 Options: `--theme dark|default|forest|neutral`, `--format png|svg|pdf`
