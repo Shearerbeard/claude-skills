@@ -1,419 +1,62 @@
-# Claude Code Skills Library
+# Personal Skills Library
 
-A centralized library of Claude Code skills for Rust projects. Install selectively into any project.
+Auto-triggered skills for Claude Code and OpenCode. Registered as a local marketplace (`my-skills`) in `~/.claude/settings.json`.
 
-## Quick Start
+## Skills
 
-```bash
-# Install all skills to current project
-cd ~/path/to/your-project
-~/dev/claude-skills/install-to-project.sh
+| Skill | Lines | Trigger | Purpose |
+|---|---|---|---|
+| `plan-discipline` | 38 | planning / plan mode | Verification-first, scope interview, blast radius |
+| `gate-probes` | 22 | commit / review / PR | Universal quality probes + surgical discipline |
+| `python-quality` | 54 | writing `.py` | Toolchain (uv/ruff) + code patterns + LLM anti-patterns |
+| `python-review` | 43 | reviewing Python | 7 Python-specific gate probes |
+| `rust-quality` | 61 | writing `.rs` | Idioms, anti-patterns, type modeling |
+| `rust-review` | 18 | reviewing Rust | 7 Rust-specific gate probes |
+| `docs-busttest` | 93 | docs review / updates | 18-item bus test for documentation quality |
 
-# Or install specific categories
-~/dev/claude-skills/install-to-project.sh --quality-only
-~/dev/claude-skills/install-to-project.sh --docs-only
-~/dev/claude-skills/install-to-project.sh --setup-only
+## Installation
+
+**Claude Code** — marketplace plugin via `~/.claude/settings.json`:
+```json
+"enabledPlugins": {
+  "python@my-skills": true,
+  "docs@my-skills": true,
+  "rust@my-skills": true,
+  "workflow@my-skills": true
+},
+"extraKnownMarketplaces": {
+  "my-skills": {
+    "source": { "source": "directory", "path": "/Users/mshearer/dev/claude-skills" }
+  }
+}
 ```
 
-## How Skills Work
+**OpenCode** — files at `~/.config/opencode/skills/<name>/SKILL.md`.
 
-Skills can be invoked two ways:
+## Adding a skill
 
-### Contextual (Conversational)
-The model auto-discovers skills based on conversation context. Just describe what you need:
+1. Write source file in `skills/<name>.md` (frontmatter: `name`, `description`)
+2. Create `plugins/<plugin>/skills/<name>/SKILL.md` (copy of source)
+3. Add plugin to `.claude-plugin/marketplace.json` if new
+4. Copy to `~/.config/opencode/skills/<name>/SKILL.md`
 
-```
-You: "Check this code for unwrap and unsafe usage"
-Claude: [Uses code-safety skill automatically]
-
-You: "I'm done coding for today, let's document what we did"
-Claude: [Uses log-session skill automatically]
-
-You: "Review my changes before I commit"
-Claude: [Uses pre-commit skill automatically]
-```
-
-### Explicit (Command)
-Use `/command` syntax for direct invocation:
+## Structure
 
 ```
-/pre-commit
-/code-safety
-/log-session
+claude-skills/
+├── skills/                  # Source-of-truth flat files (7 skills)
+├── plugins/                 # Claude Code marketplace format
+│   ├── python/              # python-quality, python-review
+│   ├── rust/                # rust-quality, rust-review
+│   ├── docs/                # docs-busttest
+│   └── workflow/            # plan-discipline, gate-probes
+├── .claude-plugin/
+│   └── marketplace.json     # Plugin registry
+├── guidelines/              # Reference material
+└── _archive/
+    └── legacy-slash-commands/  # v1 skills (2025-11, pre-marketplace API)
 ```
 
-Both methods use the same skill files via symlinks.
+## Archive
 
-## Skills Reference
-
-### Quality Skills (Code Review)
-
-#### `/code-safety`
-Check unwrap, unsafe, error handling patterns.
-
-```
-/code-safety                                    # Explicit command
-"Check this module for unwrap usage"            # Contextual triggers
-"Are there any unsafe blocks I should review?"
-"Scan src/parser.rs for error handling issues"
-"Review the error handling in my recent changes"
-```
-
-#### `/type-check`
-Type-driven design patterns (ADTs, newtypes, smart constructors).
-
-```
-/type-check                                     # Explicit command
-"Review these domain types"                     # Contextual triggers
-"Is this struct using type-driven design correctly?"
-"Check if I'm using primitive obsession anywhere"
-"Should this use a newtype wrapper?"
-```
-
-#### `/test-coverage`
-Verify tests exist for new code.
-
-```
-/test-coverage                                  # Explicit command
-"Do my changes have tests?"                     # Contextual triggers
-"What's missing test coverage?"
-"Check if the new functions are tested"
-"Review test coverage for this PR"
-```
-
-#### `/perf-scan`
-Performance anti-patterns (clone abuse, allocations).
-
-```
-/perf-scan                                      # Explicit command
-"Look for unnecessary clones"                   # Contextual triggers
-"Check for performance anti-patterns"
-"Is there any clone abuse in this code?"
-"Review this for allocation overhead"
-```
-
-#### `/pre-commit`
-Full quality review - runs all checks before committing.
-
-```
-/pre-commit                                     # Explicit command
-"Ready to commit, please review"                # Contextual triggers
-"Pre-commit check"
-"Full quality review before I push"
-"Review all my changes"
-```
-
-#### `/async-check`
-Async pitfalls (blocking calls, Send+Sync bounds).
-
-```
-/async-check                                    # Explicit command
-"Check my async code"                           # Contextual triggers
-"Are there blocking calls in async context?"
-"Review Send+Sync bounds"
-"Look for async pitfalls"
-```
-
-### Documentation Skills
-
-#### `/docs-consolidate`
-Clean up CLAUDE.md, organize and archive documentation.
-
-```
-/docs-consolidate                               # Explicit command
-"CLAUDE.md is too long"                         # Contextual triggers
-"Clean up the documentation"
-"Consolidate the docs"
-"Organize session history"
-```
-
-#### `/docs-audit`
-Check markdown file consistency and structure.
-
-```
-/docs-audit                                     # Explicit command
-"Audit the documentation"                       # Contextual triggers
-"Check markdown files for consistency"
-"Review doc structure"
-"Are the docs organized correctly?"
-```
-
-#### `/log-session`
-Document session work at end of day.
-
-```
-/log-session                                    # Explicit command
-"Document today's session"                      # Contextual triggers
-"Let's log what we accomplished"
-"End of day summary"
-"Create a session log"
-```
-
-#### `/plan-session`
-Create planning or research documents.
-
-```
-/plan-session                                   # Explicit command
-"I need to plan this feature"                   # Contextual triggers
-"Let's create a planning doc"
-"Start a research document"
-"Plan out the implementation"
-```
-
-### Setup Skills
-
-#### `/claudefile-audit`
-Audit CLAUDE.md and .claude/ directory structure.
-
-```
-/claudefile-audit                               # Explicit command
-"Audit my Claude Code setup"                    # Contextual triggers
-"Is my .claude/ configured correctly?"
-"Check CLAUDE.md structure"
-"Review project configuration"
-```
-
-#### `/bootstrap`
-Initialize new projects with Claude Code structure.
-
-```
-/bootstrap                                      # Explicit command
-"Set up Claude Code for this project"           # Contextual triggers
-"Bootstrap the .claude/ directory"
-"Initialize Claude Code config"
-"Add Claude Code to this repo"
-```
-
-## Installation Options
-
-```bash
-# Full installation (all 12 skills)
-./install-to-project.sh --all
-
-# Quality skills only (6 skills)
-./install-to-project.sh --quality-only
-
-# Documentation skills only (4 skills)
-./install-to-project.sh --docs-only
-
-# Setup skills only (2 skills)
-./install-to-project.sh --setup-only
-
-# Specific skills (comma-separated)
-./install-to-project.sh --skills="code-safety,pre-commit,docs-consolidate"
-
-# Update existing installation (preserves customizations)
-./install-to-project.sh --update
-
-# Force reinstall (overwrites customizations)
-./install-to-project.sh --force
-
-# Dry run (show what would be installed)
-./install-to-project.sh --dry-run
-
-# Install to specific path
-./install-to-project.sh --path=/path/to/project
-```
-
-## What Gets Installed
-
-```
-your-project/
-├── .claude/
-│   ├── skills/              # Skill files (model auto-discovers)
-│   │   ├── code-safety.md
-│   │   ├── type-check.md
-│   │   ├── test-coverage.md
-│   │   ├── perf-scan.md
-│   │   ├── pre-commit.md
-│   │   ├── async-check.md
-│   │   ├── docs-consolidate.md
-│   │   ├── docs-audit.md
-│   │   ├── log-session/     # Directory with templates
-│   │   ├── plan-session.md
-│   │   ├── claudefile-audit.md
-│   │   └── bootstrap.md
-│   ├── commands/            # Symlinks for /command invocation
-│   │   ├── code-safety.md -> ../skills/code-safety.md
-│   │   ├── pre-commit.md -> ../skills/pre-commit.md
-│   │   └── ...              # (all 12 skills symlinked)
-│   ├── guidelines/          # Customizable standards
-│   │   ├── project-standards.md
-│   │   ├── type-driven-design.md
-│   │   └── project-documentation-standards.md
-│   ├── templates/           # Document templates
-│   └── README.md            # Installation info
-├── docs/
-│   └── internal/
-│       ├── sessions/        # Session logs
-│       ├── planning/        # Ephemeral planning docs
-│       └── research/        # Ephemeral research docs
-```
-
-## Guidelines
-
-Skills reference these guidelines (installed to `.claude/guidelines/`):
-
-| Guideline | Size | Used By |
-|-----------|------|---------|
-| `project-standards.md` | ~15KB | code-safety, test-coverage, perf-scan, pre-commit, async-check |
-| `type-driven-design.md` | ~20KB | type-check |
-| `project-documentation-standards.md` | ~14KB | docs-consolidate, docs-audit, log-session, plan-session |
-
-Customize guidelines per-project. Skills stay synced with central library.
-
-## Directory Structure
-
-```
-~/dev/claude-skills/
-├── README.md                 # This file
-├── install-to-project.sh     # Installation script
-├── skills/
-│   ├── code-safety.md        # Unwrap, unsafe, error handling
-│   ├── type-check.md         # ADTs, newtypes, smart constructors
-│   ├── test-coverage.md      # Test coverage verification
-│   ├── perf-scan.md          # Performance anti-patterns
-│   ├── pre-commit.md         # Full quality review
-│   ├── async-check.md        # Async/await pitfalls
-│   ├── docs-consolidate.md   # Documentation cleanup
-│   ├── docs-audit.md         # Markdown consistency
-│   ├── log-session/          # Session logging (directory)
-│   ├── plan-session.md       # Planning/research docs
-│   ├── claudefile-audit.md   # Project setup audit
-│   └── bootstrap.md          # New project initialization
-├── guidelines/
-│   ├── project-standards.md
-│   ├── type-driven-design.md
-│   └── project-documentation-standards.md
-└── templates/
-    ├── adr-template.md
-    └── session-template.md
-```
-
-## Updating Skills
-
-```bash
-# Update this library
-cd ~/dev/claude-skills
-git pull
-
-# Update installed projects
-cd ~/path/to/your-project
-~/dev/claude-skills/install-to-project.sh --update
-```
-
-Update all projects at once:
-
-```bash
-for project in ~/workspace/*/; do
-  if [ -d "$project/.claude/skills" ]; then
-    echo "Updating $project"
-    ~/dev/claude-skills/install-to-project.sh --update --path="$project"
-  fi
-done
-```
-
-## Multi-Project Workflow
-
-```bash
-# Project A: Full Rust web app - install everything
-cd ~/workspace/web-app
-~/dev/claude-skills/install-to-project.sh --all
-
-# Project B: Small CLI tool - quality only
-cd ~/workspace/cli-tool
-~/dev/claude-skills/install-to-project.sh --quality-only
-
-# Project C: Library - specific skills
-cd ~/workspace/my-lib
-~/dev/claude-skills/install-to-project.sh --skills="code-safety,type-check,test-coverage"
-```
-
-## Session Handoff
-
-The `/log-session` skill supports context window handoff - documenting work in progress so the next session can resume cold.
-
-### How It Works
-
-1. **During session**: Work normally
-2. **At session end**: Run `/log-session` and select "Context Limit" or "Stopping Mid-Work"
-3. **Handoff created**: WIP section added to `docs/TODO.md`, full context in session log
-4. **Next session**: Claude reads WIP and resumes automatically
-
-### CLAUDE.md Requirement
-
-Your project's CLAUDE.md **must** have a "Starting a Session" section for handoff to work:
-
-```markdown
-## Starting a Session
-
-At the beginning of each Claude Code session:
-
-1. **Check for work in progress:** Read `docs/TODO.md` - look for "WORK IN PROGRESS" section at top
-2. **If WIP exists:** Read the referenced session log in `docs/internal/sessions/` for full context
-3. **Check uncommitted changes:** Run `git status` and `git diff` to see current state
-4. **Resume or start fresh:** Either continue from documented state or confirm starting new work
-```
-
-Without this, Claude won't know to check for handoff documentation at session start.
-
-## Adding Custom Skills
-
-Create `~/dev/claude-skills/skills/my-skill.md`:
-
-```markdown
----
-name: my-skill
-description: Custom check for my workflow. Use when [trigger conditions].
----
-
-# My Custom Skill
-
-[Skill implementation]
-```
-
-Then update projects:
-
-```bash
-~/dev/claude-skills/install-to-project.sh --update
-```
-
-## Troubleshooting
-
-**Skills not working contextually:**
-- Check that `.claude/skills/` contains the skill files
-- Verify the skill's `description:` field contains trigger words
-- Try using more explicit language that matches the skill description
-
-**Commands not working with /command:**
-```bash
-ls -la .claude/commands/  # Should see symlinks to ../skills/
-```
-
-**Skills not found after installation:**
-```bash
-ls .claude/skills/  # Should see *.md files
-ls .claude/commands/  # Should see symlinks
-```
-
-**Update not working:**
-```bash
-~/dev/claude-skills/install-to-project.sh --force
-```
-
-**Check what's installed:**
-```bash
-cat .claude/README.md
-```
-
-**Symlinks broken after git clone:**
-```bash
-# Re-run installer to recreate symlinks
-~/dev/claude-skills/install-to-project.sh --update
-```
-
----
-
-**Last Updated:** 2025-12-13
-
-**License:** Personal use
+`_archive/legacy-slash-commands/` contains 13 v1 slash commands from before Claude Code had auto-triggered skills. Some have useful patterns worth mining when building new skills — check before building from scratch.

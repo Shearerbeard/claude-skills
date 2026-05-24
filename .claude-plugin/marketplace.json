@@ -1,0 +1,3 @@
+{
+  "plugins": ["python", "docs", "rust", "workflow"]
+}
