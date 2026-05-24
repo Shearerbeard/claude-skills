@@ -18,3 +18,7 @@ Run at every commit boundary and review gate. Language-specific skills add their
 
 5. Every changed line traces directly to the user's request
 6. Unrelated findings: mention, don't fix
+
+## Coherence check
+
+7. Re-read modified files in full after editing — diffs that look correct in isolation can create duplicated logic, inconsistent naming, orphaned imports, or functions that no longer fit the module's flow

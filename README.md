@@ -1,18 +1,19 @@
 # Personal Skills Library
 
-Auto-triggered skills for Claude Code and OpenCode. Registered as a local marketplace (`my-skills`) in `~/.claude/settings.json`.
+Auto-triggered skills for Claude Code, OpenCode, and Codex. Registered as a local marketplace (`my-skills`) in `~/.claude/settings.json`.
 
 ## Skills
 
-| Skill | Lines | Trigger | Purpose |
+| Skill | Plugin | Trigger | Purpose |
 |---|---|---|---|
-| `plan-discipline` | 38 | planning / plan mode | Verification-first, scope interview, blast radius |
-| `gate-probes` | 22 | commit / review / PR | Universal quality probes + surgical discipline |
-| `python-quality` | 54 | writing `.py` | Toolchain (uv/ruff) + code patterns + LLM anti-patterns |
-| `python-review` | 43 | reviewing Python | 7 Python-specific gate probes |
-| `rust-quality` | 61 | writing `.rs` | Idioms, anti-patterns, type modeling |
-| `rust-review` | 18 | reviewing Rust | 7 Rust-specific gate probes |
-| `docs-busttest` | 93 | docs review / updates | 18-item bus test for documentation quality |
+| `python-quality` | python | writing `.py` | Toolchain (uv/ruff) + code patterns + LLM anti-patterns |
+| `python-review` | python | reviewing Python | 7 Python-specific gate probes |
+| `rust-quality` | rust | writing `.rs` | Idioms, anti-patterns, type modeling |
+| `rust-review` | rust | reviewing Rust | 7 Rust-specific gate probes |
+| `docs-busttest` | docs | docs review / updates | 18-item bus test for documentation quality |
+| `mermaid` | docs | `.mmd` files / diagrams | Render and open Mermaid diagrams |
+| `plan-discipline` | workflow | planning / plan mode | Verification-first, scope interview, blast radius |
+| `gate-probes` | workflow | commit / review / PR | 7 universal quality probes + surgical discipline |
 
 ## Installation
 
@@ -31,32 +32,37 @@ Auto-triggered skills for Claude Code and OpenCode. Registered as a local market
 }
 ```
 
-**OpenCode** — files at `~/.config/opencode/skills/<name>/SKILL.md`.
+**OpenCode + Codex**:
+```bash
+./bin/install-skills
+```
 
-## Adding a skill
+## Adding a Skill
 
-1. Write source file in `skills/<name>.md` (frontmatter: `name`, `description`)
-2. Create `plugins/<plugin>/skills/<name>/SKILL.md` (copy of source)
-3. Add plugin to `.claude-plugin/marketplace.json` if new
-4. Copy to `~/.config/opencode/skills/<name>/SKILL.md`
+1. Create `plugins/<plugin>/skills/<name>/SKILL.md` with frontmatter (`name`, `description`)
+2. If new plugin: create `plugins/<plugin>/.claude-plugin/plugin.json` and add to `.claude-plugin/marketplace.json`
+3. Run `./bin/install-skills` to sync to OpenCode and Codex
 
 ## Structure
 
 ```
 claude-skills/
-├── skills/                  # Source-of-truth flat files (7 skills)
-├── plugins/                 # Claude Code marketplace format
-│   ├── python/              # python-quality, python-review
-│   ├── rust/                # rust-quality, rust-review
-│   ├── docs/                # docs-busttest
-│   └── workflow/            # plan-discipline, gate-probes
+├── plugins/                     # Source of truth — one plugin per domain
+│   ├── python/                  # python-quality, python-review
+│   ├── rust/                    # rust-quality, rust-review
+│   ├── docs/                    # docs-busttest, mermaid
+│   └── workflow/                # plan-discipline, gate-probes
 ├── .claude-plugin/
-│   └── marketplace.json     # Plugin registry
-├── guidelines/              # Reference material
+│   └── marketplace.json         # Marketplace registry
+├── bin/
+│   └── install-skills           # Install to OpenCode + Codex
+├── docs/
+│   ├── internal/sessions/       # Session logs
+│   └── research/                # Research documents
 └── _archive/
-    └── legacy-slash-commands/  # v1 skills (2025-11, pre-marketplace API)
+    └── legacy-slash-commands/   # v1 slash commands (2025-11)
 ```
 
 ## Archive
 
-`_archive/legacy-slash-commands/` contains 13 v1 slash commands from before Claude Code had auto-triggered skills. Some have useful patterns worth mining when building new skills — check before building from scratch.
+`_archive/legacy-slash-commands/` contains v1 slash commands from before Claude Code had auto-triggered skills. Some have useful patterns worth mining — check before building from scratch.
