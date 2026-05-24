@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Render a Mermaid diagram from a .md or .mmd file and open it.
+# Usage: mermaid-view <file> [--format png|svg|pdf] [--theme dark|default|forest|neutral]
+#
+# If the input is a .md file, extracts the first ```mermaid block.
+# If the input is a .mmd file, renders directly.
+
+FILE="${1:?Usage: mermaid-view <file.md|file.mmd> [--format png|svg|pdf] [--theme dark|default]}"
+FORMAT="svg"
+THEME="default"
+
+shift
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --format) FORMAT="$2"; shift 2 ;;
+        --theme) THEME="$2"; shift 2 ;;
+        *) echo "Unknown option: $1" >&2; exit 1 ;;
+    esac
+done
+
+if [[ ! -f "$FILE" ]]; then
+    echo "File not found: $FILE" >&2
+    exit 1
+fi
+
+OUTDIR="$HOME/Documents/mermaid"
+mkdir -p "$OUTDIR"
+BASENAME="$(basename "${FILE%.*}")"
+OUTPUT="$OUTDIR/${BASENAME}.${FORMAT}"
+
+if [[ "$FILE" == *.mmd ]]; then
+    INPUT="$FILE"
+else
+    INPUT="${TMPDIR:-/tmp}/mermaid-${BASENAME}-extracted.mmd"
+    sed -n '/^```mermaid/,/^```/{/^```/d;p;}' "$FILE" > "$INPUT"
+    if [[ ! -s "$INPUT" ]]; then
+        echo "No mermaid block found in $FILE" >&2
+        exit 1
+    fi
+fi
+
+PUPPETEER_EXECUTABLE_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+    mmdc -i "$INPUT" -o "$OUTPUT" -t "$THEME" -b transparent 2>/dev/null
+echo "$OUTPUT"
+open "$OUTPUT"
