@@ -38,18 +38,17 @@ claude-skills/
 }
 ```
 
-**OpenCode + Codex** — run the install script:
+**OpenCode** or **Codex** — run the install script with a target:
 ```bash
-./bin/install-skills
+./bin/install-skills opencode   # ~/.config/opencode/skills/
+./bin/install-skills codex      # ~/.codex/skills/
 ```
-
-This copies each SKILL.md to `~/.config/opencode/skills/<name>/` and `~/.codex/skills/<name>/`.
 
 ## Adding a New Skill
 
 1. Create `plugins/<plugin>/skills/<name>/SKILL.md` with frontmatter (`name`, `description`)
 2. If this is a new plugin, create `plugins/<plugin>/.claude-plugin/plugin.json` and add to `.claude-plugin/marketplace.json`
-3. Run `./bin/install-skills` to sync to OpenCode and Codex
+3. Run `./bin/install-skills opencode` or `./bin/install-skills codex` if using those tools
 
 ## Archive Convention
 

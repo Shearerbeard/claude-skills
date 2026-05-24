@@ -32,16 +32,17 @@ Auto-triggered skills for Claude Code, OpenCode, and Codex. Registered as a loca
 }
 ```
 
-**OpenCode + Codex**:
+**OpenCode** or **Codex**:
 ```bash
-./bin/install-skills
+./bin/install-skills opencode   # ~/.config/opencode/skills/
+./bin/install-skills codex      # ~/.codex/skills/
 ```
 
 ## Adding a Skill
 
 1. Create `plugins/<plugin>/skills/<name>/SKILL.md` with frontmatter (`name`, `description`)
 2. If new plugin: create `plugins/<plugin>/.claude-plugin/plugin.json` and add to `.claude-plugin/marketplace.json`
-3. Run `./bin/install-skills` to sync to OpenCode and Codex
+3. Run `./bin/install-skills opencode` or `./bin/install-skills codex` if using those tools
 
 ## Structure
 
