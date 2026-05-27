@@ -1,17 +1,24 @@
 ---
 name: docs-busttest
-description: "Bus test" documentation review — ensures any repo's docs are good enough for a subject-matter-expert to pick up cold. Triggers when work is complete, docs are reviewed, documentation is updated, README changes, CLAUDE.md changes, or when asked to review/audit/update docs. Based on CNCF techdocs criteria and the Diataxis framework.
+description: "Bus test" documentation review — ensures a repo's docs are good enough for both a human contributor and a cold AI agent to pick up and work. Triggers when work is complete, docs are reviewed, documentation is updated, README changes, CLAUDE.md changes, or when asked to review/audit/update docs.
 ---
 
 # Documentation Bus Test
 
-Review a repo's documentation as if the maintainer disappeared tomorrow. Could a subject-matter expert — someone who knows the domain but not this specific project — pick it up, run it, and ship changes?
+Review a repo's documentation as if the maintainer disappeared tomorrow. Two audiences must be able to pick it up cold:
 
-This is not a style guide. It checks whether the information exists and is findable.
+1. **A human contributor** — someone who knows the domain but not this project
+2. **A cold AI agent** — a fresh session with zero prior context
+
+This is not a style guide. It checks whether the information exists, is findable, and isn't duplicated across audiences.
+
+## Principle: one fact, one place
+
+README, CLAUDE.md, and any handoff docs serve different readers but overlap heavily. When both a human and an agent need the same info (build commands, env vars, architecture), it belongs in the public doc (README). CLAUDE.md should reference it, not restate it. Duplicated facts drift apart — that's a P1.
 
 ## The Test
 
-Score each section pass/fail. Report the count and any P1/P2 findings.
+Score each item pass/fail. Report the count and any P1/P2 findings.
 
 ### 1. Orient (can they understand what this is?)
 
@@ -40,7 +47,16 @@ Score each section pass/fail. Report the count and any P1/P2 findings.
 - [ ] **CI/CD**: what runs on push/PR, how to read failures
 - [ ] **Code quality**: linting, formatting, type checking commands
 
-### 5. Content quality (is what exists trustworthy?)
+### 5. Agent discoverability (can a cold session find what it needs?)
+
+- [ ] **CLAUDE.md exists**: project purpose, build/test commands, key conventions
+- [ ] **Current status**: what's working, what's broken, what to work on next — findable without reading git log
+- [ ] **Handoff docs not stale**: if handoff/session docs exist (HANDOFF.md, session logs, etc.), verify they reflect current state — stale handoff docs are worse than none
+- [ ] **Single roadmap**: one canonical TODO/roadmap, not competing files with conflicting priorities
+- [ ] **Cross-references resolve**: CLAUDE.md → README, ADR index → ADR files, README → LICENSE — all links land
+- [ ] **No duplication**: CLAUDE.md doesn't restate what README already covers (build commands, env vars, architecture) — it references it
+
+### 6. Content quality (is what exists trustworthy?)
 
 - [ ] **No stale claims**: README says X, code does Y → P1 finding
 - [ ] **No jargon walls**: internal labels, acronyms, or shorthand without definition
@@ -48,14 +64,14 @@ Score each section pass/fail. Report the count and any P1/P2 findings.
 
 ## Scoring
 
-- **15-18 pass**: bus-test ready — a new contributor can be productive in a day
-- **10-14 pass**: survivable — gaps will slow people down but won't block them
-- **6-9 pass**: fragile — significant tribal knowledge not captured
-- **Under 6**: bus factor is 1
+- **21-24 pass**: bus-test ready — a human or agent can be productive immediately
+- **16-20 pass**: survivable — gaps will slow them down but won't block them
+- **10-15 pass**: fragile — significant tribal knowledge not captured
+- **Under 10**: bus factor is 1
 
 ## Severity
 
-- **P1**: docs contradict code, or a required step is missing (blocks someone cold)
+- **P1**: docs contradict code, a required step is missing, or the same fact is stated in two places with different values
 - **P2**: info exists but is hard to find, outdated, or scattered
 - **P3**: nice-to-have improvements (better examples, diagrams, cross-links)
 
@@ -63,7 +79,7 @@ Score each section pass/fail. Report the count and any P1/P2 findings.
 
 ```
 ## Bus Test: <repo name>
-Score: X/18 (<rating>)
+Score: X/24 (<rating>)
 
 ### P1 (blocking)
 - <file>: <what's wrong, one line>
@@ -73,6 +89,12 @@ Score: X/18 (<rating>)
 
 ### P3 (polish)
 - <file>: <suggestion, one line>
+
+### Agent discoverability
+- CLAUDE.md: <exists/missing/stale>
+- Handoff docs: <current/stale/missing/none expected>
+- Competing roadmaps: <yes/no — list files if yes>
+- Duplication: <list any facts restated across files>
 
 ### Missing docs (by Diataxis quadrant)
 - Tutorial: <exists/missing — guided learning path>
