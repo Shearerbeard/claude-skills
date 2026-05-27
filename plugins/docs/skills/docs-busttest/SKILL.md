@@ -1,6 +1,6 @@
 ---
 name: docs-busttest
-description: "Bus test" documentation review — ensures a repo's docs are good enough for both a human contributor and a cold AI agent to pick up and work. Triggers when work is complete, docs are reviewed, documentation is updated, README changes, CLAUDE.md changes, or when asked to review/audit/update docs.
+description: Use when reviewing, auditing, or updating documentation — checks whether a repo's docs are good enough for both a new human contributor and a cold AI agent to pick up the project without the maintainer. Use when editing README, CLAUDE.md, or any project docs, when completing work that changes public interfaces, or when asked to review docs quality. Also known as a "bus test" — could someone take over if you disappeared?
 ---
 
 # Documentation Bus Test
