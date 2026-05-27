@@ -1,0 +1,53 @@
+---
+name: rust-modules
+description: Rust module layout and file organization. Use when creating new Rust modules, splitting files, reorganizing crate structure, or when the user asks about module organization. Covers modern file layout, re-exports, type co-location, and naming. Complements rust-quality which handles code patterns within modules.
+---
+
+# Rust Module Layout
+
+Rules for file organization. For code quality within modules, see `rust-quality`.
+
+## File layout (new code)
+
+No `mod.rs`. Use the modern sibling pattern:
+
+```text
+src/
+├── lib.rs
+├── billing.rs          ← declares `mod invoice;`
+└── billing/
+    └── invoice.rs
+```
+
+## Re-exports (facade pattern)
+
+Internal trees can nest freely. Public API must be flat. Re-export in the parent:
+
+```rust
+// billing.rs
+mod invoice;
+pub use invoice::{Invoice, InvoiceState};
+```
+
+Callers write `use crate::billing::Invoice`, not `use crate::billing::invoice::Invoice`.
+
+## Co-locate related types
+
+Tightly coupled types share a file. `Invoice`, `InvoiceState`, `InvoiceError` all belong in `invoice.rs` — not split across `models.rs`, `enums.rs`, `errors.rs`.
+
+## Anti-stuttering
+
+Module already provides namespace context. Don't repeat it:
+
+- `billing::Invoice` not `billing::BillingInvoice`
+- `config::Source` not `config::ConfigSource`
+
+## When to split
+
+- A file exceeds ~400 lines AND contains distinct domains
+- You need a privacy boundary (internal helpers hidden from the rest of the crate)
+- Do NOT split just for size — a cohesive 500-line module beats three fragmented ones
+
+## Legacy code
+
+If an existing codebase uses `mod.rs`, match that pattern when editing. Only modernize on explicit refactor requests — not drive-by fixes.
