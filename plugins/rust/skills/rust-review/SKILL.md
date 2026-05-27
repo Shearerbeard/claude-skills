@@ -1,6 +1,6 @@
 ---
 name: rust-review
-description: Rust-specific review gate probes. Triggers when reviewing Rust code, preparing PRs with .rs changes, or running pre-commit checks on Rust code. Run gate-probes first for universal checks, then these Rust-specific probes.
+description: Use when reviewing Rust code, preparing PRs with .rs changes, running pre-commit checks on Rust code, or when the user asks to review a diff. Run gate-probes first for universal checks, then these Rust-specific probes. Always load before presenting Rust code review findings to the user.
 ---
 
 # Rust Review Gates

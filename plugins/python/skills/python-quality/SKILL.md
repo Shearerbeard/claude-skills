@@ -1,6 +1,6 @@
 ---
 name: python-quality
-description: Python coding quality standards. Triggers when writing Python code, creating .py files, working with pyproject.toml, uv, ruff, pytest, or click CLIs. Enforces fail-loud patterns, no speculative fallbacks, consolidated traversals, and uv/ruff toolchain over setuptools/Black.
+description: Use when writing or editing Python code — .py files, pyproject.toml, or working with uv, ruff, pytest, click CLIs. Always load when generating new Python code or reviewing Python diffs. Enforces fail-loud patterns, no speculative fallbacks, consolidated traversals, and uv/ruff toolchain over setuptools/Black.
 ---
 
 # Python Quality Standards

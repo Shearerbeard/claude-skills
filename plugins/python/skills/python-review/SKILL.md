@@ -1,6 +1,6 @@
 ---
 name: python-review
-description: Review Python code for quality gate violations. Triggers when reviewing Python diffs, completing Python work, running pre-commit checks on .py files, or when asked to review Python code quality. References python-quality for the underlying rules.
+description: Use when reviewing Python code, preparing PRs with .py changes, running pre-commit checks on Python files, or when the user asks to review a diff. Run gate-probes first for universal checks, then these Python-specific probes. Always load before presenting Python code review findings to the user.
 ---
 
 # Python Review Gates

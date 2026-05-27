@@ -1,6 +1,6 @@
 ---
 name: rust-quality
-description: Rust coding quality patterns for LLM-generated code. Triggers when writing Rust, editing .rs files, working with Cargo.toml, clippy, or reviewing Rust code. Focuses on anti-patterns LLMs produce — sprawl, god modules, speculative fallbacks, unnecessary clones, verbose matches. References trained idioms by name rather than re-explaining them.
+description: Use when writing or editing Rust code — .rs files, Cargo.toml, or running clippy. Always load when generating new Rust code or reviewing Rust diffs. Prevents LLM-specific anti-patterns: sprawl, god modules, speculative fallbacks, unnecessary clones, verbose matches. References trained idioms by name rather than re-explaining them.
 ---
 
 # Rust Quality — LLM Anti-Pattern Prevention
