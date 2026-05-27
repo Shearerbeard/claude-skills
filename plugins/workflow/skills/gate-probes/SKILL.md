@@ -1,6 +1,6 @@
 ---
 name: gate-probes
-description: Universal quality gate probes for any language. Triggers at commit boundaries, code review, PR preparation, or work completion. Pure checklist — no language-specific items. Language skills add their own probes on top.
+description: Universal quality gate probes for any language. Use when committing code, running git commit, preparing a PR with gh pr create, completing a task, finishing implementation work, or when presenting changes for the user to review. Run before every commit, PR, and code review. Pure checklist — no language-specific items. Language skills add their own probes on top.
 ---
 
 # Gate Probes

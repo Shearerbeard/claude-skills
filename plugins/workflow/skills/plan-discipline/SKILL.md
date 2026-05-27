@@ -1,6 +1,6 @@
 ---
 name: plan-discipline
-description: Planning discipline for non-trivial implementation tasks. Triggers when entering plan mode, designing implementation, breaking down multi-step tasks, or starting features. Enforces verification-first planning, scope interviews, blast-radius pre-scoping, and adaptive review gates.
+description: Use this skill for ANY non-trivial implementation task — when the user asks to plan, design, scope, break down, estimate, or architect work. Also use when the user says "let's think about this first", asks "how should we approach this", or requests a plan before coding. Enforces verification-first planning, scope interviews, blast-radius pre-scoping, and adaptive review gates. Always load before implementation begins.
 ---
 
 # Plan Discipline
