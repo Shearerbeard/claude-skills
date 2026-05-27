@@ -5,7 +5,7 @@ description: Use when writing or editing Python code — .py files, pyproject.to
 
 # Python Quality Standards
 
-Quality rules applied while writing Python. Review gates are in `/python-review`.
+Quality rules applied while writing Python. When reviewing code, also load `python-review` for the review gate checklist.
 
 ## Toolchain
 

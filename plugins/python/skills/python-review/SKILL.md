@@ -7,7 +7,7 @@ description: Use when reviewing Python code, preparing PRs with .py changes, run
 
 Review checklist applied after Python work is complete. Rules are defined in `/python-quality` — this skill applies them as gate probes.
 
-Run `gate-probes` first for universal checks. Then apply these Python-specific probes.
+Load `python-quality` for the quality rules being checked. Run `gate-probes` first for universal checks. Then apply these Python-specific probes.
 
 ## Python Gate Checklist
 

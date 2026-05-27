@@ -5,7 +5,7 @@ description: Use when reviewing Rust code, preparing PRs with .rs changes, runni
 
 # Rust Review Gates
 
-Run `gate-probes` first for universal checks. Then apply these Rust-specific probes against the diff.
+Load `rust-quality` for the quality rules being checked. Run `gate-probes` first for universal checks. Then apply these Rust-specific probes against the diff.
 
 ## Rust probes
 

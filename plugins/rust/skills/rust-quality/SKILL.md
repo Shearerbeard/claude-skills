@@ -5,7 +5,7 @@ description: Use when writing or editing Rust code — .rs files, Cargo.toml, or
 
 # Rust Quality — LLM Anti-Pattern Prevention
 
-Reference patterns by name — you know these from training. This skill activates them, it doesn't teach them.
+Reference patterns by name — you know these from training. This skill activates them, it doesn't teach them. When reviewing code, also load `rust-review` for the review gate checklist.
 
 ## Prefer (by name)
 
