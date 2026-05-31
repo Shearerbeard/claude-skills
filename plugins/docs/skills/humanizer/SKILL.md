@@ -3,11 +3,13 @@ name: humanizer
 version: 2.5.1
 description: |
   Use when the user says "humanize", "de-AI", "naturalize", "make this sound human",
-  or says text "reads like AI", "sounds AI-generated", "feels robotic". Also use
-  when reviewing docs, README, or user-facing copy for voice/tone/style, or before
-  committing markdown/documentation edits. Removes signs of AI-generated writing
-  patterns including: inflated symbolism, promotional language, superficial -ing
-  analyses, vague attributions, em dash overuse, rule of three, AI vocabulary
+  or says text "reads like AI", "sounds AI-generated", "feels robotic". ALWAYS apply
+  before submitting any prose the AI writes on the user's behalf: commit messages,
+  PR descriptions and titles, GitHub issue bodies and comments, Slack/Discord posts,
+  email drafts, release notes, README sections, blog drafts, or any user-facing copy.
+  Also use when reviewing docs for voice/tone/style. Removes signs of AI-generated
+  writing patterns including: inflated symbolism, promotional language, superficial
+  -ing analyses, vague attributions, em dash overuse, rule of three, AI vocabulary
   words, passive voice, negative parallelisms, and filler phrases. Based on
   Wikipedia's "Signs of AI writing" guide.
 license: MIT
