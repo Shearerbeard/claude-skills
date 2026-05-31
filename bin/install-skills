@@ -21,9 +21,12 @@ esac
 
 installed=0
 for skill_md in "$PLUGINS_DIR"/*/skills/*/SKILL.md; do
-  skill_name="$(basename "$(dirname "$skill_md")")"
+  skill_dir="$(dirname "$skill_md")"
+  skill_name="$(basename "$skill_dir")"
   mkdir -p "$DEST/$skill_name"
-  cp "$skill_md" "$DEST/$skill_name/SKILL.md"
+  # Copy SKILL.md plus any sibling files (LICENSE, reference/, etc.) — required
+  # for license compliance on forked skills and for progressive-disclosure refs.
+  cp -R "$skill_dir"/. "$DEST/$skill_name/"
   installed=$((installed + 1))
   echo "  $skill_name"
 done
