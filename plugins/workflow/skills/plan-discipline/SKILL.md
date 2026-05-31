@@ -1,6 +1,14 @@
 ---
 name: plan-discipline
-description: Use this skill for ANY non-trivial implementation task — when the user asks to plan, design, scope, break down, estimate, or architect work. Also use when the user says "let's think about this first", asks "how should we approach this", or requests a plan before coding. Enforces verification-first planning, scope interviews, blast-radius pre-scoping, and adaptive review gates. Always load before implementation begins.
+description: |
+  Invoke before writing code when changes will touch 3+ files OR introduce a new
+  module/dependency OR change a public interface, OR when the user request shifts
+  from question/investigation to "let's implement/refactor/redesign/migrate".
+  Extends the basic scope interview (core problem, who, success, what NOT) with:
+  blast-radius pre-scoping (file map, duplicate-function search, test gaps),
+  verification-first design (smoke test plan before writing), adaptive review gates
+  at each commit boundary, and sub-agent delegation for 5+ commit refactors.
+  Skip for single-file edits, typo/comment fixes, and pure read/answer requests.
 ---
 
 # Plan Discipline
