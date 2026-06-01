@@ -1,13 +1,19 @@
 ---
 name: python-review
-description: Use when reviewing Python code, preparing PRs with .py changes, running pre-commit checks on Python files, or when the user asks to review a diff. Run gate-probes first for universal checks, then these Python-specific probes. Always load before presenting Python code review findings to the user.
+description: |
+  Use for Python code reviews, including .py diffs and Python PRs. Also use for
+  Python pre-commit checks. Run gate-probes first for universal checks, then
+  these Python-specific probes. Always load before presenting Python code review
+  findings to the user.
 ---
 
 # Python Review Gates
 
 Review checklist applied after Python work is complete. Rules are defined in `/python-quality` — this skill applies them as gate probes.
 
-Load `python-quality` for the quality rules being checked. Run `gate-probes` first for universal checks. Then apply these Python-specific probes.
+Load `python-quality` for the quality rules being checked. If `gate-probes` has not already run for this diff, run it first for universal checks. Then apply these Python-specific probes.
+
+If the diff changes public docs, public API docstrings, README content, release notes, or PR prose, invoke `prose-lint` on changed prose only. For docstrings or public comments, pass the changed text via stdin. Use `humanizer` only for prose that will be checked in, published, or sent on the user's behalf.
 
 ## Python Gate Checklist
 

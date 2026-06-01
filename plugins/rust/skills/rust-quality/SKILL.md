@@ -1,11 +1,15 @@
 ---
 name: rust-quality
-description: Use when writing or editing Rust code — .rs files, Cargo.toml, or running clippy. Always load when generating new Rust code or reviewing Rust diffs. Prevents LLM-specific anti-patterns: sprawl, god modules, speculative fallbacks, unnecessary clones, verbose matches. References trained idioms by name rather than re-explaining them.
+description: |
+  Use when writing or editing Rust code: .rs files, Cargo.toml, or clippy fixes.
+  Prevents LLM-specific Rust anti-patterns: sprawl, god modules, speculative
+  fallbacks, unnecessary clones, verbose matches, and weak error modeling. For
+  reviews, use rust-review; it applies these rules.
 ---
 
 # Rust Quality — LLM Anti-Pattern Prevention
 
-Reference patterns by name — you know these from training. This skill activates them, it doesn't teach them. When reviewing code, also load `rust-review` for the review gate checklist.
+Reference patterns by name; do not re-explain them. For reviews, use `rust-review`; it loads these rules and applies the review gate checklist.
 
 ## Prefer (by name)
 

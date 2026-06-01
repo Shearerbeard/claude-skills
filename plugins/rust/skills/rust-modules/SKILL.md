@@ -1,11 +1,15 @@
 ---
 name: rust-modules
-description: Rust module layout and file organization. Use when creating new Rust modules, splitting files, reorganizing crate structure, or when the user asks about module organization. Covers modern file layout, re-exports, type co-location, and naming. Complements rust-quality which handles code patterns within modules.
+description: |
+  Use when creating, splitting, moving, or reviewing Rust modules and files: mod
+  declarations, pub use facades, crate structure, mod.rs cleanup, type
+  co-location, and naming. Pair with rust-quality for code patterns inside
+  modules.
 ---
 
 # Rust Module Layout
 
-Rules for file organization. For code quality within modules, see `rust-quality`.
+Rules for file organization. For code quality within modules, see `rust-quality`. Do not load `rust-review` unless reviewing a diff.
 
 ## File layout (new code)
 

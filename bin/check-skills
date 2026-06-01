@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT"
+
+ruby <<'RUBY'
+require "psych"
+
+errors = []
+skills = {}
+
+Dir["plugins/*/skills/*/SKILL.md"].sort.each do |path|
+  text = File.read(path)
+  frontmatter = text[/\A---\n(.*?)\n---/m, 1]
+  unless frontmatter
+    errors << "#{path}: missing YAML frontmatter"
+    next
+  end
+
+  data = Psych.safe_load(frontmatter, permitted_classes: [], aliases: false) || {}
+  name = data["name"]
+  description = data["description"]
+  dir = File.basename(File.dirname(path))
+
+  errors << "#{path}: missing name" if name.nil? || name.empty?
+  errors << "#{path}: name #{name.inspect} does not match directory #{dir.inspect}" if name && name != dir
+  errors << "#{path}: missing description" if description.nil? || description.to_s.strip.empty?
+  if description && description.to_s.length > 1024
+    errors << "#{path}: description is #{description.to_s.length} chars; OpenCode allows 1024"
+  end
+  if description && description.to_s.match?(/\bTriggers when\b|\bauto-triggered\b|\bactivates\b/i)
+    errors << "#{path}: description uses magic-trigger wording"
+  end
+
+  skills[name] = path if name
+end
+
+names = skills.keys.compact
+skill_ref = /`([a-z0-9]+(?:-[a-z0-9]+)*)`/
+Dir["plugins/*/skills/*/SKILL.md"].sort.each do |path|
+  text = File.read(path)
+  text.scan(skill_ref).flatten.uniq.each do |name|
+    next if skills.key?(name)
+    next unless name.include?("-")
+    errors << "#{path}: references missing skill `#{name}`"
+  end
+end
+
+if errors.any?
+  warn errors.join("\n")
+  exit 1
+end
+
+puts "checked #{names.size} skills"
+RUBY
+
+ruby -rjson -e 'ARGV.each { |f| JSON.parse(File.read(f)); puts "ok #{f}" }' \
+  .claude-plugin/marketplace.json \
+  plugins/*/.claude-plugin/plugin.json

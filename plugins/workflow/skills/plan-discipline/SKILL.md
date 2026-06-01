@@ -1,19 +1,26 @@
 ---
 name: plan-discipline
 description: |
-  Invoke before writing code when changes will touch 3+ files OR introduce a new
-  module/dependency OR change a public interface, OR when the user request shifts
-  from question/investigation to "let's implement/refactor/redesign/migrate".
-  Extends the basic scope interview (core problem, who, success, what NOT) with:
-  blast-radius pre-scoping (file map, duplicate-function search, test gaps),
-  verification-first design (smoke test plan before writing), adaptive review gates
-  at each commit boundary, and sub-agent delegation for 5+ commit refactors.
-  Skip for single-file edits, typo/comment fixes, and pure read/answer requests.
+  Use for non-trivial coding plans before edits. Load when the user
+  asks to plan, design, scope, architect, break down, estimate, or asks "how
+  should we approach this". Also load when work may touch multiple files, add
+  dependencies/modules, change public APIs, or shift from investigation to
+  coding. Also load for refactors, migrations, or redesigns. Enforces
+  scope interview, verification plan before coding, blast-radius scan,
+  and review gates that invoke gate-probes.
+  Skip single-file edits, typo/comment fixes, and pure read/answer requests.
+when_to_use: |
+  Invoke before the first code edit for non-trivial coding work, even if
+  Claude Code is already in plan mode. Plan mode does not enforce the scope
+  interview, verification framing, blast-radius scan, or gate-probes review
+  boundary. Common user phrases: "plan this", "design this", "scope this",
+  "break this down", "how should we approach this", "think this through", "let's
+  build this", "refactor", "migrate", "redesign".
 ---
 
 # Plan Discipline
 
-Before writing code, get the plan right. This skill loads during planning — not during coding or review.
+Before writing code, run this planning preflight. Do not rely on plan mode to enforce it.
 
 ## Verification first
 
@@ -39,7 +46,7 @@ Summarize back before writing code.
 
 - For 5+ commit refactors: delegate per-commit work to sub-agents. Main agent owns sequencing, gates, git, memory.
 - Integration tests at each commit boundary, not bundled at end
-- At each gate boundary, run `gate-probes`
+- At each gate boundary, invoke the `gate-probes` skill first, then any applicable language-specific review skill
 
 ## Adaptive review gates
 

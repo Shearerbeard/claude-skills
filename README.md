@@ -1,6 +1,6 @@
 # Personal Skills Library
 
-Auto-triggered skills for Claude Code, OpenCode, and Codex. Registered as a local marketplace (`my-skills`) in `~/.claude/settings.json`.
+Model-invoked skills for Claude Code, OpenCode, and Codex. Registered as a local marketplace (`my-skills`) in `~/.claude/settings.json`.
 
 ## Skills
 
@@ -10,14 +10,17 @@ Auto-triggered skills for Claude Code, OpenCode, and Codex. Registered as a loca
 | `python-review` | python | reviewing Python | 7 Python-specific gate probes |
 | `rust-quality` | rust | writing `.rs` | Idioms, anti-patterns, type modeling |
 | `rust-review` | rust | reviewing Rust | 7 Rust-specific gate probes |
-| `docs-busttest` | docs | docs review / updates | 18-item bus test for documentation quality |
+| `rust-modules` | rust | Rust module layout | Modern file layout, re-exports, type co-location |
+| `docs-bustest` | docs | docs review / updates | 24-item bus test for documentation quality |
+| `prose-lint` | docs | Vale / prose lint | Deterministic AI-tell checks for docs and emitted prose |
+| `humanizer` | docs | publishable prose | Remove AI writing patterns from user-facing text |
 | `mermaid` | docs | `.mmd` files / diagrams | Render and open Mermaid diagrams |
-| `plan-discipline` | workflow | planning / plan mode | Verification-first, scope interview, blast radius |
+| `plan-discipline` | workflow | planning / design / scope | Verification-first, scope interview, blast radius |
 | `gate-probes` | workflow | commit / review / PR | 7 universal quality probes + surgical discipline |
 
 ## Installation
 
-**Claude Code** — marketplace plugin via `~/.claude/settings.json`:
+**Claude Code**: marketplace plugin via `~/.claude/settings.json`:
 ```json
 "enabledPlugins": {
   "python@my-skills": true,
@@ -38,6 +41,18 @@ Auto-triggered skills for Claude Code, OpenCode, and Codex. Registered as a loca
 ./bin/install-skills codex      # ~/.codex/skills/
 ```
 
+## Quality Gates
+
+Run these before installing changed skills:
+
+```bash
+./bin/check-skills
+./bin/check-install
+./bin/check-prose
+```
+
+Use `docs/internal/testing/skill-test-matrix.md` for manual Claude Code and OpenCode behavior checks. Treat auto-loading as a behavior to measure, not a deterministic contract.
+
 ## Adding a Skill
 
 1. Create `plugins/<plugin>/skills/<name>/SKILL.md` with frontmatter (`name`, `description`)
@@ -50,15 +65,19 @@ Auto-triggered skills for Claude Code, OpenCode, and Codex. Registered as a loca
 claude-skills/
 ├── plugins/                     # Source of truth — one plugin per domain
 │   ├── python/                  # python-quality, python-review
-│   ├── rust/                    # rust-quality, rust-review
-│   ├── docs/                    # docs-busttest, mermaid
+│   ├── rust/                    # rust-quality, rust-review, rust-modules
+│   ├── docs/                    # docs-bustest, prose-lint, humanizer, mermaid
 │   └── workflow/                # plan-discipline, gate-probes
 ├── .claude-plugin/
 │   └── marketplace.json         # Marketplace registry
 ├── bin/
-│   └── install-skills           # Install to OpenCode + Codex
+│   ├── install-skills           # Install to OpenCode + Codex
+│   ├── check-skills             # Static skill/frontmatter checks
+│   ├── check-install            # Temp-home install checks
+│   └── check-prose              # Vale/prose lint smoke checks
 ├── docs/
 │   ├── internal/sessions/       # Session logs
+│   ├── internal/testing/        # Manual Claude/OpenCode test matrix
 │   └── research/                # Research documents
 └── _archive/
     └── legacy-slash-commands/   # v1 slash commands (2025-11)
@@ -66,4 +85,4 @@ claude-skills/
 
 ## Archive
 
-`_archive/legacy-slash-commands/` contains v1 slash commands from before Claude Code had auto-triggered skills. Some have useful patterns worth mining — check before building from scratch.
+`_archive/legacy-slash-commands/` contains v1 slash commands from before Claude Code had skills. Some have useful patterns worth mining; check before building from scratch.

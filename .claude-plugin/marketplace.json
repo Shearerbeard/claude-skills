@@ -14,7 +14,7 @@
     },
     {
       "name": "docs",
-      "description": "Documentation quality review and bus test audits",
+      "description": "Documentation quality review, prose linting, and bus test audits",
       "source": "./plugins/docs"
     },
     {

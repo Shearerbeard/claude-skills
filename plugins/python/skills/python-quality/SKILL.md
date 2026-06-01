@@ -1,11 +1,15 @@
 ---
 name: python-quality
-description: Use when writing or editing Python code — .py files, pyproject.toml, or working with uv, ruff, pytest, click CLIs. Always load when generating new Python code or reviewing Python diffs. Enforces fail-loud patterns, no speculative fallbacks, consolidated traversals, and uv/ruff toolchain over setuptools/Black.
+description: |
+  Use when writing or editing Python code: .py files, pyproject.toml, uv, ruff,
+  pytest, or click CLIs. Enforces fail-loud errors, no speculative fallbacks,
+  consolidated traversals, and uv/ruff conventions. For reviews, use
+  python-review; it applies these rules.
 ---
 
 # Python Quality Standards
 
-Quality rules applied while writing Python. When reviewing code, also load `python-review` for the review gate checklist.
+Quality rules applied while writing Python. For reviews, use `python-review`; it loads these rules and applies the review gate checklist.
 
 ## Toolchain
 

@@ -1,11 +1,18 @@
 ---
 name: gate-probes
-description: Universal quality gate probes for any language. Use when committing code, running git commit, preparing a PR with gh pr create, completing a task, finishing implementation work, or when presenting changes for the user to review. Run before every commit, PR, and code review. Pure checklist — no language-specific items. Language skills add their own probes on top.
+description: Use before git commit or gh pr create, and before handing coding work to the user. Run these universal gates before language-specific review skills. Checks scope control, duplication, reviewability, verification, and residual risks.
 ---
 
 # Gate Probes
 
 Run at every commit boundary and review gate. Language-specific skills add their own probes after these.
+
+After the universal probes, route to the next applicable skill without repeating work already done for this diff:
+- Python diffs (`.py`, `pyproject.toml`, `uv`, `ruff`, `pytest`, `click`): run `python-review`
+- Rust diffs (`.rs`, `Cargo.toml`, `clippy`): run `rust-review`
+- Rust module layout changes: run `rust-modules`
+- Checked-in docs changes: run `docs-bustest`
+- User-facing prose without a docs structure review need: run `prose-lint`; then run `humanizer` if the prose will be checked in, published, or sent on the user's behalf
 
 ## Quality probes
 

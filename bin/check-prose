@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT"
+
+if ! command -v vale >/dev/null 2>&1; then
+  echo "vale not found; skipping prose lint checks"
+  exit 0
+fi
+
+vale sync >/dev/null
+vale ls-config >/dev/null
+
+humanizer_output="$(vale --output=JSON plugins/docs/skills/humanizer/SKILL.md)"
+if [ "$humanizer_output" != "{}" ]; then
+  echo "expected humanizer file-mode exclusion to return {}" >&2
+  echo "$humanizer_output" >&2
+  exit 1
+fi
+
+commit_output="$(printf '%s' 'This commit leverages a comprehensive solution to seamlessly enhance functionality' | vale --ext=.md --path=.git/COMMIT_EDITMSG --output=JSON)"
+case "$commit_output" in
+  *ai-tells-commits.CommitBuzzwords*) ;;
+  *) echo "commit-message Vale smoke test did not hit ai-tells-commits" >&2; echo "$commit_output" >&2; exit 1 ;;
+esac
+
+snippet_output="$(printf '%s' 'This docstring leverages a comprehensive framework to seamlessly enhance the developer experience.' | vale --ext=.md --ignore-syntax --output=JSON)"
+case "$snippet_output" in
+  *ai-tells.OverusedVocabulary*) ;;
+  *) echo "raw-snippet Vale smoke test did not hit ai-tells" >&2; echo "$snippet_output" >&2; exit 1 ;;
+esac
+
+ruby -rjson -ropen3 <<'RUBY'
+files = {}
+current = nil
+
+[`git diff --unified=0 -- "*.md"`, `git diff --cached --unified=0 -- "*.md"`].each do |diff|
+  diff.each_line do |line|
+  if line.start_with?("diff --git ")
+    current = nil
+  elsif line.start_with?("+++ b/")
+    current = line.sub("+++ b/", "").strip
+    files[current] ||= [] if current&.end_with?(".md")
+  elsif current && line.start_with?("+") && !line.start_with?("+++")
+    text = line[1..].rstrip
+    files[current] << text unless text.empty?
+  end
+  end
+end
+
+`git ls-files --others --exclude-standard -- "*.md"`.lines.map(&:strip).each do |path|
+  files[path] = File.readlines(path, chomp: true) if File.file?(path)
+end
+
+findings = []
+files.each do |path, lines|
+  next if lines.empty?
+  out, err, status = Open3.capture3("vale", "--ext=.md", "--path=#{path}", "--output=JSON", stdin_data: lines.join("\n"))
+  abort(err) if status.exitstatus == 2
+  data = out.strip.empty? ? {} : JSON.parse(out)
+  data.each_value { |items| items.each { |item| findings << [path, item] } }
+end
+
+if findings.any?
+  findings.each do |path, item|
+    warn "#{path}:#{item["Line"]}: #{item["Severity"]} #{item["Check"]} #{item["Match"].inspect} - #{item["Message"]}"
+  end
+  exit 1
+end
+
+puts "changed Markdown prose is clean"
+RUBY

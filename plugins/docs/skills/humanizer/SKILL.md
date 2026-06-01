@@ -3,15 +3,12 @@ name: humanizer
 version: 2.5.1
 description: |
   Use when the user says "humanize", "de-AI", "naturalize", "make this sound human",
-  or says text "reads like AI", "sounds AI-generated", "feels robotic". ALWAYS apply
-  before submitting any prose the AI writes on the user's behalf: commit messages,
-  PR descriptions and titles, GitHub issue bodies and comments, Slack/Discord posts,
-  email drafts, release notes, README sections, blog drafts, or any user-facing copy.
-  Also use when reviewing docs for voice/tone/style. Removes signs of AI-generated
-  writing patterns including: inflated symbolism, promotional language, superficial
-  -ing analyses, vague attributions, em dash overuse, rule of three, AI vocabulary
-  words, passive voice, negative parallelisms, and filler phrases. Based on
-  Wikipedia's "Signs of AI writing" guide.
+  or says text "reads like AI", "sounds AI-generated", or "feels robotic". Also use
+  before submitting prose written on the user's behalf: commit messages, PR titles
+  and descriptions, GitHub issue comments, Slack/Discord posts, email drafts,
+  release notes, checked-in docs/README sections, and blog drafts. Do not use for
+  ordinary assistant replies or technical review findings unless the user asks for
+  tone, voice, or style.
 license: MIT
 compatibility: claude-code opencode
 allowed-tools:
@@ -24,7 +21,7 @@ allowed-tools:
 ---
 
 > Forked from [blader/humanizer](https://github.com/blader/humanizer) v2.5.1 (MIT, © 2025 Siqi Chen).
-> Sole modification: trigger description rewritten for reliable auto-invocation. Body unchanged.
+> Local modifications: trigger description rewritten for model invocation; output format narrowed for cleanup-pass use.
 
 # Humanizer: Remove AI Writing Patterns
 
@@ -489,7 +486,12 @@ Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as
 
 ## Output Format
 
-Provide:
+When invoked by another skill as a final prose pass, output only the final revised text unless the user explicitly asked for analysis.
+
+If `prose-lint` findings are provided, address those deterministic issues during the rewrite. Do not invoke the `prose-lint` skill from this skill; keep deterministic linting and semantic rewriting separate.
+
+When the user asks for a full humanizing pass, provide:
+
 1. Draft rewrite
 2. "What makes the below so obviously AI generated?" (brief bullets)
 3. Final rewrite

@@ -1,5 +1,5 @@
 ---
-name: docs-busttest
+name: docs-bustest
 description: Use when reviewing, auditing, or updating documentation — checks whether a repo's docs are good enough for both a new human contributor and a cold AI agent to pick up the project without the maintainer. Use when editing README, CLAUDE.md, or any project docs, when completing work that changes public interfaces, or when asked to review docs quality. Also known as a "bus test" — could someone take over if you disappeared?
 ---
 
@@ -106,7 +106,8 @@ Score: X/24 (<rating>)
 ## After editing docs
 
 - **Coherence check**: re-read the full document after edits. LLMs edit in diff-mode and produce sections that look good in isolation but create disjointed flow, repeated context, or contradictory statements when read end-to-end. The file must read as a coherent narrative, not a patchwork of additions.
-- **Humanizer**: run `/humanizer` on the changed sections (not the whole file) to strip AI writing patterns before committing.
+- **Prose lint**: for changed checked-in docs prose, invoke `prose-lint` on the changed files or sections. Skip code blocks, generated content, schemas, exact API signatures, config examples, and intentional bad-prose examples unless the user asks to lint them.
+- **Humanizer**: after prose-lint findings are addressed, invoke `humanizer` on changed docs prose before committing. Use the same skip list as prose linting. For audit-only docs reviews with no docs edits, use `humanizer` only when the user asks for voice, tone, or style feedback.
 
 ## References
 

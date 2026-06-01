@@ -1,11 +1,17 @@
 ---
 name: rust-review
-description: Use when reviewing Rust code, preparing PRs with .rs changes, running pre-commit checks on Rust code, or when the user asks to review a diff. Run gate-probes first for universal checks, then these Rust-specific probes. Always load before presenting Rust code review findings to the user.
+description: |
+  Use for Rust reviews: .rs diffs, PRs with Rust changes, Cargo.toml changes,
+  and clippy/pre-commit checks. Run gate-probes first for universal checks, then
+  these Rust-specific probes. Always load before presenting Rust code review
+  findings to the user.
 ---
 
 # Rust Review Gates
 
-Load `rust-quality` for the quality rules being checked. Run `gate-probes` first for universal checks. Then apply these Rust-specific probes against the diff.
+Load `rust-quality` for the quality rules being checked. If `gate-probes` has not already run for this diff, run it first for universal checks. Then apply these Rust-specific probes against the diff.
+
+If the diff changes public docs, public API doc comments, README content, release notes, or PR prose, invoke `prose-lint` on changed prose only. For doc comments, pass the changed text via stdin. Use `humanizer` only for prose that will be checked in, published, or sent on the user's behalf.
 
 ## Rust probes
 

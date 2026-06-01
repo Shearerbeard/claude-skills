@@ -20,3 +20,8 @@ docs/internal/sessions/*.tmp.md
 
 # Temporary test repositories
 temp-*/
+
+# Vale downloads synced package styles here.
+.vale/.vale-config/
+.vale/ai-tells/
+.vale/ai-tells-commits/

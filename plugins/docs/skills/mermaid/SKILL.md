@@ -1,6 +1,6 @@
 ---
 name: mermaid
-description: Render and open Mermaid diagrams. Triggers when working with .mmd files, markdown files containing ```mermaid blocks, or when asked to view, render, or preview a diagram. Also invocable as /mermaid.
+description: Use when asked to view, render, preview, export, or open a Mermaid diagram; when working with .mmd files; or when Markdown contains Mermaid code blocks. Render the diagram with mermaid-view and report the output path.
 ---
 
 # Mermaid Diagram Viewer

@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+TMP_HOME="$(mktemp -d)"
+trap 'rm -rf "$TMP_HOME"' EXIT
+log_file="$TMP_HOME/install.log"
+
+expected="$(find "$ROOT/plugins" -path '*/skills/*/SKILL.md' -type f | wc -l | tr -d ' ')"
+
+for target in opencode codex; do
+  echo "checking install target: $target"
+  HOME="$TMP_HOME" "$ROOT/bin/install-skills" "$target" >"$log_file"
+  case "$target" in
+    opencode) dest="$TMP_HOME/.config/opencode/skills" ;;
+    codex) dest="$TMP_HOME/.codex/skills" ;;
+  esac
+
+  actual="$(find "$dest" -mindepth 2 -maxdepth 2 -name SKILL.md -type f | wc -l | tr -d ' ')"
+  if [ "$actual" != "$expected" ]; then
+    echo "expected $expected skills in $dest, found $actual" >&2
+    exit 1
+  fi
+
+  ruby -rpsych -e '
+    Dir[ARGV[0] + "/*/SKILL.md"].sort.each do |path|
+      text = File.read(path)
+      fm = text[/\A---\n(.*?)\n---/m, 1] or abort("missing frontmatter: #{path}")
+      data = Psych.safe_load(fm, permitted_classes: [], aliases: false) || {}
+      name = data["name"] or abort("missing name: #{path}")
+      dir = File.basename(File.dirname(path))
+      abort("name mismatch #{path}: #{name} != #{dir}") unless name == dir
+      abort("missing description: #{path}") unless data.key?("description")
+    end
+  ' "$dest"
+done
+
+test -f "$TMP_HOME/.config/opencode/skills/humanizer/LICENSE"
+echo "install checks passed for $expected skills"
