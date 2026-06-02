@@ -1,22 +1,22 @@
 ---
 name: plan-discipline
 description: |
-  Use before non-trivial code work to enforce the user's required workflow.
-  Load when the user asks to dive into details, define a minimal V1, build a
-  phased plan, unblock a team, vet assumptions, do heavy research, or says
-  "don't assume". Also load for refactors, migrations, redesigns, public API
-  changes, new dependencies/modules, or work shifting from investigation to
-  coding. Enforces the scope interview, evidence check, verification plan,
-  blast-radius scan, and review gates that invoke gate-probes.
+  Use before the first code edit for non-trivial implementation work. Load for
+  multi-file features, refactors, migrations, redesigns, public API changes,
+  new dependencies/modules, or work shifting from investigation to coding. Also
+  load when the user asks to define a minimal V1, unblock a team, vet
+  assumptions, do heavy research, or says "don't assume". Enforces the scope
+  interview, evidence check, verification plan, blast-radius scan, and review
+  gates that invoke gate-probes.
   Skip single-file edits, typo/comment fixes, and pure read/answer requests.
 when_to_use: |
-  Invoke before the first code edit for non-trivial coding work, even if Claude
-  Code is already in plan mode. Plan mode does not enforce the user's workflow:
-  scope interview, evidence-backed research, verification framing, blast-radius
-  scan, and gate-probes review boundary. Common user phrases include "dive down",
-  "implementation details", "minimal V1", "unblock the team", "phased plan",
-  "heavy research", "vet data", "vet assumptions", "don't assume", "refactor",
-  "migrate", and "redesign".
+  Invoke before the first code edit when the task is too broad to safely start
+  coding immediately. This includes multi-file implementation, refactors,
+  migrations, redesigns, public interface changes, new dependencies/modules,
+  and investigation that turns into implementation. Use this skill even if
+  Claude Code is already in native plan mode; native planning does not enforce
+  the user's required gates: scope interview, evidence check, verification
+  framing, blast-radius scan, and gate-probes review boundary.
 ---
 
 # Plan Discipline
