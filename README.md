@@ -53,6 +53,14 @@ Run these before installing changed skills:
 
 Use `docs/internal/testing/skill-test-matrix.md` for manual Claude Code and OpenCode behavior checks. Treat auto-loading as a behavior to measure, not a deterministic contract.
 
+## Prose Linting
+
+This repo uses Vale with `tbhb/vale-ai-tells` for deterministic checks on AI-writing patterns. Run `vale sync` once per checkout to download the pinned style packages into `.vale/`; downloaded package directories are ignored by git.
+
+`prose-lint` prefers a project's own `.vale.ini`. If the target project has no Vale config, the skill uses its bundled fallback config. If Vale is not installed or `vale sync` fails, the skill reports that prose linting was skipped and does not try to install anything.
+
+Use `prose-lint` for mechanical findings. Use `humanizer` after that when changed docs or outgoing prose need a rewrite.
+
 ## Adding a Skill
 
 1. Create `plugins/<plugin>/skills/<name>/SKILL.md` with frontmatter (`name`, `description`)

@@ -84,6 +84,8 @@ See: [Plugin structure docs](https://code.claude.com/docs/en/plugins)
 
 This repo has a local `.vale.ini` pinned to `tbhb/vale-ai-tells` v1.13.1. Vale provides deterministic AI-writing checks; `humanizer` handles semantic rewrite and voice.
 
+`prose-lint` also ships a bundled fallback `.vale.ini` for projects that do not have their own Vale config. If Vale is missing or `vale sync` fails, the skill must report the skip and continue without trying to install Vale.
+
 Initialize package styles once per checkout:
 ```bash
 vale sync
