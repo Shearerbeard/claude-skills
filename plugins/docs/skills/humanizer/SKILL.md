@@ -12,6 +12,7 @@ description: |
 license: MIT
 compatibility: claude-code opencode
 allowed-tools:
+  - Bash
   - Read
   - Write
   - Edit
@@ -85,6 +86,8 @@ Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as
 **Let some mess in.** Perfect structure feels algorithmic. Tangents, asides, and half-formed thoughts are human.
 
 **Be specific about feelings.** Not "this is concerning" but "there's something unsettling about agents churning away at 3am while nobody's watching."
+
+**Lead with facts, not drama.** Problem statements and factual claims should open with the observation, then add context. "Current behavior is silent overwrite, first one registered wins" lands better than "No warning — first one registered wins." State what *is* before editorializing about why it matters. Dramatic lead-ins bury the lede in technical prose.
 
 ### Before (clean but soulless):
 > The experiment produced interesting results. The agents generated 3 million lines of code. Some developers were impressed while others were skeptical. The implications remain unclear.
@@ -469,9 +472,19 @@ Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as
 
 ## Process
 
+0. **Vale pre-pass** (deterministic, before the LLM rewrite):
+   - Check if `vale` is installed (`vale --version`). If not, skip this step silently.
+   - Config resolution: use the project's `.vale.ini` if present. Otherwise use the bundled fallback at `${CLAUDE_SKILL_DIR}/../prose-lint/.vale.ini`. If neither exists, skip.
+   - Run `vale --no-global --config "$config" sync` if styles are not yet downloaded.
+   - Pipe the input text through Vale via stdin:
+     ```bash
+     printf '%s' "$text" | vale --no-global --config "$config" --ext=.md --output=JSON
+     ```
+   - Parse findings. These are **hard constraints** for the rewrite: every Vale error must be addressed, not just considered. Carry them into step 3.
+   - If a calling skill already provided `prose-lint` findings (e.g. from a review chain), skip the Vale pre-pass and use those findings instead.
 1. Read the input text carefully
 2. Identify all instances of the patterns above
-3. Rewrite each problematic section
+3. Rewrite each problematic section, addressing Vale pre-pass findings first
 4. Ensure the revised text:
    - Sounds natural when read aloud
    - Varies sentence structure naturally
@@ -488,7 +501,7 @@ Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as
 
 When invoked by another skill as a final prose pass, output only the final revised text unless the user explicitly asked for analysis.
 
-If `prose-lint` findings are provided, address those deterministic issues during the rewrite. Do not invoke the `prose-lint` skill from this skill; keep deterministic linting and semantic rewriting separate.
+Run the Vale pre-pass (step 0) for deterministic findings before rewriting. If a calling skill already provided `prose-lint` findings, skip the pre-pass and use those findings instead. Do not invoke the `prose-lint` skill — run `vale` directly.
 
 When the user asks for a full humanizing pass, provide:
 
