@@ -129,9 +129,15 @@ Built a more complete quality system around this skills repo. Added `prose-lint`
 
 ## Handoff Notes
 
-Start next session in:
+Before merge, this session lived in:
 
 `/Users/mshearer/dev/claude-skills/.claude/worktrees/skill-routing-deps-plan-fixes`
+
+After merging this branch to main and removing the worktree, start next session in:
+
+`/Users/mshearer/dev/claude-skills`
+
+After merge, repoint Claude global `my-skills` back to the main repo path and reinstall OpenCode skills from main.
 
 Before merging or installing permanently, run:
 
