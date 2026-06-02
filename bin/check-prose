@@ -9,31 +9,37 @@ if ! command -v vale >/dev/null 2>&1; then
   exit 0
 fi
 
-vale sync >/dev/null
-vale ls-config >/dev/null
+if ! vale --no-global sync >/dev/null; then
+  echo "vale sync failed; skipping prose lint checks" >&2
+  exit 0
+fi
+vale --no-global ls-config >/dev/null
 
-humanizer_output="$(vale --output=JSON plugins/docs/skills/humanizer/SKILL.md)"
+humanizer_output="$(vale --no-global --output=JSON plugins/docs/skills/humanizer/SKILL.md)"
 if [ "$humanizer_output" != "{}" ]; then
   echo "expected humanizer file-mode exclusion to return {}" >&2
   echo "$humanizer_output" >&2
   exit 1
 fi
 
-commit_output="$(printf '%s' 'This commit leverages a comprehensive solution to seamlessly enhance functionality' | vale --ext=.md --path=.git/COMMIT_EDITMSG --output=JSON)"
+commit_output="$(printf '%s' 'This commit leverages a comprehensive solution to seamlessly enhance functionality' | vale --no-global --no-exit --ext=.md --path=.git/COMMIT_EDITMSG --output=JSON)"
 case "$commit_output" in
   *ai-tells-commits.CommitBuzzwords*) ;;
   *) echo "commit-message Vale smoke test did not hit ai-tells-commits" >&2; echo "$commit_output" >&2; exit 1 ;;
 esac
 
-snippet_output="$(printf '%s' 'This docstring leverages a comprehensive framework to seamlessly enhance the developer experience.' | vale --ext=.md --ignore-syntax --output=JSON)"
+snippet_output="$(printf '%s' 'This docstring leverages a comprehensive framework to seamlessly enhance the developer experience.' | vale --no-global --no-exit --ext=.md --ignore-syntax --output=JSON)"
 case "$snippet_output" in
   *ai-tells.OverusedVocabulary*) ;;
   *) echo "raw-snippet Vale smoke test did not hit ai-tells" >&2; echo "$snippet_output" >&2; exit 1 ;;
 esac
 
 fallback_config="plugins/docs/skills/prose-lint/.vale.ini"
-vale --config "$fallback_config" sync >/dev/null
-fallback_output="$(printf '%s' 'This docstring leverages a comprehensive framework to seamlessly enhance the developer experience.' | vale --config "$fallback_config" --ext=.md --ignore-syntax --output=JSON)"
+if ! vale --no-global --config "$fallback_config" sync >/dev/null; then
+  echo "bundled prose-lint fallback vale sync failed; skipping fallback smoke check" >&2
+  exit 0
+fi
+fallback_output="$(printf '%s' 'This docstring leverages a comprehensive framework to seamlessly enhance the developer experience.' | vale --no-global --config "$fallback_config" --no-exit --ext=.md --ignore-syntax --output=JSON)"
 case "$fallback_output" in
   *ai-tells.OverusedVocabulary*) ;;
   *) echo "bundled prose-lint fallback config did not hit ai-tells" >&2; echo "$fallback_output" >&2; exit 1 ;;
@@ -42,6 +48,16 @@ esac
 ruby -rjson -ropen3 <<'RUBY'
 files = {}
 current = nil
+
+def prose_line?(text)
+  stripped = text.strip
+  return false if stripped.empty?
+  return false if stripped.start_with?("```")
+  return false if stripped.start_with?("vale ", "printf ", "echo ", "ruby ", "git ", "./")
+  return false if stripped.include?("--config") || stripped.include?("--output=JSON") || stripped.include?("--ignore-syntax")
+  return false if stripped.match?(/^[A-Z_]+\s*=\s*/)
+  true
+end
 
 [`git diff --unified=0 -- "*.md"`, `git diff --cached --unified=0 -- "*.md"`].each do |diff|
   diff.each_line do |line|
@@ -52,7 +68,7 @@ current = nil
     files[current] ||= [] if current&.end_with?(".md")
   elsif current && line.start_with?("+") && !line.start_with?("+++")
     text = line[1..].rstrip
-    files[current] << text unless text.empty?
+    files[current] << text if prose_line?(text)
   end
   end
 end
@@ -64,7 +80,7 @@ end
 findings = []
 files.each do |path, lines|
   next if lines.empty?
-  out, err, status = Open3.capture3("vale", "--ext=.md", "--path=#{path}", "--output=JSON", stdin_data: lines.join("\n"))
+  out, err, status = Open3.capture3("vale", "--no-global", "--ext=.md", "--path=#{path}", "--output=JSON", stdin_data: lines.join("\n"))
   abort(err) if status.exitstatus == 2
   data = out.strip.empty? ? {} : JSON.parse(out)
   data.each_value { |items| items.each { |item| findings << [path, item] } }

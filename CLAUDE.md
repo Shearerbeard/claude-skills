@@ -93,9 +93,9 @@ vale sync
 
 Common checks for changed prose:
 ```bash
-vale --output=JSON README.md plugins/docs/skills/prose-lint/SKILL.md
-printf '%s' "$draft" | vale --ext=.md --path=.git/COMMIT_EDITMSG --output=JSON
-printf '%s' "$docstring" | vale --ext=.md --ignore-syntax --output=JSON
+vale --no-global --output=JSON README.md plugins/docs/skills/prose-lint/SKILL.md
+printf '%s' "$draft" | vale --no-global --ext=.md --path=.git/COMMIT_EDITMSG --output=JSON
+printf '%s' "$docstring" | vale --no-global --ext=.md --ignore-syntax --output=JSON
 ```
 
 Use `prose-lint` for Vale workflows. Do not lint generated content, code blocks, schemas, exact API signatures, config examples, or intentional bad-prose examples unless the user asks.
