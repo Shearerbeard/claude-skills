@@ -31,6 +31,14 @@ case "$snippet_output" in
   *) echo "raw-snippet Vale smoke test did not hit ai-tells" >&2; echo "$snippet_output" >&2; exit 1 ;;
 esac
 
+fallback_config="plugins/docs/skills/prose-lint/.vale.ini"
+vale --config "$fallback_config" sync >/dev/null
+fallback_output="$(printf '%s' 'This docstring leverages a comprehensive framework to seamlessly enhance the developer experience.' | vale --config "$fallback_config" --ext=.md --ignore-syntax --output=JSON)"
+case "$fallback_output" in
+  *ai-tells.OverusedVocabulary*) ;;
+  *) echo "bundled prose-lint fallback config did not hit ai-tells" >&2; echo "$fallback_output" >&2; exit 1 ;;
+esac
+
 ruby -rjson -ropen3 <<'RUBY'
 files = {}
 current = nil

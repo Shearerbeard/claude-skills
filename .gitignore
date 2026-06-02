@@ -25,3 +25,6 @@ temp-*/
 .vale/.vale-config/
 .vale/ai-tells/
 .vale/ai-tells-commits/
+plugins/docs/skills/prose-lint/.vale/.vale-config/
+plugins/docs/skills/prose-lint/.vale/ai-tells/
+plugins/docs/skills/prose-lint/.vale/ai-tells-commits/
