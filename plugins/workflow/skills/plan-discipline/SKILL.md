@@ -1,26 +1,27 @@
 ---
 name: plan-discipline
 description: |
-  Use for non-trivial coding plans before edits. Load when the user
-  asks to plan, design, scope, architect, break down, estimate, or asks "how
-  should we approach this". Also load when work may touch multiple files, add
-  dependencies/modules, change public APIs, or shift from investigation to
-  coding. Also load for refactors, migrations, or redesigns. Enforces
-  scope interview, verification plan before coding, blast-radius scan,
-  and review gates that invoke gate-probes.
+  Use before non-trivial code work to enforce the user's required workflow.
+  Load when the user asks to dive into details, define a minimal V1, build a
+  phased plan, unblock a team, vet assumptions, do heavy research, or says
+  "don't assume". Also load for refactors, migrations, redesigns, public API
+  changes, new dependencies/modules, or work shifting from investigation to
+  coding. Enforces the scope interview, evidence check, verification plan,
+  blast-radius scan, and review gates that invoke gate-probes.
   Skip single-file edits, typo/comment fixes, and pure read/answer requests.
 when_to_use: |
-  Invoke before the first code edit for non-trivial coding work, even if
-  Claude Code is already in plan mode. Plan mode does not enforce the scope
-  interview, verification framing, blast-radius scan, or gate-probes review
-  boundary. Common user phrases: "plan this", "design this", "scope this",
-  "break this down", "how should we approach this", "think this through", "let's
-  build this", "refactor", "migrate", "redesign".
+  Invoke before the first code edit for non-trivial coding work, even if Claude
+  Code is already in plan mode. Plan mode does not enforce the user's workflow:
+  scope interview, evidence-backed research, verification framing, blast-radius
+  scan, and gate-probes review boundary. Common user phrases include "dive down",
+  "implementation details", "minimal V1", "unblock the team", "phased plan",
+  "heavy research", "vet data", "vet assumptions", "don't assume", "refactor",
+  "migrate", and "redesign".
 ---
 
 # Plan Discipline
 
-Before writing code, run this planning preflight. Do not rely on plan mode to enforce it.
+Enforce the user's pre-coding workflow before writing code. Do not rely on plan mode to enforce it.
 
 ## Verification first
 
