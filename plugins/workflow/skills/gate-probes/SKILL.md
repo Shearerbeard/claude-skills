@@ -2,17 +2,18 @@
 name: gate-probes
 description: |
   Use before git commit, gh pr create, or when the user says "ready to commit",
-  "review this diff", "check before I push", or "run the gates". Also use during
-  planning when the user says "plan with gates" or "scope this change" — anticipate
-  what the commit gates will check. Run these universal gates before language-specific
-  review skills (python-review, rust-review). Checks scope control, duplication,
-  reviewability, verification, and residual risks.
+  "review this diff", "check before I push", or "run the gates". Also use when
+  the user says "ensure proper gates", "verifiable checks", "ready for
+  implementation", "plan with gates", or "scope this change". Run these
+  universal gates before language-specific review skills (python-review,
+  rust-review). Checks scope control, duplication, reviewability, verification,
+  and residual risks.
 compatibility: claude-code opencode
 ---
 
 # Gate Probes
 
-Run at every commit boundary and review gate. Language-specific skills add their own probes after these.
+Run at every commit boundary, review gate, or plan review. Language-specific skills add their own probes after these.
 
 After the universal probes, route to the next applicable skill without repeating work already done for this diff:
 - Python diffs (`.py`, `pyproject.toml`, `uv`, `ruff`, `pytest`, `click`): run `python-review`
@@ -36,3 +37,30 @@ After the universal probes, route to the next applicable skill without repeating
 ## Coherence check
 
 7. Re-read modified files in full after editing — diffs that look correct in isolation can create duplicated logic, inconsistent naming, orphaned imports, or functions that no longer fit the module's flow
+
+## Plan-specific probes
+
+Use these probes when reviewing a plan or implementation spec (not a code diff):
+
+8. Does each step have verifiable exit criteria?
+9. Are dependencies between steps explicit?
+10. Is there a rollback procedure if a step fails?
+11. Are the success criteria testable, not subjective?
+
+## Report format
+
+Present findings as a table. Block the gate on any FAIL:
+
+```
+## Gate Probe Results
+
+| # | Probe | Status | Evidence |
+|---|-------|--------|----------|
+| 1 | Code sprawl | PASS | 3 files changed, all trace to user request |
+| 2 | Duplication | FAIL | Reimplemented X; existing function at src/util.rs:42 |
+| ... | ... | ... | ... |
+
+### Gate verdict: PASS / FAIL
+- Blocking findings: <list any FAIL items>
+- Next step: <route to language-specific skill or proceed>
+```

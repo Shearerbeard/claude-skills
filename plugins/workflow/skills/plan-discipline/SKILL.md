@@ -21,9 +21,19 @@ when_to_use: |
 
 Enforce the user's pre-coding workflow before writing code. Do not rely on plan mode to enforce it.
 
-## Verification first
+## Pre-flight checklist
 
-Before doing any work, state how you will verify it. For features, include a smoke test plan beyond integration tests — how would you manually exercise the happy path end-to-end?
+Before any file edit, complete this checklist. Do not proceed until all items are answered:
+
+- [ ] **Scope interview answered**: core problem, audience, success criteria, explicit non-goals
+- [ ] **Verification method stated**: how will this be verified? Include smoke test plan for the happy path
+- [ ] **Blast radius identified**: which files change, which docs update, what tests exist, what coverage is needed
+- [ ] **Existing building blocks searched**: grep/glob for reusable functions before implementing
+- [ ] **Gate-probes invoked**: if this is a gate boundary (plan review, pre-implementation checkpoint), run `gate-probes` first
+
+## Gate-probes routing
+
+Before any file edit at a gate boundary, load `gate-probes` — it runs universal scope control, duplication, reviewability, and residual risk checks that this skill does not cover. Without it loaded, you will miss sprawl, god modules, and incoherent edits that look correct in isolation but break module flow.
 
 ## Scope interview
 
@@ -35,18 +45,38 @@ For non-trivial tasks, ask before building:
 
 Summarize back before writing code.
 
-## Pre-scope blast radius
-
-- Which files need editing, which docs need updating
-- Search for existing building-block functions before implementing — prevent duplication
-- Identify what tests exist and what new coverage is needed
-
 ## Implementation shape
 
 - For 5+ commit refactors: delegate per-commit work to sub-agents. Main agent owns sequencing, gates, git, memory.
 - Integration tests at each commit boundary, not bundled at end
-- At each gate boundary, invoke the `gate-probes` skill first, then any applicable language-specific review skill
+- At each gate boundary, invoke `gate-probes` first, then any applicable language-specific review skill
 
 ## Adaptive review gates
 
-At each stage boundary, propose which deterministic tools apply to this stage (build, lint, fmt, type check, tests — skip what can't run yet and say why). Run context-isolated agent review in background (reviewer must NOT have seen the implementation). Present deterministic results + agent findings + staged diffs to user in one pass.
+At each stage boundary, propose which deterministic tools apply (build, lint, fmt, type check, tests — skip what can't run yet and say why). Run context-isolated agent review in background (reviewer must NOT have seen the implementation). Present deterministic results + agent findings + staged diffs to user in one pass.
+
+## Report format
+
+After completing the pre-flight checklist, present findings:
+
+```
+## Plan Preflight: <task summary>
+
+### Scope
+- Core problem: ...
+- Audience: ...
+- Success: ...
+- Non-goals: ...
+
+### Verification
+- Smoke test: ...
+- Deterministic checks: ...
+
+### Blast radius
+- Files to change: ...
+- Existing building blocks: ...
+- Test coverage gaps: ...
+
+### Gate probes
+- Status: <invoked / not needed — reason>
+```

@@ -17,6 +17,7 @@
 scripts/temp/
 docs/internal/sessions/*.tmp.md
 *.backup.*
+.claude/
 
 # Temporary test repositories
 temp-*/
