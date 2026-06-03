@@ -501,7 +501,7 @@ Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as
 
 When invoked by another skill as a final prose pass, output only the final revised text unless the user explicitly asked for analysis.
 
-Run the Vale pre-pass (step 0) for deterministic findings before rewriting. If a calling skill already provided `prose-lint` findings, skip the pre-pass and use those findings instead. Do not invoke the `prose-lint` skill — run `vale` directly.
+Run the Vale pre-pass (step 0) for deterministic findings before rewriting. If a calling skill already provided prose-lint findings, skip the pre-pass and use those instead. Run `vale` directly via Bash — the prose-lint skill tool is not needed here since humanizer already carries its own lint instructions.
 
 When the user asks for a full humanizing pass, provide:
 

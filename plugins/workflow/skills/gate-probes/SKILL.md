@@ -1,6 +1,12 @@
 ---
 name: gate-probes
-description: Use before git commit or gh pr create, and before handing coding work to the user. Run these universal gates before language-specific review skills. Checks scope control, duplication, reviewability, verification, and residual risks.
+description: |
+  Use before git commit, gh pr create, or when the user says "ready to commit",
+  "review this diff", "check before I push", or "run the gates". Also use during
+  planning when the user says "plan with gates" or "scope this change" — anticipate
+  what the commit gates will check. Run these universal gates before language-specific
+  review skills (python-review, rust-review). Checks scope control, duplication,
+  reviewability, verification, and residual risks.
 compatibility: claude-code opencode
 ---
 
