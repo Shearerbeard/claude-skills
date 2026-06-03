@@ -10,7 +10,7 @@ compatibility: claude-code opencode
 
 # Rust Review Gates
 
-Load `rust-quality` for the quality rules being checked. If `gate-probes` has not already run for this diff, run it first for universal checks. Then apply these Rust-specific probes against the diff.
+Before applying probes, load `rust-quality` — it contains the anti-pattern rules and preferred patterns you must check against. Without it loaded, you will miss clone escapes, speculative fallbacks, and weak error modeling that are invisible from training data alone. If `gate-probes` has not already run for this diff, run it first for universal checks. Then apply these Rust-specific probes against the diff.
 
 If the diff changes public docs, public API doc comments, README content, release notes, or PR prose, invoke `prose-lint` on changed prose only. For doc comments, pass the changed text via stdin. Use `humanizer` only for prose that will be checked in, published, or sent on the user's behalf.
 

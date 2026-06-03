@@ -1,10 +1,10 @@
 ---
 name: rust-modules
 description: |
-  Use when creating, splitting, moving, or reviewing Rust modules and files: mod
-  declarations, pub use facades, crate structure, mod.rs cleanup, type
-  co-location, and naming. Pair with rust-quality for code patterns inside
-  modules.
+  Use for any Rust module work: planning, creating, splitting, moving, discussing,
+  or reviewing modules and files: mod declarations, pub use facades, crate
+  structure, mod.rs cleanup, type co-location, and naming. Pair with rust-quality
+  for code patterns inside modules.
 compatibility: claude-code opencode
 ---
 

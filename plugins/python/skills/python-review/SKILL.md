@@ -12,7 +12,7 @@ compatibility: claude-code opencode
 
 Review checklist applied after Python work is complete. Rules are defined in `/python-quality` — this skill applies them as gate probes.
 
-Load `python-quality` for the quality rules being checked. If `gate-probes` has not already run for this diff, run it first for universal checks. Then apply these Python-specific probes.
+Before applying probes, load `python-quality` — it contains the fail-loud, no-speculative-fallback, and consolidation rules you must check against. Without it loaded, you will miss silent degradation and duplicated traversals that training data alone won't flag. If `gate-probes` has not already run for this diff, run it first for universal checks. Then apply these Python-specific probes.
 
 If the diff changes public docs, public API docstrings, README content, release notes, or PR prose, invoke `prose-lint` on changed prose only. For docstrings or public comments, pass the changed text via stdin. Use `humanizer` only for prose that will be checked in, published, or sent on the user's behalf.
 

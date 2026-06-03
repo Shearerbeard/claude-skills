@@ -1,10 +1,13 @@
 ---
 name: rust-quality
 description: |
-  Use when writing or editing Rust code: .rs files, Cargo.toml, or clippy fixes.
-  Prevents LLM-specific Rust anti-patterns: sprawl, god modules, speculative
-  fallbacks, unnecessary clones, verbose matches, and weak error modeling. For
-  reviews, use rust-review; it applies these rules.
+  Load when writing, reviewing, or planning Rust code to self-correct against
+  LLM-specific failure modes the model tends to repeat: clone escapes to satisfy
+  the borrow checker, speculative fallbacks for failure modes that don't exist,
+  god modules, verbose match chains, and weak error modeling. Provides concrete
+  reference patterns (transpose, Arc::clone, newtypes, parse-don't-validate,
+  sealed traits) and type modeling rules. For formal reviews, use rust-review;
+  it applies these rules as a gate checklist.
 compatibility: claude-code opencode
 ---
 

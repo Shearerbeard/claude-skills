@@ -1,10 +1,11 @@
 ---
 name: python-quality
 description: |
-  Use when writing or editing Python code: .py files, pyproject.toml, uv, ruff,
-  pytest, or click CLIs. Enforces fail-loud errors, no speculative fallbacks,
-  consolidated traversals, and uv/ruff conventions. For reviews, use
-  python-review; it applies these rules.
+  Use for any Python work: planning, writing, reviewing, discussing, or editing
+  .py files, pyproject.toml, uv, ruff, pytest, or click CLIs. Enforces fail-loud
+  errors, no speculative fallbacks, consolidated traversals, and uv/ruff
+  conventions. For formal reviews, use python-review; it applies these rules as a
+  gate checklist.
 compatibility: claude-code opencode
 ---
 
