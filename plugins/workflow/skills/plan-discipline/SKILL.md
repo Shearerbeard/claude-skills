@@ -1,14 +1,11 @@
 ---
 name: plan-discipline
 description: |
-  Use before the first code edit for non-trivial implementation work. Load for
-  multi-file features, refactors, migrations, redesigns, public API changes,
-  new dependencies/modules, or work shifting from investigation to coding. Also
-  load when the user asks to define a minimal V1, unblock a team, vet
-  assumptions, do heavy research, or says "don't assume". Enforces the scope
-  interview, evidence check, verification plan, blast-radius scan, and review
-  gates that invoke gate-probes.
-  Skip single-file edits, typo/comment fixes, and pure read/answer requests.
+  Use when the user asks to add a feature, refactor, migrate, or redesign
+  code. Also use when they say "plan this out", "scope this", "minimal V1",
+  "vet assumptions", or "don't assume". Enforces evidence check, verification
+  framing, and gate-probes before the first code edit. Skip single-file edits,
+  typo fixes, and pure read/answer requests.
 compatibility: claude-code opencode
 when_to_use: |
   Invoke before the first code edit when the task is too broad to safely start
