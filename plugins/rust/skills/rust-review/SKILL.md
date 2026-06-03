@@ -5,6 +5,7 @@ description: |
   and clippy/pre-commit checks. Run gate-probes first for universal checks, then
   these Rust-specific probes. Always load before presenting Rust code review
   findings to the user.
+compatibility: claude-code opencode
 ---
 
 # Rust Review Gates

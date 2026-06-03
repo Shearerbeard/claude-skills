@@ -5,11 +5,16 @@ description: |
   declarations, pub use facades, crate structure, mod.rs cleanup, type
   co-location, and naming. Pair with rust-quality for code patterns inside
   modules.
+compatibility: claude-code opencode
 ---
 
 # Rust Module Layout
 
 Rules for file organization. For code quality within modules, see `rust-quality`. Do not load `rust-review` unless reviewing a diff.
+
+## In the review chain
+
+`gate-probes` routes to this skill for Rust module layout changes. Run `gate-probes` first for universal scope and reviewability checks before applying module layout rules.
 
 ## File layout (new code)
 

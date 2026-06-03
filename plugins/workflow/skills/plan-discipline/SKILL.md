@@ -9,6 +9,7 @@ description: |
   interview, evidence check, verification plan, blast-radius scan, and review
   gates that invoke gate-probes.
   Skip single-file edits, typo/comment fixes, and pure read/answer requests.
+compatibility: claude-code opencode
 when_to_use: |
   Invoke before the first code edit when the task is too broad to safely start
   coding immediately. This includes multi-file implementation, refactors,

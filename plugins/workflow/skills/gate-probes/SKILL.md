@@ -1,6 +1,7 @@
 ---
 name: gate-probes
 description: Use before git commit or gh pr create, and before handing coding work to the user. Run these universal gates before language-specific review skills. Checks scope control, duplication, reviewability, verification, and residual risks.
+compatibility: claude-code opencode
 ---
 
 # Gate Probes

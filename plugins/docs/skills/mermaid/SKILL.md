@@ -1,6 +1,7 @@
 ---
 name: mermaid
 description: Use when asked to view, render, preview, export, or open a Mermaid diagram; when working with .mmd files; or when Markdown contains Mermaid code blocks. Render the diagram with mermaid-view and report the output path.
+compatibility: claude-code opencode
 ---
 
 # Mermaid Diagram Viewer

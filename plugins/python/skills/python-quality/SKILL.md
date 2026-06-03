@@ -5,6 +5,7 @@ description: |
   pytest, or click CLIs. Enforces fail-loud errors, no speculative fallbacks,
   consolidated traversals, and uv/ruff conventions. For reviews, use
   python-review; it applies these rules.
+compatibility: claude-code opencode
 ---
 
 # Python Quality Standards

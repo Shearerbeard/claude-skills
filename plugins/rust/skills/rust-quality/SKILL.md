@@ -5,6 +5,7 @@ description: |
   Prevents LLM-specific Rust anti-patterns: sprawl, god modules, speculative
   fallbacks, unnecessary clones, verbose matches, and weak error modeling. For
   reviews, use rust-review; it applies these rules.
+compatibility: claude-code opencode
 ---
 
 # Rust Quality — LLM Anti-Pattern Prevention
