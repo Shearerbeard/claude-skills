@@ -26,6 +26,21 @@
       "name": "workflow",
       "description": "Planning discipline and universal quality gate probes",
       "source": "./plugins/workflow"
+    },
+    {
+      "name": "vale-lsp",
+      "description": "Vale prose linter LSP for catching AI-generated writing patterns",
+      "version": "1.0.0",
+      "source": "./plugins/vale-lsp",
+      "lspServers": {
+        "vale-ls": {
+          "command": "vale-ls",
+          "extensionToLanguage": {
+            ".md": "markdown",
+            ".txt": "plaintext"
+          }
+        }
+      }
     }
   ]
 }
