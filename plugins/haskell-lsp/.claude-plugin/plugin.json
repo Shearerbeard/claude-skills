@@ -1,0 +1,5 @@
+{
+  "name": "haskell-lsp",
+  "description": "Haskell Language Server for type checking and code intelligence",
+  "version": "1.0.0"
+}

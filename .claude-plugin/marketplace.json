@@ -37,17 +37,7 @@
       "name": "haskell-lsp",
       "description": "Haskell Language Server for type checking and code intelligence",
       "version": "1.0.0",
-      "source": "./plugins/haskell-lsp",
-      "lspServers": {
-        "haskell-language-server": {
-          "command": "haskell-language-server-wrapper",
-          "args": ["--lsp"],
-          "extensionToLanguage": {
-            ".hs": "haskell",
-            ".lhs": "haskell"
-          }
-        }
-      }
+      "source": "./plugins/haskell-lsp"
     }
   ]
 }
