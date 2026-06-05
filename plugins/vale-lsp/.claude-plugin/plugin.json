@@ -1,0 +1,5 @@
+{
+  "name": "vale-lsp",
+  "description": "Vale prose linter LSP for catching AI-generated writing patterns",
+  "version": "1.0.0"
+}

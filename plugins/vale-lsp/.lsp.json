@@ -1,0 +1,9 @@
+{
+  "vale-ls": {
+    "command": "vale-ls",
+    "extensionToLanguage": {
+      ".md": "markdown",
+      ".txt": "plaintext"
+    }
+  }
+}
