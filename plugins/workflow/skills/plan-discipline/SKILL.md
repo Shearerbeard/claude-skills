@@ -3,9 +3,13 @@ name: plan-discipline
 description: |
   Use when the user asks to add a feature, refactor, migrate, or redesign
   code. Also use when they say "plan this out", "scope this", "minimal V1",
-  "vet assumptions", or "don't assume". Enforces evidence check, verification
-  framing, and gate-probes before the first code edit. Skip single-file edits,
-  typo fixes, and pure read/answer requests.
+  "vet assumptions", "don't assume", "plan with gates", "where should the
+  user review?", or "what gates should this plan have?". Produces a
+  structured plan with scope interview, blast-radius scan, existing building
+  blocks search, and explicit review gates (self-review, agent second
+  opinion, manual testing, user review, user testing) placed at the
+  appropriate stages and prescribing user involvement at key checkpoints.
+  Skip single-file edits, typo fixes, and pure read/answer requests.
 compatibility: claude-code opencode
 when_to_use: |
   Invoke before the first code edit when the task is too broad to safely start
@@ -45,22 +49,69 @@ For non-trivial tasks, ask before building:
 
 Summarize back before writing code.
 
-## Implementation shape
+## Review Gates
 
-- For 5+ commit refactors: delegate per-commit work to sub-agents. Main agent owns sequencing, gates, git, memory.
-- Integration tests at each commit boundary, not bundled at end
-- At each gate boundary, invoke `gate-probes` first, then any applicable language-specific review skill
+Every non-trivial plan must define which gates apply at each stage. Gates are
+checkpoints the agent must pass before proceeding. Some gates pull the user in;
+the plan must say so.
 
-## Adaptive review gates
+### Gate types
 
-At each stage boundary, propose which deterministic tools apply (build, lint, fmt, type check, tests — skip what can't run yet and say why). Run context-isolated agent review in background (reviewer must NOT have seen the implementation). Present deterministic results + agent findings + staged diffs to user in one pass.
+**Gate S — Self-review (agent, deterministic)**
+- Run deterministic tools: lint, fmt --check, type check, build, test
+- Fix all failures before proceeding
+- Skip tools that can't run yet (e.g., tests before implementation) — note why
 
-## Report format
+**Gate A — Agent second opinion (context-isolated)**
+- Dispatch a fresh subagent with no prior implementation context
+- Give it the diff, the plan, and the success criteria
+- It must find issues or explicitly sign off
+- Combine its findings with Gate S results
 
-After completing the pre-flight checklist, present findings:
+**Gate M — Manual testing by agent**
+- Agent exercises the feature using realistic inputs
+- Reports behavior: what worked, edge cases hit, open questions
+- Never passes if the agent can't verify the success criteria
+
+**Gate U — User review**
+- Pause and present: staged diffs, Gate S/A results, what changed and why
+- Highlight highest-risk changes (new interfaces, data migrations, auth/permission)
+- Do NOT proceed until user confirms
+
+**Gate T — User testing**
+- Prescribe specific manual testing steps the user must perform
+- List what to test, how to verify, what edge cases to try
+- Do not assume the user knows how to test — be explicit
+
+### Gate placement rules
+
+| Stage | Gates | User pulled in? |
+|-------|-------|-----------------|
+| After each commit / chunk of work | S → A | No |
+| Public API / interface changes | S → A → U | **Yes** |
+| Data model / schema / migration changes | S → A → U | **Yes** |
+| Auth / permission / security changes | S → A → U → T | **Yes — mandatory** |
+| Before integration or merge | S → A → M → U | **Yes** |
+| After full implementation | S → A → M → T | **Yes** |
+
+If a stage triggers user involvement, the plan template must include the 🛑
+USER GATE marker. The agent must STOP and present at that gate — never push past
+without user approval.
+
+### Implementation shape
+
+- For 5+ stage refactors: delegate per-stage work to sub-agents. Main agent owns
+  sequencing, gates, git, memory.
+- Integration tests at each stage boundary, not bundled at end
+- At each gate boundary, load `gate-probes` first, then applicable
+  language-specific review skills (rust-review, python-review)
+
+## Plan Template
+
+After completing the pre-flight checklist, produce the plan in this format:
 
 ```
-## Plan Preflight: <task summary>
+## Plan: <task summary>
 
 ### Scope
 - Core problem: ...
@@ -72,11 +123,34 @@ After completing the pre-flight checklist, present findings:
 - Smoke test: ...
 - Deterministic checks: ...
 
-### Blast radius
+### Blast Radius
 - Files to change: ...
 - Existing building blocks: ...
 - Test coverage gaps: ...
 
-### Gate probes
-- Status: <invoked / not needed — reason>
+### Implementation Stages
+
+#### Stage 1: <description>
+- Changes: ...
+- Gates: S → A
+- [ ] Gate S: <deterministic checks to run>
+- [ ] Gate A: agent review of diff
+
+#### Stage 2: <description> 🛑 USER GATE
+- Changes: ...
+- Gates: S → A → U
+- [ ] Gate S: <checks>
+- [ ] Gate A: agent review
+- [ ] Gate U: present diffs + findings, highlight highest-risk changes, await approval
+
+#### Stage 3: <description> 🛑 USER TEST
+- Changes: ...
+- Gates: S → A → M → T
+- [ ] Gate S: ...
+- [ ] Gate A: ...
+- [ ] Gate M: agent exercises feature, reports behavior
+- [ ] Gate T: manual testing steps for user
+
+### Rollback
+- If stage N fails: <how to revert>
 ```
