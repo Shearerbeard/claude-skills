@@ -1,14 +1,15 @@
 ---
 name: rust-design
 description: |
-  Use when the user says "design a Rust type", "model this in Rust",
-  "Rust ADT", "state machine", "make illegal states unrepresentable",
+  Use when writing, designing, or reviewing Rust types and domain
+  models — "design a Rust type", "model this in Rust", "Rust ADT",
+  "state machine", "make illegal states unrepresentable",
   "constrained type", "typestate", "newtype design", "sketch type
-  signatures", or asks how to structure a Rust domain before writing
-  code. Contains ADT-first workflow, constrained type patterns,
-  railway-oriented programming, match semantics, 6-step clone
-  avoidance, and ownership restructuring. Pair with rust-quality
-  during implementation.
+  signatures", "write a Rust struct", "review these Rust types".
+  Contains ADT-first workflow, constrained type patterns, railway-
+  oriented programming, match semantics, 6-step clone avoidance,
+  and ownership restructuring. Pair with rust-quality for anti-pattern
+  prevention and rust-review for gate-level review.
 compatibility: claude-code opencode
 ---
 
@@ -165,16 +166,4 @@ fn update(&mut self) { let Self { config, data, .. } = self; data.retain(|x| x.e
 - Avoid `Box<dyn Error>` in library code. Use a concrete error enum.
 - Early return / `?` over deeply nested blocks. The happy path is the least-indented code.
 
-## Async Guardrails
 
-**Don't block the async executor.** Tokio's cooperative scheduler requires
-tasks yield at `.await` frequently. Never call `std::thread::sleep` or
-blocking I/O on an async task — the entire thread pool stalls. Use
-`tokio::task::spawn_blocking` for CPU-heavy work and sync I/O. See:
-Tokio spawning tutorial, [Alice Ryhl: What Is Blocking?](https://ryhl.io/blog/async-what-is-blocking/).
-
-**`Send` + `'static` on spawned tasks.** Tokio requires both. Non-`Send`
-types (`Rc`, `RefCell`) held across `.await` poison the future. Prefer
-`Arc` over `Rc`, `std::sync::Mutex` over `RefCell`. Drop non-`Send`
-values before `.await` — scope them in blocks when compiler analysis is
-too conservative. See: Rust async book §Send Approximation.
