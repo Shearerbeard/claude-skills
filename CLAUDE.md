@@ -111,14 +111,9 @@ The `description` field in SKILL.md frontmatter is model-facing routing text. Cl
 
 Plan mode hooks exist in Claude Code but are buggy: EnterPlanMode hook output is ignored (#41051), user-initiated `/plan` doesn't fire hooks (#15660). In OpenCode and Claude Code, invoke `plan-discipline` manually when its hard blockers matter; plan-mode prompts often make the skill look redundant to the model.
 
-## Planning Guardrails
+## Planning
 
-Before non-trivial code work, do not write code until you have:
-
-- Asked or inferred the scope interview: core problem, audience, success, and explicit non-goals
-- Stated the verification plan, including a smoke test or manual happy-path check when applicable
-- Mapped blast radius: files likely to change, existing functions to reuse, tests/docs affected
-- Named the review gates: deterministic checks plus `gate-probes` before commit, PR, or handoff
+Before non-trivial code work, load `plan-discipline` — it enforces the scope interview, verification framing, blast-radius scan, gate placement, and review checkpoints. It is the single source of truth for planning workflow; do not duplicate its rules here.
 
 See: [Skills docs](https://code.claude.com/docs/en/skills), [Plugin marketplaces](https://code.claude.com/docs/en/plugin-marketplaces)
 
