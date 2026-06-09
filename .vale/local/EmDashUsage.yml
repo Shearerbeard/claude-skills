@@ -1,0 +1,14 @@
+---
+extends: existence
+message: |
+  Em dash detected. In technical writing, "Thing — detail" and "Thing - detail"
+  are both common and stylistic — either is fine. If you prefer the hyphen style,
+  swap it. Otherwise the em dash is idiomatic in online tech conversations,
+  markdown lists, and command-line notation.
+level: warning
+scope: raw
+nonword: true
+tokens:
+  - '—'
+  - '–'
+  - '--'

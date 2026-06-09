@@ -65,6 +65,8 @@ If the user provides a writing sample (their own previous writing), analyze it b
 
 Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as obvious as slop. Good writing has a human behind it.
 
+**Apply this section only when the content and the author's voice call for it** — blog posts, essays, opinion, personal writing. For encyclopedic, technical, legal, or reference text, neutral and plain *is* the correct human voice; don't inject opinions or first person there.
+
 ### Signs of soulless writing (even if technically "clean"):
 - Every sentence is the same length and structure
 - No opinions, just neutral reporting
@@ -267,15 +269,28 @@ Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as
 
 ## STYLE PATTERNS
 
-### 14. Em Dash Overuse
+### 14. Em Dashes (and En Dashes): Context-Dependent
 
-**Problem:** LLMs use em dashes (—) more than humans, mimicking "punchy" sales writing. In practice, most of these can be rewritten more cleanly with commas, periods, or parentheses.
+**Rule:** In narrative and marketing prose, em dashes co-occurring with other AI tells (rule-of-three, promotional language, -ing padding) should be replaced. In technical documentation, both `Thing — detail` (em dash) and `Thing - detail` (regular hyphen) are common and stylistic — either is fine. If you prefer the hyphen style, swap the em dash for a regular hyphen. Otherwise preserve it; the pattern is idiomatic in online tech conversations, markdown lists, and command-line notation.
 
-**Before:**
+When replacing in narrative prose, preferred order: a period (start a new sentence), a comma (a tight aside), a colon (introducing an explanation), parentheses (a true aside), or restructure the sentence. Also catch spaced em dashes (` — `) and double hyphens (` -- `) used the same way.
+
+**Before (narrative, cluster of tells):**
 > The term is primarily promoted by Dutch institutions—not by the people themselves. You don't say "Netherlands, Europe" as an address—yet this mislabeling continues—even in official documents.
 
 **After:**
 > The term is primarily promoted by Dutch institutions, not by the people themselves. You don't say "Netherlands, Europe" as an address, yet this mislabeling continues in official documents.
+
+**Before (spaced/double-hyphen variants):**
+> The new policy — announced without warning — affects thousands of workers. The changes -- long overdue according to critics -- will take effect immediately.
+
+**After:**
+> The new policy, announced without warning, affects thousands of workers. The changes, long overdue according to critics, will take effect immediately.
+
+**Technical docs (both acceptable):**
+> Documentation — setup instructions  →  Documentation - setup instructions
+
+Before returning the final rewrite, scan for `—` and `–`. In narrative prose, any hit should be addressed. In technical docs, either style is fine — don't force a change unless the em dash clusters with other AI tells. The Vale pre-pass uses `local.EmDashUsage` at `warning` level to surface these; do not mechanically replace every finding.
 
 
 ### 15. Overuse of Boldface
@@ -415,13 +430,13 @@ Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as
 
 **Words to watch:** third-party, cross-functional, client-facing, data-driven, decision-making, well-known, high-quality, real-time, long-term, end-to-end
 
-**Problem:** AI hyphenates common word pairs with perfect consistency. Humans rarely hyphenate these uniformly, and when they do, it's inconsistent. Less common or technical compound modifiers are fine to hyphenate.
+**Problem:** AI hyphenates these uniformly, including in predicate position (`the report is high-quality`). Humans hyphenate inconsistently — typically only when the compound is attributive (`a high-quality report`) and often dropping the hyphen otherwise (`the report is high quality`). Keep attributive-position hyphens; drop them when the compound follows the noun.
 
 **Before:**
-> The cross-functional team delivered a high-quality, data-driven report on our client-facing tools. Their decision-making process was well-known for being thorough and detail-oriented.
+> The cross-functional team delivered a high-quality, data-driven report. The team is cross-functional, the report is high-quality, and the methodology is data-driven.
 
 **After:**
-> The cross functional team delivered a high quality, data driven report on our client facing tools. Their decision making process was known for being thorough and detail oriented.
+> The cross-functional team delivered a high-quality, data-driven report. The team is cross functional, the report is high quality, and the methodology is data driven.
 
 
 ### 27. Persuasive Authority Tropes
@@ -468,20 +483,102 @@ Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as
 >
 > When users hit a slow page, they leave.
 
+
+### 30. Diff-Anchored Writing
+
+**Problem:** Documentation or comments written as if narrating a change rather than describing the thing as it is. Unless the document is inherently version-scoped (changelogs, release notes, migration guides), it should read coherently without knowing what changed in the last commit.
+
+**Before:**
+> This function was added to replace the previous approach of iterating through all items, which caused O(n²) performance.
+
+**After:**
+> This function uses a hash map for O(1) lookups, avoiding the O(n²) cost of naive iteration.
+
+
+### 31. Manufactured Punchlines and Staccato Drama
+
+**Problem:** LLMs often make every sentence land like a quotable closer, then stack short declarative fragments to manufacture drama. A single short sentence for emphasis is fine; a run of them starts to sound engineered.
+
+**Before:**
+> Then AlphaEvolve arrived. It had no preference for symmetry. No aesthetic prior. No nostalgia for human taste. The old rules were gone.
+
+**After:**
+> AlphaEvolve changed the search because it did not favor symmetry or human-looking designs. That made some of the older assumptions less useful.
+
+
+### 32. Aphorism Formulas
+
+**Words to watch:** X is the Y of Z, X becomes a trap, X is not a tool but a mirror, the language of, the currency of, the architecture of
+
+**Problem:** LLMs turn ordinary claims into reusable aphorisms that sound profound without adding precision. Replace the formula with the concrete claim it is gesturing at.
+
+**Before:**
+> Symmetry is the language of trust. Efficiency becomes a trap when teams forget the human layer.
+
+**After:**
+> Symmetric layouts often feel more predictable to users. Teams can over-optimize workflows and miss how people actually use them.
+
+
+### 33. Conversational Rhetorical Openers
+
+**Phrases to watch:** Honestly?, Look, Here's the thing, The thing is, Let's be honest, Real talk, when used as standalone hooks or fake-candid pauses before an ordinary point.
+
+**Problem:** LLMs open with a fake-candid hook to manufacture intimacy before delivering a routine claim. The tell is the theatrical pause-and-reveal: a one-word question or aside, then the "real" answer. A person being honest usually just says the thing.
+
+**Before:**
+> Is it worth the price? Honestly? It depends on how often you'll use it.
+
+**After:**
+> Whether it's worth the price depends on how often you'll use it.
+
+
+## DETECTION GUIDANCE
+
+### What NOT to flag (false positives)
+
+A clean human writer can hit several of the patterns above without any AI involvement. Before rewriting, sanity-check that you are not gutting legitimate prose. The following are *not* reliable indicators on their own:
+
+- **Perfect grammar and consistent style.** Many writers are professionals or have been edited. Polish does not equal AI.
+- **Mixed casual and formal registers.** This often signals a person in a technical field, a young writer, or someone with neurodivergent prose habits — not a chatbot.
+- **"Bland" or "robotic" prose.** AI prose has *specific* tells. Generic dryness without those tells is just dry writing.
+- **Formal or academic vocabulary.** AI overuses *specific* fancy words (see §7), not all fancy words. Don't flatten "ostensibly" or "constituent" just because they sound brainy.
+- **Letter-style opening or closing on a comment.** Salutations and sign-offs predate ChatGPT by centuries.
+- **Common transition words in isolation.** *Additionally*, *moreover*, *consequently* are AI-coded only when piled up. One *however* is not a tell.
+- **Curly quotes alone.** macOS, Word, Google Docs, and most CMSes auto-curl by default. Curly quotes only count when stacked with other tells.
+- **Em dashes alone.** Many editors and journalists use them often. Em dashes are evidence only when paired with formulaic sales-y rhythm. Technical documentation patterns (`Thing — detail`) and markdown list conventions are not AI tells.
+- **One short emphatic sentence.** Humans use clipped sentences to land a point. Flag staccato drama only when several short fragments appear in a row and inflate the tone.
+- **"Honestly" or "look" mid-sentence.** These are ordinary in casual writing. The tell is the standalone theatrical opener, not the word itself.
+- **Unsourced claims.** Most of the web is unsourced. Lack of citations doesn't prove anything.
+- **Correct, complex formatting.** Visual editors and templates produce clean output without any AI.
+
+When in doubt, look for **clusters** of tells, not isolated ones. A single em dash means nothing; em dashes plus rule-of-three plus *vibrant tapestry* plus a "Conclusion" section is a confession.
+
+
+### Signs of human writing (preserve these)
+
+When you see these, lean toward leaving the prose alone — they are evidence of a real person writing, and over-editing will destroy what makes the piece sound human:
+
+- **Specific, unusual, hard-to-fabricate detail.** A real address. A weird quote. The phrase "the lawyer who used to work upstairs from my dentist." LLMs round off specifics; humans hoard them.
+- **Mixed feelings and unresolved tension.** "I think this is mostly good, but it bothers me, and I can't fully explain why." LLMs default to clean takes.
+- **Dated, era-bound references.** Slang, memes, or in-jokes that map to a specific year and subculture. Models lag by a year or more.
+- **First-person editorial choices the writer can defend.** If the writer can explain *why* they made a particular cut or used a particular word, that's a strong human signal.
+- **Variety in sentence length.** Real writing alternates short and long. AI writing tends toward an even, mid-length cadence.
+- **Genuine asides, parentheticals, or self-corrections.** "(I keep wanting to say 'almost' here, but it really was certain.)" Models rarely interrupt themselves like this.
+- **Edits made before November 30, 2022.** ChatGPT's public launch. Anything older than that is, with very rare exceptions, not AI-written.
+
 ---
 
 ## Process
 
-0. **Vale pre-pass** (deterministic, before the LLM rewrite):
-   - Check if `vale` is installed (`vale --version`). If not, skip this step silently.
-   - Config resolution: use the project's `.vale.ini` if present. Otherwise use the bundled fallback at `${CLAUDE_SKILL_DIR}/../prose-lint/.vale.ini`. If neither exists, skip.
-   - Run `vale --no-global --config "$config" sync` if styles are not yet downloaded.
-   - Pipe the input text through Vale via stdin:
-     ```bash
-     printf '%s' "$text" | vale --no-global --config "$config" --ext=.md --output=JSON
-     ```
-   - Parse findings. These are **hard constraints** for the rewrite: every Vale error must be addressed, not just considered. Carry them into step 3.
-   - If a calling skill already provided `prose-lint` findings (e.g. from a review chain), skip the Vale pre-pass and use those findings instead.
+ 0. **Vale pre-pass** (deterministic, before the LLM rewrite):
+    - Check if `vale` is installed (`vale --version`). If not, skip this step silently.
+    - Run `vale sync` if styles are not yet downloaded.
+    - Pipe the input text through Vale via stdin (no `--config` needed; Vale resolves project → global `~/.vale.ini` natively):
+      ```bash
+      printf '%s' "$text" | vale --ext=.md --output=JSON
+      ```
+    - Parse findings. These are **hard constraints** for the rewrite: every Vale error must be addressed, not just considered. Warnings are advisory — evaluate with context from the DETECTION GUIDANCE section.
+    - If a calling skill already provided `prose-lint` findings (e.g. from a review chain), skip the Vale pre-pass and use those findings instead.
 1. Read the input text carefully
 2. Identify all instances of the patterns above
 3. Rewrite each problematic section, addressing Vale pre-pass findings first
@@ -501,7 +598,7 @@ Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as
 
 When invoked by another skill as a final prose pass, output only the final revised text unless the user explicitly asked for analysis.
 
-Run the Vale pre-pass (step 0) for deterministic findings before rewriting. If a calling skill already provided prose-lint findings, skip the pre-pass and use those instead. Run `vale` directly via Bash — the prose-lint skill tool is not needed here since humanizer already carries its own lint instructions.
+Run the Vale pre-pass (step 0) for deterministic findings before rewriting. If a calling skill already provided prose-lint findings, skip the pre-pass and use those instead. Just run `vale` via Bash — Vale natively resolves project `.vale.ini` → global `~/.vale.ini`.
 
 When the user asks for a full humanizing pass, provide:
 
