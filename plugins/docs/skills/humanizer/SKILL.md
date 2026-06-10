@@ -271,7 +271,7 @@ Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as
 
 ### 14. Em Dashes (and En Dashes): Context-Dependent
 
-**Rule:** In narrative and marketing prose, em dashes co-occurring with other AI tells (rule-of-three, promotional language, -ing padding) should be replaced. In technical documentation, both `Thing — detail` (em dash) and `Thing - detail` (regular hyphen) are common and stylistic — either is fine. If you prefer the hyphen style, swap the em dash for a regular hyphen. Otherwise preserve it; the pattern is idiomatic in online tech conversations, markdown lists, and command-line notation.
+**Rule:** In narrative and marketing prose, em dashes co-occurring with other AI tells (rule-of-three, promotional language, -ing padding) should be replaced. In technical 'Thing — detail' constructions, replace the em dash with a plain hyphen: 'Thing - detail'. In narrative prose where the em dash joins clauses, restructure with a period, comma, colon, or parentheses instead. Leave em dashes only in quoted verbatim text, code blocks, and CLI output.
 
 When replacing in narrative prose, preferred order: a period (start a new sentence), a comma (a tight aside), a colon (introducing an explanation), parentheses (a true aside), or restructure the sentence. Also catch spaced em dashes (` — `) and double hyphens (` -- `) used the same way.
 
@@ -287,10 +287,10 @@ When replacing in narrative prose, preferred order: a period (start a new senten
 **After:**
 > The new policy, announced without warning, affects thousands of workers. The changes, long overdue according to critics, will take effect immediately.
 
-**Technical docs (both acceptable):**
+**Technical docs:**
 > Documentation — setup instructions  →  Documentation - setup instructions
 
-Before returning the final rewrite, scan for `—` and `–`. In narrative prose, any hit should be addressed. In technical docs, either style is fine — don't force a change unless the em dash clusters with other AI tells. The Vale pre-pass uses `local.EmDashUsage` at `warning` level to surface these; do not mechanically replace every finding.
+Before returning the final rewrite, scan for `—` and `–`. In narrative prose, any hit should be addressed by restructuring with a period, comma, colon, or parentheses. In technical 'Thing — detail' constructions, replace the em dash with a plain hyphen. Leave em dashes only in quoted verbatim text, code blocks, and CLI output. The Vale pre-pass uses `local.EmDashUsage` at `warning` level to surface these; follow the three-case guidance above.
 
 
 ### 15. Overuse of Boldface
@@ -545,7 +545,7 @@ A clean human writer can hit several of the patterns above without any AI involv
 - **Letter-style opening or closing on a comment.** Salutations and sign-offs predate ChatGPT by centuries.
 - **Common transition words in isolation.** *Additionally*, *moreover*, *consequently* are AI-coded only when piled up. One *however* is not a tell.
 - **Curly quotes alone.** macOS, Word, Google Docs, and most CMSes auto-curl by default. Curly quotes only count when stacked with other tells.
-- **Em dashes alone.** Many editors and journalists use them often. Em dashes are evidence only when paired with formulaic sales-y rhythm. Technical documentation patterns (`Thing — detail`) and markdown list conventions are not AI tells.
+- **Em dashes alone.** Many editors and journalists use them often. Em dashes are evidence only when paired with formulaic sales-y rhythm. Technical documentation patterns (`Thing — detail`) and markdown list conventions are not AI tells on their own — but still replace the em dash with a plain hyphen per the §14 rule.
 - **One short emphatic sentence.** Humans use clipped sentences to land a point. Flag staccato drama only when several short fragments appear in a row and inflate the tone.
 - **"Honestly" or "look" mid-sentence.** These are ordinary in casual writing. The tell is the standalone theatrical opener, not the word itself.
 - **Unsourced claims.** Most of the web is unsourced. Lack of citations doesn't prove anything.
