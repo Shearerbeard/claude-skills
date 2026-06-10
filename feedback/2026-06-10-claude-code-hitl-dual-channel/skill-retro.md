@@ -12,14 +12,15 @@ repo: internal Rust agent-orchestration service @ feature worktree; ADR on a sep
 Deliverables of the session under review: dual-channel HITL architecture ADR (committed
 on its own branch), Rust domain type pre-design, discovery docs in the private session
 wiki, and a handoff event. Design-only session: no Rust was
-written, but Rust types, module trees, async primitives, and two commits all happened.
+written, yet the work still covered Rust type design and module layout, plus
+async primitive choices and two git commits.
 Findings vetted with Mike before this document was written.
 
 ## How skills actually trigger (observed mechanics)
 
 Skill loading is model-discretionary. The names and descriptions sit in context as a list;
 nothing mechanically matches keywords. Whether a skill loads depends on whether its
-description is salient at a decision moment. This session showed four distinct channels,
+description surfaces at a decision moment. This session showed four distinct channels,
 ranked by observed reliability:
 
 1. **Entry-time conversational match.** User phrase matches description phrase at the
@@ -57,9 +58,9 @@ ranked by observed reliability:
 
 Answer to the vetting question ("are we only caring about conversational cues?"): no.
 Conversational cues only work at task entry. The underused valid channels are in-body
-cross-loads at sub-task boundaries (fixes the rust cluster), artifact cues tied to tool
-actions (these already work when descriptions name artifacts), and hooks for hard gates
-(fixes commit-time skills). The anti-pattern to remove is redundancy suppression: either
+cross-loads at sub-task boundaries (fixes the rust cluster) and deterministic hooks
+for hard gates (fixes commit-time skills); artifact cues already work where
+descriptions name artifacts. The anti-pattern to remove is redundancy suppression: either
 the skill is the single source of truth and CLAUDE.md points at it, or the skill will be
 skipped.
 
@@ -130,7 +131,7 @@ ADR was committed with zero independent eyes (the user chose "design audit" over
 commit-the-ADR moment). Neither collaborating-* skill names "ADR or design doc
 completed" as a trigger moment.
 
-**What worked without being a skill.** Explore subagents produced the two load-bearing
+**What worked without being a skill.** Explore subagents produced the two decisive
 evidence sweeps (the SSE-events vetting that corrected the user's recollection, and the
 client-tool turn-ending discovery that changed the architecture). Memory-encoded
 behaviors fired correctly throughout: anchor-to-design-docs (timeout numbers waited for

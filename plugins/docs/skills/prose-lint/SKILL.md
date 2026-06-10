@@ -12,7 +12,7 @@ Run deterministic prose checks with Vale. This skill reports findings and sugges
 
 1. Check whether Vale is available: `vale --version`.
 2. If Vale is missing, report that prose linting was skipped. Do not install Vale unless the user asks.
-3. Vale natively resolves `.vale.ini` from the project root → `~/.vale.ini` (global). No `--config` or `--no-global` needed — just run `vale` from the project directory. The global `~/.vale.ini` is managed by dotfiles and provides the `ai-tells` + `local` styles used here.
+3. Vale natively resolves `.vale.ini` from the project root → `~/.vale.ini` (global). No `--config` or `--no-global` needed — just run `vale` from the project directory. The global `~/.vale.ini` is managed by dotfiles and provides the ai-tells and local styles used here.
 4. If synced styles are missing, run `vale sync`. If sync fails, report the failure and continue without prose linting.
 
 ## Input modes
