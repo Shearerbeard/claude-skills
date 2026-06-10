@@ -2,7 +2,7 @@
 
 Session: 2026-06-02 to 2026-06-03
 Model: Claude Opus 4.6 (1M context)
-Project: mezmo/aura, worktree hitl-v1
+Project: internal Rust agent-orchestration service, feature worktree
 Task: implement HITL approval gating (config gate + callable tool)
 
 This is a raw transcript of every skill invocation attempt, in order,
@@ -159,7 +159,7 @@ workflow@my-skills -> ~/.claude/plugins/cache/my-skills/workflow/1.0.0  NOT ON D
 ```
 
 `my-skills` is a directory-source marketplace at
-`/Users/mshearer/dev/claude-skills`. The cache paths in
+`~/dev/claude-skills`. The cache paths in
 `installed_plugins.json` don't exist because directory marketplaces
 read from source directly. Skills appear in the system reminder,
 suggesting discovery works but invocation resolution is inconsistent.

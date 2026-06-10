@@ -1,7 +1,8 @@
 # HITL V1 Session Feedback
 
 Raw feedback from a 2026-06-02/03 implementation session (Claude Opus
-4.6, mezmo/aura HITL approval gating). Three immutable source files:
+4.6, HITL approval gating for an internal Rust agent-orchestration
+service). Three immutable source files:
 
 | File | What it is |
 |------|-----------|
@@ -33,7 +34,8 @@ Raw feedback from a 2026-06-02/03 implementation session (Claude Opus
 Pass these files to a skills optimization agent:
 
 ```
-Read all three files in ~/dev/claude-skills/feedback/hitl-v1-session/
+Read all three files in
+~/dev/claude-skills/feedback/2026-06-03-claude-code-hitl-v1/
 and propose changes to skill descriptions, trigger conditions, and
 naming to address the findings.
 ```

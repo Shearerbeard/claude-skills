@@ -1,0 +1,41 @@
+---
+# Local override of ai-tells.FormalRegister (the package copy is disabled in
+# .vale.ini). Trimmed against Mike's real vocabulary 2026-06-10: concrete
+# software words removed (implement*, terminate*, optimize*, minimize*,
+# maximize*, framework*, prioritize*). Genuinely stilted words stay.
+# Never edit .vale/ai-tells/ directly: vale sync overwrites it.
+extends: existence
+message: "AI formalism: '%s'. Use a simpler word (e.g., 'use' instead of 'utilize')."
+level: error
+tokens:
+  - utilize
+  - utilizes
+  - utilizing
+  - utilized
+  - utilization
+  - facilitate
+  - facilitates
+  - facilitating
+  - facilitated
+  - facilitation
+  - commence
+  - commences
+  - commencing
+  - commenced
+  - ascertain
+  - ascertains
+  - ascertaining
+  - endeavour
+  - endeavours
+  - endeavouring
+  - methodology
+  - methodologies
+  - conceptualize
+  - conceptualizes
+  - conceptualizing
+  - operationalize
+  - operationalizes
+  - operationalizing
+  - incentivize
+  - incentivizes
+  - incentivizing

@@ -19,6 +19,9 @@ Model-invoked skills for Claude Code, OpenCode, and Codex. Registered as a local
 | `mermaid` | docs | `.mmd` files / diagrams | Render and open Mermaid diagrams |
 | `plan-discipline` | workflow | planning / design / scope | Verification-first, scope interview, blast radius |
 | `gate-probes` | workflow | commit / review / PR | 7 universal quality probes + surgical discipline |
+| `skill-retro` | workflow | "retro my skills" | Audit how skills triggered and performed in a session; files retros under `feedback/` |
+
+Two more plugins ship LSP configs rather than skills: `vale-lsp` (Vale prose diagnostics) and `haskell-lsp` (Haskell Language Server).
 
 ## How Skills Chain
 
@@ -53,13 +56,17 @@ User prompt → plan-discipline   (scope interview, blast radius, gate placement
 
 ## Writing Skill Descriptions
 
-The `description` field in SKILL.md frontmatter is model-facing routing text. Follow these conventions:
+The `description` field in SKILL.md frontmatter is model-facing routing text. Claude Code and OpenCode both rely on model judgment over skill metadata; words like "triggered", "Triggers", "auto-triggered", and "activates" have no special runtime meaning. Claude Code can also use `when_to_use`; OpenCode ignores that field, so keep critical routing phrases in `description`.
+
+Follow these conventions:
 
 - **Lead with concrete user phrases**: "Use when the user says 'design a Rust type', 'model this in Rust'" — not "Triggers when working with Rust."
 - **List keywords and verbs the user actually types**: "async function", "tokio", "spawn a task" — the model matches against these.
 - **Front-load trigger conditions, then describe content**: trigger phrases first, then "Contains X, Y, Z."
 - **Mention sibling skills for pairing**: "Pair with rust-quality during implementation."
 - **Avoid abstract state language**: "entering plan mode", "at commit boundaries" — the trigger system can't observe internal state transitions.
+
+Plan mode hooks exist in Claude Code but are buggy: EnterPlanMode hook output is ignored (claude-code#41051), and user-initiated `/plan` doesn't fire hooks (claude-code#15660). Invoke `plan-discipline` manually when its hard blockers matter; plan-mode prompts often make the skill look redundant to the model.
 
 ## CLAUDE.md Guidelines
 
@@ -100,7 +107,7 @@ This pattern keeps the skill as the single source of truth. Duplicating skill ru
 },
 "extraKnownMarketplaces": {
   "my-skills": {
-    "source": { "source": "directory", "path": "/Users/mshearer/dev/claude-skills" }
+    "source": { "source": "directory", "path": "/absolute/path/to/claude-skills" }
   }
 }
 ```
@@ -125,7 +132,7 @@ Use `docs/internal/testing/skill-test-matrix.md` for manual Claude Code and Open
 
 ## Prose Linting
 
-This repo uses Vale with `tbhb/vale-ai-tells` for deterministic checks on AI-writing patterns. Run `vale sync` once per checkout to download the pinned style packages into `.vale/`; downloaded package directories are ignored by git.
+This repo uses Vale with `tbhb/vale-ai-tells` (pinned to v1.13.1 in `.vale.ini`) for deterministic checks on AI-writing patterns. Run `vale sync` once per checkout to download the pinned style packages into `.vale/`; downloaded package directories are ignored by git.
 
 `prose-lint` prefers a project's own `.vale.ini`. If the target project has no Vale config, the skill uses its bundled fallback config. If Vale is not installed or `vale sync` fails, the skill reports that prose linting was skipped and does not try to install anything.
 
@@ -145,7 +152,9 @@ claude-skills/
 │   ├── python/                  # python-quality, python-review
 │   ├── rust/                    # rust-design, rust-async, rust-quality, rust-review, rust-modules
 │   ├── docs/                    # docs-bustest, prose-lint, humanizer, mermaid
-│   └── workflow/                # plan-discipline, gate-probes
+│   ├── workflow/                # plan-discipline, gate-probes, skill-retro
+│   ├── vale-lsp/                # Vale LSP config (no skills)
+│   └── haskell-lsp/             # Haskell LSP config (no skills)
 ├── .claude-plugin/
 │   └── marketplace.json         # Marketplace registry
 ├── bin/
@@ -153,11 +162,9 @@ claude-skills/
 │   ├── check-skills             # Static skill/frontmatter checks
 │   ├── check-install            # Temp-home install checks
 │   └── check-prose              # Vale/prose lint smoke checks
-├── CLI.md                       # CLAUDE.md routing — routes to skills, never duplicates rules
 ├── docs/
-│   ├── internal/sessions/       # Session logs
-│   ├── internal/testing/        # Manual Claude/OpenCode test matrix
-│   └── research/                # Research documents
+│   └── internal/testing/        # Manual Claude/OpenCode test matrix
+├── feedback/                    # Session retros: how skills triggered and performed
 └── _archive/
     └── legacy-slash-commands/   # v1 slash commands (2025-11)
 ```

@@ -1,76 +1,16 @@
 # CLAUDE.md - Personal Skills Library
 
-## Overview
+Model-invoked skills for Claude Code, OpenCode, and Codex, registered as a local marketplace (`my-skills`).
 
-Personal model-invoked skills for Claude Code, OpenCode, and Codex. Registered as a local marketplace (`my-skills`) in `~/.claude/settings.json`.
+`README.md` owns orientation: the skill catalog, how skills chain, installation, quality-gate commands, repo structure, adding a skill, and the conventions for writing skill descriptions. Reference it rather than restating it here; when those facts change, update `README.md`.
 
-## Project Structure
+## Repo conventions
 
-```
-claude-skills/
-├── .claude-plugin/
-│   └── marketplace.json              # Marketplace registry (lists plugins with source paths)
-├── plugins/                          # Source of truth — one plugin per domain
-│   ├── python/
-│   │   ├── .claude-plugin/plugin.json
-│   │   └── skills/
-│   │       ├── python-quality/SKILL.md
-│   │       └── python-review/SKILL.md
-│   ├── rust/                         # rust-quality, rust-review, rust-modules
-│   ├── docs/                         # docs-bustest, prose-lint, humanizer, mermaid
-│   │   └── bin/                      # Scripts added to $PATH when plugin is enabled
-│   └── workflow/                     # gate-probes, plan-discipline
-├── bin/
-│   ├── install-skills                # Install skills to OpenCode + Codex
-│   ├── check-skills                  # Static skill/frontmatter checks
-│   ├── check-install                 # Temp-home install checks
-│   └── check-prose                   # Vale/prose lint smoke checks
-├── docs/
-│   ├── internal/sessions/            # Session logs and decision tracking
-│   ├── internal/testing/             # Claude/OpenCode behavior test matrix
-│   └── research/                     # Research documents
-└── _archive/                         # Retired content (prior art for new skills)
-    └── legacy-slash-commands/        # v1 slash commands (2025-11, pre-Skills API)
-```
-
-## Installation
-
-**Claude Code**: marketplace plugin in `~/.claude/settings.json`:
-```json
-"enabledPlugins": {
-  "python@my-skills": true,
-  "docs@my-skills": true,
-  "rust@my-skills": true,
-  "workflow@my-skills": true
-},
-"extraKnownMarketplaces": {
-  "my-skills": { "source": { "source": "directory", "path": "/Users/mshearer/dev/claude-skills" } }
-}
-```
-
-**OpenCode** or **Codex**: run the install script with a target:
-```bash
-./bin/install-skills opencode   # ~/.config/opencode/skills/
-./bin/install-skills codex      # ~/.codex/skills/
-```
-
-## Quality Gates
-
-Run these before installing changed skills:
-
-```bash
-./bin/check-skills
-./bin/check-install
-./bin/check-prose
-```
-
-For Claude Code and OpenCode behavior checks, use `docs/internal/testing/skill-test-matrix.md`. Score auto-loading separately from manual invocation; model-driven skill routing is not deterministic.
-
-## Adding a New Skill
-
-1. Create `plugins/<plugin>/skills/<name>/SKILL.md` with frontmatter (`name`, `description`)
-2. If this is a new plugin, create `plugins/<plugin>/.claude-plugin/plugin.json` and add to `.claude-plugin/marketplace.json`
-3. Run `./bin/install-skills opencode` or `./bin/install-skills codex` if using those tools
+- `plugins/` is the source of truth — one plugin per domain, skills at `plugins/<plugin>/skills/<name>/SKILL.md`.
+- After any `plugins/` change, run the quality gates (README "Quality Gates") and reinstall consumers with `./bin/install-skills opencode` (and `codex` if used). OpenCode and Codex read installed copies, not this repo.
+- Behavior checks live in `docs/internal/testing/skill-test-matrix.md`. Score auto-loading separately from manual invocation; model-driven skill routing is not deterministic.
+- `docs/internal/sessions/` and `docs/research/` are gitignored local working documents. Keep them out of commits; never delete them.
+- `feedback/` holds session retros on skill triggering and performance. `feedback/README.md` owns the directory naming and frontmatter conventions.
 
 ## Bundling Scripts with Skills
 
@@ -80,16 +20,9 @@ Do NOT put scripts inside `skills/<name>/scripts/`; that path only resolves from
 
 See: [Plugin structure docs](https://code.claude.com/docs/en/plugins)
 
-## Vale Prose Linting
+## Prose Linting
 
-This repo has a local `.vale.ini` pinned to `tbhb/vale-ai-tells` v1.13.1. Vale provides deterministic AI-writing checks; `humanizer` handles semantic rewrite and voice. When invoked standalone, `humanizer` runs its own Vale pre-pass (step 0) so deterministic checks apply even without an upstream `prose-lint` call.
-
-`prose-lint` also ships a bundled fallback `.vale.ini` for projects that do not have their own Vale config. If Vale is missing or `vale sync` fails, the skill must report the skip and continue without trying to install Vale.
-
-Initialize package styles once per checkout:
-```bash
-vale sync
-```
+README "Prose Linting" covers setup (`vale sync`), the pinned style package, and the prose-lint/humanizer split. Working notes for sessions in this repo:
 
 Common checks for changed prose:
 ```bash
@@ -98,18 +31,7 @@ printf '%s' "$draft" | vale --no-global --ext=.md --path=.git/COMMIT_EDITMSG --o
 printf '%s' "$docstring" | vale --no-global --ext=.md --ignore-syntax --output=JSON
 ```
 
-Use `prose-lint` for Vale workflows. Do not lint generated content, code blocks, schemas, exact API signatures, config examples, or intentional bad-prose examples unless the user asks.
-
-## Writing Effective Trigger Descriptions
-
-The `description` field in SKILL.md frontmatter is model-facing routing text. Claude Code and OpenCode both rely on model judgment over skill metadata; words like "triggered", "Triggers", "auto-triggered", and "activates" have no special runtime meaning. Claude Code can also use `when_to_use`; OpenCode ignores that field, so keep critical routing phrases in `description`.
-
-- Lead with concrete actions: "Use when creating .rs files" not "Triggers when working with Rust"
-- Reference file types, tool names, and user-facing verbs the LLM can match against
-- For workflow skills (planning, review), use language users actually type: "when the user asks to plan, design, scope"
-- Avoid abstract state language ("entering plan mode", "at commit boundaries"); the trigger system can't observe internal state transitions
-
-Plan mode hooks exist in Claude Code but are buggy: EnterPlanMode hook output is ignored (#41051), user-initiated `/plan` doesn't fire hooks (#15660). In OpenCode and Claude Code, invoke `plan-discipline` manually when its hard blockers matter; plan-mode prompts often make the skill look redundant to the model.
+Use `prose-lint` for Vale workflows. Do not lint generated content, code blocks, schemas, exact API signatures, config examples, or intentional bad-prose examples unless the user asks. When invoked standalone, `humanizer` runs its own Vale pre-pass (step 0) so deterministic checks apply even without an upstream `prose-lint` call.
 
 ## Planning
 
@@ -119,10 +41,6 @@ See: [Skills docs](https://code.claude.com/docs/en/skills), [Plugin marketplaces
 
 ## Archive Convention
 
-`_archive/` holds retired content that may be useful as source material for new skills.
-
-- `_archive/legacy-slash-commands/`: v1 slash commands from 2025-11 (pre-Skills API). Some contain useful patterns worth mining when building new skills.
-
 **When archiving:** move to `_archive/<descriptive-name>/`, never delete.
 
-**When creating a new skill:** check `_archive/` for related prior work. Adapt to the current format, don't copy wholesale.
+**When creating a new skill:** check `_archive/` for related prior work (see README "Archive"). Adapt to the current format, don't copy wholesale.

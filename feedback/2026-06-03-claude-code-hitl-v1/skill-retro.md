@@ -1,7 +1,7 @@
 # HITL V1 Skill System Retro
 
 Session: 2026-06-02 to 2026-06-03
-Task: implement HITL approval gating for Aura (config-driven + callable tool)
+Task: implement HITL approval gating for an internal Rust agent-orchestration service (config-driven + callable tool)
 Result: 3 commits, ~1960 lines, functional and shipping — but required
 heavy user re-steering that the skill system should have prevented.
 
@@ -345,7 +345,7 @@ Consumer documentation probe would have caught this.
 — User invoking the bus test manually. docs-bustest should have fired
 when docs/ files were written.
 
-> "This isn't a real aura config"
+> "This isn't a real [project] config"
 — User rejecting a smoke test config that was written from scratch
 instead of adapted from an existing working config.
 

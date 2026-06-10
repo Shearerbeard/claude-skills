@@ -15,9 +15,12 @@
 
 # Claude Code temporary files
 scripts/temp/
-docs/internal/sessions/*.tmp.md
 *.backup.*
 .claude/
+
+# Local working documents (session logs, research notes) — kept on disk, not published
+docs/internal/sessions/
+docs/research/
 
 # Temporary test repositories
 temp-*/

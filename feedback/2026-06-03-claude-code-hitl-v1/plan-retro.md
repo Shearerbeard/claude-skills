@@ -36,7 +36,7 @@ last_updated: 2026-06-03
 
    **Root cause:** No automated trigger. The plan said to do it but the execution loop (dispatch agent → verify build → commit → next) didn't pause for review skills. Needs a hook or checklist that fires between "tests pass" and "git commit".
 
-3. **Smoke test config was wrong.** The TOML `cmd` field for stdio MCP was misconfigured (Vec vs String, missing args split). Required debugging the MCP connection to find the config format. The test config also lacked realistic structure — user called it "not a real aura config."
+3. **Smoke test config was wrong.** The TOML `cmd` field for stdio MCP was misconfigured (Vec vs String, missing args split). Required debugging the MCP connection to find the config format. The test config also lacked realistic structure — user called it "not a real [project] config."
 
    **Root cause:** The smoke test setup was written without reading an existing working config first. Should have started from a known-good config and modified it.
 
