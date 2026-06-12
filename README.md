@@ -164,7 +164,7 @@ claude-skills/
 │   └── check-prose              # Vale/prose lint smoke checks
 ├── docs/
 │   └── internal/testing/        # Manual Claude/OpenCode test matrix
-├── feedback/                    # Session retros: how skills triggered and performed
+├── feedback/                    # Session retros (gitignored local working docs)
 └── _archive/
     └── legacy-slash-commands/   # v1 slash commands (2025-11)
 ```

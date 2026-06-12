@@ -9,7 +9,7 @@ Model-invoked skills for Claude Code, OpenCode, and Codex, registered as a local
 - `plugins/` is the source of truth — one plugin per domain, skills at `plugins/<plugin>/skills/<name>/SKILL.md`.
 - After any `plugins/` change, run the quality gates (README "Quality Gates") and reinstall consumers with `./bin/install-skills opencode` (and `codex` if used). OpenCode and Codex read installed copies, not this repo.
 - Behavior checks live in `docs/internal/testing/skill-test-matrix.md`. Score auto-loading separately from manual invocation; model-driven skill routing is not deterministic.
-- `docs/internal/sessions/` and `docs/research/` are gitignored local working documents. Keep them out of commits; never delete them.
+- `docs/internal/sessions/`, `docs/research/`, `docs/proposals/`, and `feedback/` are gitignored local working documents. Keep them out of commits; never delete them.
 - `feedback/` holds session retros on skill triggering and performance. `feedback/README.md` owns the directory naming and frontmatter conventions.
 
 ## Bundling Scripts with Skills
