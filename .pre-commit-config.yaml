@@ -1,0 +1,38 @@
+# Pre-commit hooks for claude-skills.
+# Deterministic quality gates that run on every commit.
+#
+# Install: brew install pre-commit betterleaks && bin/setup-hooks
+# Run manually: pre-commit run --all-files
+
+repos:
+  # Secret scanning (BPE-based, 98.6% recall)
+  - repo: https://github.com/betterleaks/betterleaks
+    rev: v1.4.1
+    hooks:
+      - id: betterleaks
+
+  # Local hooks
+  - repo: local
+    hooks:
+      # Unicode artifact check (non-breaking spaces, smart quotes, em dashes)
+      - id: asciicheck
+        name: Check for non-ASCII artifacts
+        entry: python3 bin/asciicheck.py
+        language: python
+        types: [text]
+        exclude: (^_archive/|^docs/internal/|plugins/.*/skills/.*/SKILL\.md$|\.vale/)
+
+      # Prose quality (diff-based Vale, skips SKILL.md and code blocks)
+      - id: check-prose
+        name: Prose quality (Vale)
+        entry: bin/check-prose
+        language: script
+        types: [markdown]
+        pass_filenames: false
+
+      # Commit message quality (Vale ai-tells-commits)
+      - id: vale-commit-msg
+        name: Commit message quality (Vale)
+        entry: vale --no-global --ext=.md .git/COMMIT_EDITMSG
+        language: system
+        stages: [commit-msg]

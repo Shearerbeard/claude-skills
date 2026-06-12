@@ -25,7 +25,7 @@ Two more plugins ship LSP configs rather than skills: `vale-lsp` (Vale prose dia
 
 ## How Skills Chain
 
-Skills are designed to compose — a single prompt can load 2-3 skills when the content spans multiple domains.
+Skills are designed to compose. A single prompt can load 2-3 skills when the content spans multiple domains.
 
 ### Rust stack
 
@@ -60,11 +60,11 @@ The `description` field in SKILL.md frontmatter is model-facing routing text. Cl
 
 Follow these conventions:
 
-- **Lead with concrete user phrases**: "Use when the user says 'design a Rust type', 'model this in Rust'" — not "Triggers when working with Rust."
-- **List keywords and verbs the user actually types**: "async function", "tokio", "spawn a task" — the model matches against these.
+- **Lead with concrete user phrases**: "Use when the user says 'design a Rust type', 'model this in Rust'", not "Triggers when working with Rust."
+- **List keywords and verbs the user actually types**: "async function", "tokio", "spawn a task". The model matches against these.
 - **Front-load trigger conditions, then describe content**: trigger phrases first, then "Contains X, Y, Z."
 - **Mention sibling skills for pairing**: "Pair with rust-quality during implementation."
-- **Avoid abstract state language**: "entering plan mode", "at commit boundaries" — the trigger system can't observe internal state transitions.
+- **Avoid abstract state language**: "entering plan mode", "at commit boundaries". The trigger system can't observe internal state transitions.
 
 Plan mode hooks exist in Claude Code but are buggy: EnterPlanMode hook output is ignored (claude-code#41051), and user-initiated `/plan` doesn't fire hooks (claude-code#15660). Invoke `plan-discipline` manually when its hard blockers matter; plan-mode prompts often make the skill look redundant to the model.
 
@@ -75,13 +75,13 @@ Plan mode hooks exist in Claude Code but are buggy: EnterPlanMode hook output is
 ```markdown
 ## Planning
 
-Before non-trivial code work, load `plan-discipline` — it enforces the scope
+Before non-trivial code work, load `plan-discipline`. It enforces the scope
 interview, verification framing, blast-radius scan, gate placement, and review
 checkpoints. It is the single source of truth for planning workflow; do not
 duplicate its rules here.
 ```
 
-This pattern keeps the skill as the single source of truth. Duplicating skill rules in CLAUDE.md causes the model to follow the CLAUDE.md version (which is always active) and never load the skill — missing gate types, placement rules, and templates.
+This pattern keeps the skill as the single source of truth. Duplicating skill rules in CLAUDE.md causes the model to follow the CLAUDE.md version (which is always active) and never load the skill, missing gate types, placement rules, and templates.
 
 ## Review Gate Types
 
@@ -89,11 +89,11 @@ This pattern keeps the skill as the single source of truth. Duplicating skill ru
 
 | Gate | Who | What |
 |------|-----|------|
-| **S** — Self-review | Agent | Run deterministic tools (lint, fmt, type check, build, test). Fix all failures. |
-| **A** — Agent second opinion | Context-isolated subagent | Review diff with fresh eyes — no prior implementation context. Find issues or sign off. |
-| **M** — Manual testing | Agent | Exercise the feature, report behavior, verify success criteria. |
-| **U** — User review | 🛑 User | Pause and present diffs + findings. Highlight highest-risk changes. Await approval. |
-| **T** — User testing | 🛑 User | Prescribe specific manual testing steps. Be explicit — don't assume the user knows how to test. |
+| **S** Self-review | Agent | Run deterministic tools (lint, fmt, type check, build, test). Fix all failures. |
+| **A** Agent second opinion | Context-isolated subagent | Review diff with fresh eyes. No prior implementation context. Find issues or sign off. |
+| **M** Manual testing | Agent | Exercise the feature, report behavior, verify success criteria. |
+| **U** User review | User | Pause and present diffs + findings. Highlight highest-risk changes. Await approval. |
+| **T** User testing | User | Prescribe specific manual testing steps. Be explicit; don't assume the user knows how to test. |
 
 ## Installation
 
@@ -119,6 +119,25 @@ This pattern keeps the skill as the single source of truth. Duplicating skill ru
 ```
 
 ## Quality Gates
+
+### Pre-commit Hooks (Recommended)
+
+Install once per checkout to run all checks automatically on commit:
+
+```bash
+brew install pre-commit betterleaks
+./bin/setup-hooks
+```
+
+Hooks run on every commit:
+* **betterleaks**: secret scanning (BPE-based, 98.6% recall)
+* **asciicheck**: non-ASCII artifact detection (smart quotes, em dashes, non-breaking spaces)
+* **check-prose**: Vale prose quality on markdown diffs (skips SKILL.md and code blocks)
+* **vale-commit-msg**: commit message quality (ai-tells-commits)
+
+Run all checks: `pre-commit run --all-files`
+
+### Manual Checks
 
 Run these before installing changed skills:
 
@@ -148,7 +167,7 @@ Use `prose-lint` for mechanical findings. Use `humanizer` after that when change
 
 ```
 claude-skills/
-├── plugins/                     # Source of truth — one plugin per domain
+├── plugins/                     # Source of truth: one plugin per domain
 │   ├── python/                  # python-quality, python-review
 │   ├── rust/                    # rust-design, rust-async, rust-quality, rust-review, rust-modules
 │   ├── docs/                    # docs-bustest, prose-lint, humanizer, mermaid

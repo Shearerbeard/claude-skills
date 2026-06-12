@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT"
+
+echo "Installing pre-commit hooks for claude-skills..."
+echo ""
+
+if ! command -v pre-commit >/dev/null 2>&1; then
+  echo "ERROR: pre-commit not found. Install with: brew install pre-commit"
+  exit 1
+fi
+
+if ! command -v betterleaks >/dev/null 2>&1; then
+  echo "WARNING: betterleaks not found. Install with: brew install betterleaks"
+  echo "         (secret scanning will be skipped until installed)"
+  echo ""
+fi
+
+pre-commit install
+pre-commit install --hook-type commit-msg
+
+echo ""
+echo "Done. Hooks will run on every commit:"
+echo "  - betterleaks: secret scanning"
+echo "  - asciicheck:  non-ASCII artifact detection"
+echo "  - check-prose: Vale prose quality (diff-based)"
+echo "  - vale-commit-msg: commit message quality"
+echo ""
+echo "Run 'pre-commit run --all-files' to test all hooks now."

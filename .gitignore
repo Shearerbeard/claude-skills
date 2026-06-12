@@ -18,7 +18,7 @@ scripts/temp/
 *.backup.*
 .claude/
 
-# Local working documents (session logs, research notes, retros, proposals) — kept on disk, not published
+# Local working documents (session logs, research notes, retros, proposals), kept on disk, not published
 docs/internal/sessions/
 docs/research/
 docs/proposals/

@@ -24,7 +24,7 @@ for skill_md in "$PLUGINS_DIR"/*/skills/*/SKILL.md; do
   skill_dir="$(dirname "$skill_md")"
   skill_name="$(basename "$skill_dir")"
   mkdir -p "$DEST/$skill_name"
-  # Copy SKILL.md plus any sibling files (LICENSE, reference/, etc.) — required
+  # Copy SKILL.md plus any sibling files (LICENSE, reference/, etc.), required
   # for license compliance on forked skills and for progressive-disclosure refs.
   cp -R "$skill_dir"/. "$DEST/$skill_name/"
   installed=$((installed + 1))

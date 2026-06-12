@@ -6,8 +6,9 @@ Model-invoked skills for Claude Code, OpenCode, and Codex, registered as a local
 
 ## Repo conventions
 
-- `plugins/` is the source of truth — one plugin per domain, skills at `plugins/<plugin>/skills/<name>/SKILL.md`.
+- `plugins/` is the source of truth: one plugin per domain, skills at `plugins/<plugin>/skills/<name>/SKILL.md`.
 - After any `plugins/` change, run the quality gates (README "Quality Gates") and reinstall consumers with `./bin/install-skills opencode` (and `codex` if used). OpenCode and Codex read installed copies, not this repo.
+- Pre-commit hooks run on every commit: betterleaks (secrets), asciicheck (Unicode artifacts), check-prose (Vale on markdown diffs), vale-commit-msg (commit message quality). Install with `./bin/setup-hooks`.
 - Behavior checks live in `docs/internal/testing/skill-test-matrix.md`. Score auto-loading separately from manual invocation; model-driven skill routing is not deterministic.
 - `docs/internal/sessions/`, `docs/research/`, `docs/proposals/`, and `feedback/` are gitignored local working documents. Keep them out of commits; never delete them.
 - `feedback/` holds session retros on skill triggering and performance. `feedback/README.md` owns the directory naming and frontmatter conventions.
@@ -35,7 +36,7 @@ Use `prose-lint` for Vale workflows. Do not lint generated content, code blocks,
 
 ## Planning
 
-Before non-trivial code work, load `plan-discipline` — it enforces the scope interview, verification framing, blast-radius scan, gate placement, and review checkpoints. It is the single source of truth for planning workflow; do not duplicate its rules here.
+Before non-trivial code work, load `plan-discipline`. It enforces the scope interview, verification framing, blast-radius scan, gate placement, and review checkpoints. It is the single source of truth for planning workflow; do not duplicate its rules here.
 
 See: [Skills docs](https://code.claude.com/docs/en/skills), [Plugin marketplaces](https://code.claude.com/docs/en/plugin-marketplaces)
 

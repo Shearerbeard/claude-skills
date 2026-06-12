@@ -1,0 +1,6 @@
+# Betterleaks configuration for claude-skills.
+# Extends the default rule set; add fingerprints to .betterleaksignore for
+# false positives as they appear.
+
+[extend]
+useDefault = true

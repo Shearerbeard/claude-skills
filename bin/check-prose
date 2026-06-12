@@ -54,7 +54,7 @@ def prose_line?(text)
   return false if stripped.empty?
   return false if stripped.start_with?("```")
   return false if stripped.start_with?("vale ", "printf ", "echo ", "ruby ", "git ", "./")
-  return false if stripped.include?("--config") || stripped.include?("--output=JSON") || stripped.include?("--ignore-syntax")
+  return false if stripped.include?("--config") || stripped.include?("--output=JSON") || stripped.include?("--ignore-syntax") || stripped.include?("--all-files")
   return false if stripped.match?(/^[A-Z_]+\s*=\s*/)
   true
 end
