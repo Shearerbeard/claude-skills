@@ -22,7 +22,8 @@ scripts/temp/
 docs/internal/sessions/
 docs/research/
 docs/proposals/
-feedback/
+feedback/*
+!feedback/README.md
 
 # Temporary test repositories
 temp-*/

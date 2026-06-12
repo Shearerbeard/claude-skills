@@ -13,7 +13,7 @@ compatibility: claude-code opencode
 Audit how marketplace skills triggered and performed against the actual session
 log, and file vetted correctives under the skills marketplace repo's feedback/
 directory. Retro sessions usually run in the project under review, not in the
-marketplace repo — resolve feedback/ against the marketplace checkout, not the
+marketplace repo: resolve feedback/ against the marketplace checkout, not the
 current working directory.
 
 ## Process
@@ -42,9 +42,16 @@ current working directory.
 3. Vet findings with the user before writing any document, including the
    destination directory and the file naming. Do not write first and ask after.
 
-4. File the retro per the marketplace repo's feedback/README.md, which owns the
-   directory naming and the required frontmatter. Point at that README rather
-   than duplicating the convention here.
+4. File the retro under the marketplace repo's feedback/ directory (retro
+   contents stay untracked; only the convention README is published):
+   - One directory per session: feedback/<YYYY-MM-DD>-<harness>-<topic-slug>/
+     where harness is claude-code, opencode, or antigravity; same-day
+     collisions take a -2 suffix.
+   - The usual artifact is skill-retro.md; add plan-retro.md and
+     transcript.md when applicable.
+   - Frontmatter on every retro file: date, harness, agent (model id),
+     session_event (handoff event id, if one exists), workstreams, repo.
+   feedback/README.md carries the human-readable version of this convention.
 
 5. Run every proposed corrective through the portability checklist:
    - Skill bodies stay tool-neutral: say "load skill X" and "ask the user",
@@ -53,8 +60,3 @@ current working directory.
    - Mark Claude-Code-only mechanisms (hooks, settings.json) as
      Claude-Code-only; their absence elsewhere must be a no-op, never a
      broken instruction.
-
-## Reference example
-
-In the marketplace repo, feedback/2026-06-10-claude-code-hitl-dual-channel/
-skill-retro.md shows the expected shape of the output artifact.
