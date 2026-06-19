@@ -58,6 +58,7 @@ the plan must say so.
 ### Gate types
 
 **Gate S — Self-review (agent, deterministic)**
+- Load skill `gate-probes` first, then run its universal probes against the staged diff
 - Run deterministic tools: lint, fmt --check, type check, build, test
 - Fix all failures before proceeding
 - Skip tools that can't run yet (e.g., tests before implementation) — note why
@@ -133,7 +134,7 @@ After completing the pre-flight checklist, produce the plan in this format:
 #### Stage 1: <description>
 - Changes: ...
 - Gates: S → A
-- [ ] Gate S: <deterministic checks to run>
+- [ ] Gate S: load skill `gate-probes`, then <deterministic checks to run>
 - [ ] Gate A: agent review of diff
 
 #### Stage 2: <description> 🛑 USER GATE
