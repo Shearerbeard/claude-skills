@@ -14,6 +14,7 @@ Model-invoked skills for Claude Code, OpenCode, and Codex. Registered as a local
 | `rust-review` | rust | reviewing Rust | 7 Rust-specific gate probes |
 | `rust-modules` | rust | Rust module layout | Modern file layout, re-exports, type co-location |
 | `docs-bustest` | docs | docs review / updates | 24-item bus test for documentation quality |
+| `adr-review` | docs | writing / reviewing an ADR | MADR rubric + premise-freshness; chains prose-lint then humanizer |
 | `prose-lint` | docs | Vale / prose lint | Deterministic AI-tell checks for docs and emitted prose |
 | `humanizer` | docs | publishable prose | Remove AI writing patterns from user-facing text |
 | `mermaid` | docs | `.mmd` files / diagrams | Render and open Mermaid diagrams |
@@ -170,7 +171,7 @@ claude-skills/
 ├── plugins/                     # Source of truth: one plugin per domain
 │   ├── python/                  # python-quality, python-review
 │   ├── rust/                    # rust-design, rust-async, rust-quality, rust-review, rust-modules
-│   ├── docs/                    # docs-bustest, prose-lint, humanizer, mermaid
+│   ├── docs/                    # docs-bustest, adr-review, prose-lint, humanizer, mermaid
 │   ├── workflow/                # plan-discipline, gate-probes, skill-retro
 │   ├── vale-lsp/                # Vale LSP config (no skills)
 │   └── haskell-lsp/             # Haskell LSP config (no skills)
