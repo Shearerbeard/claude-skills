@@ -1,35 +1,266 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PLUGINS_DIR="$(dirname "$SCRIPT_DIR")/plugins"
+# Install skills from a plugin marketplace repo to:
+#   1. Claude Code - register marketplace + enable plugins in ~/.claude/settings.json
+#   2. Agent tools - flat-copy skills to ~/.agents/skills/ (OpenCode, Codex, Pi)
+#
+# Usage:
+#   install-skills <source-path> [--skills name1,name2] [--claude-only] [--agents-only]
+#
+# The source path must contain .claude-plugin/marketplace.json.
+# Per-source manifests in ~/.agents/skills/.manifest.<marketplace-name>
+# prevent cross-pruning when multiple sources share the directory.
+# Third-party skills (not in any manifest) are never touched.
+
+DEST="$HOME/.agents/skills"
+CLAUDE_SETTINGS="$HOME/.claude/settings.json"
 
 usage() {
-  echo "Usage: install-skills <target>"
+  echo "Usage: install-skills <source-path> [options]"
   echo ""
-  echo "Targets:"
-  echo "  opencode    ~/.config/opencode/skills/"
-  echo "  codex       ~/.codex/skills/"
+  echo "Install skills from a plugin marketplace repo."
+  echo ""
+  echo "Options:"
+  echo "  --skills name1,name2   Only install named skills to agents dir"
+  echo "  --claude-only          Only register Claude marketplace + plugins"
+  echo "  --agents-only          Only install to ~/.agents/skills/"
+  echo ""
+  echo "The source path must contain .claude-plugin/marketplace.json."
   exit 1
 }
 
-case "${1:-}" in
-  opencode) DEST="$HOME/.config/opencode/skills" ;;
-  codex)    DEST="$HOME/.codex/skills" ;;
-  *)        usage ;;
-esac
+# --- parse args ---
+SOURCE_PATH=""
+SKILLS_FILTER=""
+DO_CLAUDE=true
+DO_AGENTS=true
 
-installed=0
-for skill_md in "$PLUGINS_DIR"/*/skills/*/SKILL.md; do
-  skill_dir="$(dirname "$skill_md")"
-  skill_name="$(basename "$skill_dir")"
-  mkdir -p "$DEST/$skill_name"
-  # Copy SKILL.md plus any sibling files (LICENSE, reference/, etc.), required
-  # for license compliance on forked skills and for progressive-disclosure refs.
-  cp -R "$skill_dir"/. "$DEST/$skill_name/"
-  installed=$((installed + 1))
-  echo "  $skill_name"
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --skills)
+      shift
+      SKILLS_FILTER="$1"
+      ;;
+    --claude-only)
+      DO_AGENTS=false
+      ;;
+    --agents-only)
+      DO_CLAUDE=false
+      ;;
+    -h|--help)
+      usage
+      ;;
+    -*)
+      echo "unknown option: $1" >&2
+      usage
+      ;;
+    *)
+      if [ -n "$SOURCE_PATH" ]; then
+        echo "multiple source paths not supported" >&2
+        usage
+      fi
+      SOURCE_PATH="$1"
+      ;;
+  esac
+  shift
 done
 
-echo ""
-echo "Installed $installed skills to $DEST"
+if [ -z "$SOURCE_PATH" ]; then
+  usage
+fi
+
+# resolve to absolute path
+SOURCE_PATH="$(cd "$SOURCE_PATH" && pwd)"
+PLUGINS_DIR="$SOURCE_PATH/plugins"
+MARKETPLACE_JSON="$SOURCE_PATH/.claude-plugin/marketplace.json"
+
+if [ ! -f "$MARKETPLACE_JSON" ]; then
+  echo "error: $MARKETPLACE_JSON not found" >&2
+  exit 1
+fi
+
+# extract marketplace name
+MARKETPLACE_NAME="$(jq -r '.name' "$MARKETPLACE_JSON")"
+if [ -z "$MARKETPLACE_NAME" ] || [ "$MARKETPLACE_NAME" = "null" ]; then
+  echo "error: marketplace.json missing 'name' field" >&2
+  exit 1
+fi
+
+echo "source: $SOURCE_PATH (marketplace: $MARKETPLACE_NAME)"
+
+# --- Claude registration ---
+if [ "$DO_CLAUDE" = true ]; then
+  echo ""
+  echo "=== Claude Code ==="
+
+  if [ ! -f "$CLAUDE_SETTINGS" ]; then
+    echo "creating $CLAUDE_SETTINGS"
+    mkdir -p "$(dirname "$CLAUDE_SETTINGS")"
+    echo '{}' > "$CLAUDE_SETTINGS"
+  fi
+
+  # ensure extraKnownMarketplaces.<name> exists (don't overwrite existing source)
+  has_marketplace="$(jq -r --arg name "$MARKETPLACE_NAME" \
+    '.extraKnownMarketplaces[$name] // empty' "$CLAUDE_SETTINGS")"
+
+  if [ -z "$has_marketplace" ]; then
+    echo "registering marketplace: $MARKETPLACE_NAME (directory source)"
+    jq --arg name "$MARKETPLACE_NAME" --arg path "$SOURCE_PATH" \
+      '.extraKnownMarketplaces[$name] = {"source": {"source": "directory", "path": $path}}' \
+      "$CLAUDE_SETTINGS" > "$CLAUDE_SETTINGS.tmp" && mv "$CLAUDE_SETTINGS.tmp" "$CLAUDE_SETTINGS"
+  else
+    echo "marketplace already registered: $MARKETPLACE_NAME (leaving source unchanged)"
+  fi
+
+  # enable all plugins from marketplace.json
+  plugin_names="$(jq -r '.plugins[].name' "$MARKETPLACE_JSON")"
+  enabled=0
+  for plugin in $plugin_names; do
+    key="${plugin}@${MARKETPLACE_NAME}"
+    already="$(jq -r --arg key "$key" '.enabledPlugins[$key] // empty' "$CLAUDE_SETTINGS")"
+    if [ -z "$already" ]; then
+      jq --arg key "$key" '.enabledPlugins[$key] = true' \
+        "$CLAUDE_SETTINGS" > "$CLAUDE_SETTINGS.tmp" && mv "$CLAUDE_SETTINGS.tmp" "$CLAUDE_SETTINGS"
+      echo "  enabled: $key"
+      enabled=$((enabled + 1))
+    fi
+  done
+
+  # verify valid JSON
+  if ! jq empty "$CLAUDE_SETTINGS" 2>/dev/null; then
+    echo "error: $CLAUDE_SETTINGS is not valid JSON after edits" >&2
+    exit 1
+  fi
+
+  total_plugins="$(echo "$plugin_names" | wc -l | tr -d ' ')"
+  echo "Claude: $MARKETPLACE_NAME registered, $enabled new plugin(s) enabled ($total_plugins total)"
+fi
+
+# --- Agents flat-copy ---
+if [ "$DO_AGENTS" = true ]; then
+  echo ""
+  echo "=== Agent Skills (~/.agents/skills/) ==="
+
+  if [ ! -d "$PLUGINS_DIR" ]; then
+    echo "no plugins/ directory in source - skipping agents install" >&2
+    exit 0
+  fi
+
+  # collect source skill names
+  shopt -s nullglob
+  SOURCE_NAMES=()
+  for skill_dir in "$PLUGINS_DIR"/*/skills/*; do
+    [ -d "$skill_dir" ] || continue
+    skill_name="$(basename "$skill_dir")"
+    SOURCE_NAMES+=("$skill_name")
+  done
+  shopt -u nullglob
+
+  if [ "${#SOURCE_NAMES[@]}" -eq 0 ]; then
+    echo "no source skills under $PLUGINS_DIR" >&2
+    exit 1
+  fi
+
+  # apply --skills filter
+  if [ -n "$SKILLS_FILTER" ]; then
+    IFS=',' read -ra FILTER_NAMES <<< "$SKILLS_FILTER"
+    FILTERED=()
+    for fname in "${FILTER_NAMES[@]}"; do
+      fname="$(echo "$fname" | tr -d ' ')"
+      found=false
+      for sname in "${SOURCE_NAMES[@]}"; do
+        if [ "$sname" = "$fname" ]; then
+          FILTERED+=("$sname")
+          found=true
+          break
+        fi
+      done
+      if [ "$found" = false ]; then
+        echo "warning: --skills filter '$fname' not found in source" >&2
+      fi
+    done
+    SOURCE_NAMES=("${FILTERED[@]}")
+    if [ "${#SOURCE_NAMES[@]}" -eq 0 ]; then
+      echo "error: no skills matched --skills filter" >&2
+      exit 1
+    fi
+  fi
+
+  # validate frontmatter on ALL source skills (not just filtered)
+  ruby -rpsych -e '
+    errors = []
+    Dir[ARGV[0] + "/*/skills/*/SKILL.md"].sort.each do |path|
+      text = File.read(path)
+      fm = text[/\A---\n(.*?)\n---/m, 1]
+      if fm.nil?
+        errors << "#{path}: missing YAML frontmatter"
+        next
+      end
+      begin
+        data = Psych.safe_load(fm, permitted_classes: [], aliases: false) || {}
+      rescue Psych::SyntaxError => e
+        errors << "#{path}: invalid YAML in frontmatter: #{e.message.lines.first&.strip}"
+        next
+      end
+      name = data["name"]
+      abort "#{path}: missing name" if name.nil? || name.to_s.empty?
+      dir = File.basename(File.dirname(path))
+      abort "#{path}: name #{name.inspect} does not match directory #{dir.inspect}" unless name == dir
+      abort "#{path}: missing description" unless data.key?("description") && !data["description"].to_s.strip.empty?
+    end
+    unless errors.empty?
+      abort("frontmatter validation failed:\n  " + errors.join("\n  "))
+    end
+  ' "$PLUGINS_DIR"
+
+  # per-source manifest
+  mkdir -p "$DEST"
+  manifest="$DEST/.manifest.${MARKETPLACE_NAME}"
+
+  # prune: only remove skills that THIS source previously installed but no longer provides
+  in_source() {
+    local needle="$1"
+    local n
+    for n in "${SOURCE_NAMES[@]}"; do
+      [ "$n" = "$needle" ] && return 0
+    done
+    return 1
+  }
+
+  pruned=0
+  if [ -f "$manifest" ]; then
+    while IFS= read -r old_name; do
+      [ -z "$old_name" ] && continue
+      if ! in_source "$old_name" && [ -d "$DEST/$old_name" ]; then
+        rm -rf "$DEST/$old_name"
+        echo "  removed stale: $old_name"
+        pruned=$((pruned + 1))
+      fi
+    done < "$manifest"
+  fi
+
+  # copy skills
+  installed=0
+  for skill_name in "${SOURCE_NAMES[@]}"; do
+    src_candidates=( "$PLUGINS_DIR"/*/skills/"$skill_name" )
+    src="${src_candidates[0]}"
+    if [ -z "$src" ] || [ ! -d "$src" ]; then
+      echo "internal error: source dir missing for $skill_name" >&2
+      exit 1
+    fi
+    mkdir -p "$DEST/$skill_name"
+    cp -R "$src"/. "$DEST/$skill_name/"
+    installed=$((installed + 1))
+    echo "  $skill_name"
+  done
+
+  # write manifest (only the skills we installed)
+  printf '%s\n' "${SOURCE_NAMES[@]}" | sort -u > "$manifest"
+
+  echo ""
+  echo "Installed $installed skill(s) to $DEST"
+  if [ "$pruned" -gt 0 ]; then
+    echo "Pruned $pruned stale skill(s)"
+  fi
+fi

@@ -1,6 +1,6 @@
 # Personal Skills Library
 
-Model-invoked skills for Claude Code, OpenCode, and Codex. Registered as a local marketplace (`my-skills`) in `~/.claude/settings.json`.
+Model-invoked skills for Claude Code, OpenCode, Codex, and Pi. Registered as a local marketplace (`my-skills`) for Claude Code, and installed to `~/.agents/skills/` for OpenCode, Codex, and Pi.
 
 ## Skills
 
@@ -21,6 +21,7 @@ Model-invoked skills for Claude Code, OpenCode, and Codex. Registered as a local
 | `plan-discipline` | workflow | planning / design / scope | Verification-first, scope interview, blast radius |
 | `gate-probes` | workflow | commit / review / PR | 7 universal quality probes + surgical discipline |
 | `skill-retro` | workflow | "retro my skills" | Audit how skills triggered and performed in a session; files retros under `feedback/` |
+| `git-commit` | workflow | committing / commit messages | Conventional commit format, prose quality chain, mandatory user review |
 
 Two more plugins ship LSP configs rather than skills: `vale-lsp` (Vale prose diagnostics) and `haskell-lsp` (Haskell Language Server).
 
@@ -98,26 +99,27 @@ This pattern keeps the skill as the single source of truth. Duplicating skill ru
 
 ## Installation
 
-**Claude Code**: marketplace plugin via `~/.claude/settings.json`:
-```json
-"enabledPlugins": {
-  "python@my-skills": true,
-  "docs@my-skills": true,
-  "rust@my-skills": true,
-  "workflow@my-skills": true
-},
-"extraKnownMarketplaces": {
-  "my-skills": {
-    "source": { "source": "directory", "path": "/absolute/path/to/claude-skills" }
-  }
-}
+The installer registers the marketplace with Claude Code and flat-copies skills to `~/.agents/skills/` for [OpenCode](https://opencode.ai/docs/skills/), [Codex](https://developers.openai.com/codex/skills/), and [Pi](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/skills.md). All three read `~/.agents/skills/` as a global user-scope location per the [Agent Skills standard](https://agentskills.io/specification).
+
+```bash
+./bin/install-skills /path/to/this/repo
 ```
 
-**OpenCode** or **Codex**:
+This does two things:
+1. **Claude Code**: registers the directory marketplace in `~/.claude/settings.json` and enables all plugins
+2. **Agent tools**: copies skills to `~/.agents/skills/` with a per-source manifest (`.manifest.<marketplace-name>`)
+
+To install only specific skills from a repo (e.g., a shared marketplace where you only want certain skills):
 ```bash
-./bin/install-skills opencode   # ~/.config/opencode/skills/
-./bin/install-skills codex      # ~/.codex/skills/
+./bin/install-skills /path/to/employer/repo --skills github-workflow
 ```
+
+Options:
+- `--skills name1,name2` - only copy named skills to `~/.agents/skills/`
+- `--claude-only` - only register Claude marketplace and plugins
+- `--agents-only` - only copy to `~/.agents/skills/`
+
+Per-source manifests prevent cross-pruning when multiple repos share `~/.agents/skills/`. Third-party skills (installed via npx or other tools) are never touched.
 
 ## Quality Gates
 
@@ -162,7 +164,7 @@ Use `prose-lint` for mechanical findings. Use `humanizer` after that when change
 
 1. Create `plugins/<plugin>/skills/<name>/SKILL.md` with frontmatter (`name`, `description`)
 2. If new plugin: create `plugins/<plugin>/.claude-plugin/plugin.json` and add to `.claude-plugin/marketplace.json`
-3. Run `./bin/install-skills opencode` or `./bin/install-skills codex` if using those tools
+3. Run `./bin/install-skills /path/to/this/repo` to register with Claude and install to `~/.agents/skills/`
 
 ## Structure
 
@@ -172,13 +174,13 @@ claude-skills/
 │   ├── python/                  # python-quality, python-review
 │   ├── rust/                    # rust-design, rust-async, rust-quality, rust-review, rust-modules
 │   ├── docs/                    # docs-bustest, adr-review, prose-lint, humanizer, mermaid
-│   ├── workflow/                # plan-discipline, gate-probes, skill-retro
+│   ├── workflow/                # plan-discipline, gate-probes, skill-retro, git-commit
 │   ├── vale-lsp/                # Vale LSP config (no skills)
 │   └── haskell-lsp/             # Haskell LSP config (no skills)
 ├── .claude-plugin/
 │   └── marketplace.json         # Marketplace registry
 ├── bin/
-│   ├── install-skills           # Install to OpenCode + Codex
+│   ├── install-skills           # Register Claude marketplace + install to ~/.agents/skills/
 │   ├── check-skills             # Static skill/frontmatter checks
 │   ├── check-install            # Temp-home install checks
 │   └── check-prose              # Vale/prose lint smoke checks

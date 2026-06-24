@@ -11,4 +11,3 @@ nonword: true
 tokens:
   - '—'
   - '–'
-  - '--'
