@@ -8,32 +8,182 @@ log_file="$TMP_HOME/install.log"
 
 expected="$(find "$ROOT/plugins" -path '*/skills/*/SKILL.md' -type f | wc -l | tr -d ' ')"
 
-for target in opencode codex; do
-  echo "checking install target: $target"
-  HOME="$TMP_HOME" "$ROOT/bin/install-skills" "$target" >"$log_file"
-  case "$target" in
-    opencode) dest="$TMP_HOME/.config/opencode/skills" ;;
-    codex) dest="$TMP_HOME/.codex/skills" ;;
-  esac
+third_party="external-vendor-skill"
+manifested_stale="manifested-stale-test"
+dest="$TMP_HOME/.agents/skills"
 
-  actual="$(find "$dest" -mindepth 2 -maxdepth 2 -name SKILL.md -type f | wc -l | tr -d ' ')"
-  if [ "$actual" != "$expected" ]; then
-    echo "expected $expected skills in $dest, found $actual" >&2
-    exit 1
-  fi
+# --- setup ---
+mkdir -p "$TMP_HOME/.claude"
+echo '{}' > "$TMP_HOME/.claude/settings.json"
 
-  ruby -rpsych -e '
-    Dir[ARGV[0] + "/*/SKILL.md"].sort.each do |path|
-      text = File.read(path)
-      fm = text[/\A---\n(.*?)\n---/m, 1] or abort("missing frontmatter: #{path}")
-      data = Psych.safe_load(fm, permitted_classes: [], aliases: false) || {}
-      name = data["name"] or abort("missing name: #{path}")
-      dir = File.basename(File.dirname(path))
-      abort("name mismatch #{path}: #{name} != #{dir}") unless name == dir
-      abort("missing description: #{path}") unless data.key?("description")
-    end
-  ' "$dest"
-done
+# simulate third-party skill (must never be touched)
+mkdir -p "$dest/$third_party"
+cat > "$dest/$third_party/SKILL.md" <<'EOF'
+---
+name: external-vendor-skill
+description: third-party skill installed via npx
+---
+do not touch
+EOF
 
-test -f "$TMP_HOME/.config/opencode/skills/humanizer/LICENSE"
-echo "install checks passed for $expected skills"
+echo "=== Test 1: First install (personal repo) ==="
+HOME="$TMP_HOME" "$ROOT/bin/install-skills" "$ROOT" >"$log_file" 2>&1
+
+# third-party must survive
+if [ ! -d "$dest/$third_party" ]; then
+  echo "FAIL: first install removed third-party skill" >&2
+  exit 1
+fi
+
+# manifest must exist with correct name
+if [ ! -f "$dest/.manifest.my-skills" ]; then
+  echo "FAIL: first install did not create .manifest.my-skills" >&2
+  exit 1
+fi
+
+# correct skill count
+actual="$(find "$dest" -mindepth 2 -maxdepth 2 -name SKILL.md -type f \
+  -not -path "$dest/$third_party/*" | wc -l | tr -d ' ')"
+if [ "$actual" != "$expected" ]; then
+  echo "FAIL: expected $expected source skills, found $actual" >&2
+  exit 1
+fi
+
+# Claude settings must have marketplace + plugins
+if ! jq -e '.extraKnownMarketplaces["my-skills"]' "$TMP_HOME/.claude/settings.json" >/dev/null 2>&1; then
+  echo "FAIL: Claude settings missing my-skills marketplace" >&2
+  exit 1
+fi
+plugin_count="$(jq '[.enabledPlugins | keys[] | select(endswith("@my-skills"))] | length' \
+  "$TMP_HOME/.claude/settings.json")"
+if [ "$plugin_count" -lt 1 ]; then
+  echo "FAIL: no plugins enabled for my-skills" >&2
+  exit 1
+fi
+
+echo "  first install OK: $actual skills, Claude registered"
+
+echo "=== Test 2: Stale manifest pruning ==="
+# inject a stale skill into manifest
+mkdir -p "$dest/$manifested_stale"
+printf 'leftover\n' > "$dest/$manifested_stale/SKILL.md"
+printf '%s\n' "$manifested_stale" >> "$dest/.manifest.my-skills"
+sort -u -o "$dest/.manifest.my-skills" "$dest/.manifest.my-skills"
+
+HOME="$TMP_HOME" "$ROOT/bin/install-skills" "$ROOT" >"$log_file" 2>&1
+
+if [ -d "$dest/$manifested_stale" ]; then
+  echo "FAIL: manifested stale skill survived" >&2
+  exit 1
+fi
+if ! grep -q "removed stale: $manifested_stale" "$log_file"; then
+  echo "FAIL: install log did not report pruning" >&2
+  cat "$log_file" >&2
+  exit 1
+fi
+if [ ! -d "$dest/$third_party" ]; then
+  echo "FAIL: stale prune also removed third-party skill" >&2
+  exit 1
+fi
+
+echo "  stale pruning OK"
+
+echo "=== Test 3: Multi-source isolation ==="
+# create a second source repo (minimal)
+FAKE_SRC="$TMP_HOME/fake-employer"
+mkdir -p "$FAKE_SRC/.claude-plugin"
+cat > "$FAKE_SRC/.claude-plugin/marketplace.json" <<'EOF'
+{"name": "test-employer", "plugins": [{"name": "git", "source": "./plugins/git"}]}
+EOF
+mkdir -p "$FAKE_SRC/plugins/git/.claude-plugin"
+echo '{"name":"git"}' > "$FAKE_SRC/plugins/git/.claude-plugin/plugin.json"
+mkdir -p "$FAKE_SRC/plugins/git/skills/test-employer-skill"
+cat > "$FAKE_SRC/plugins/git/skills/test-employer-skill/SKILL.md" <<'EOF'
+---
+name: test-employer-skill
+description: a skill from the employer repo
+---
+employer content
+EOF
+
+HOME="$TMP_HOME" "$ROOT/bin/install-skills" "$FAKE_SRC" >"$log_file" 2>&1
+
+# employer skill installed
+if [ ! -d "$dest/test-employer-skill" ]; then
+  echo "FAIL: employer skill not installed" >&2
+  exit 1
+fi
+
+# separate manifest
+if [ ! -f "$dest/.manifest.test-employer" ]; then
+  echo "FAIL: employer manifest not created" >&2
+  exit 1
+fi
+
+# personal skills survived
+if [ ! -d "$dest/python-quality" ]; then
+  echo "FAIL: personal skill pruned by employer install" >&2
+  exit 1
+fi
+
+# re-run personal installer - employer skill must survive
+HOME="$TMP_HOME" "$ROOT/bin/install-skills" "$ROOT" >"$log_file" 2>&1
+
+if [ ! -d "$dest/test-employer-skill" ]; then
+  echo "FAIL: employer skill pruned by personal re-install (cross-prune bug)" >&2
+  exit 1
+fi
+if [ ! -d "$dest/$third_party" ]; then
+  echo "FAIL: third-party skill pruned by personal re-install" >&2
+  exit 1
+fi
+
+echo "  multi-source isolation OK"
+
+echo "=== Test 4: --skills filter ==="
+HOME="$TMP_HOME" "$ROOT/bin/install-skills" "$FAKE_SRC" --skills test-employer-skill >"$log_file" 2>&1
+
+if [ ! -d "$dest/test-employer-skill" ]; then
+  echo "FAIL: filtered skill not installed" >&2
+  exit 1
+fi
+
+echo "  --skills filter OK"
+
+echo "=== Test 5: Claude idempotency ==="
+HOME="$TMP_HOME" "$ROOT/bin/install-skills" "$ROOT" >"$log_file" 2>&1
+
+if grep -q "registering marketplace" "$log_file"; then
+  echo "FAIL: second run re-registered marketplace" >&2
+  exit 1
+fi
+if grep -q "enabled:" "$log_file"; then
+  echo "FAIL: second run re-enabled plugins" >&2
+  exit 1
+fi
+
+echo "  Claude idempotency OK"
+
+echo "=== Test 6: Frontmatter validation in installed skills ==="
+ruby -rpsych -e '
+  Dir[ARGV[0] + "/*"].sort.each do |dir|
+    next unless File.directory?(dir)
+    bn = File.basename(dir)
+    next if bn.start_with?(".")
+    next if bn == ARGV[1]
+    path = File.join(dir, "SKILL.md")
+    next unless File.file?(path)
+    text = File.read(path)
+    fm = text[/\A---\n(.*?)\n---/m, 1] or abort("missing frontmatter: #{path}")
+    data = Psych.safe_load(fm, permitted_classes: [], aliases: false) || {}
+    name = data["name"] or abort("missing name: #{path}")
+    skill_dir = File.basename(dir)
+    abort("name mismatch #{path}: #{name} != #{skill_dir}") unless name == skill_dir
+    abort("missing description: #{path}") unless data.key?("description")
+  end
+' "$dest" "$third_party"
+
+echo "  frontmatter validation OK"
+
+echo ""
+echo "All install checks passed ($expected skills)"

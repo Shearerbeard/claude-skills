@@ -1,13 +1,13 @@
 # CLAUDE.md - Personal Skills Library
 
-Model-invoked skills for Claude Code, OpenCode, and Codex, registered as a local marketplace (`my-skills`).
+Model-invoked skills for Claude Code, OpenCode, Codex, and Pi, registered as a local marketplace (`my-skills`).
 
 `README.md` owns orientation: the skill catalog, how skills chain, installation, quality-gate commands, repo structure, adding a skill, and the conventions for writing skill descriptions. Reference it rather than restating it here; when those facts change, update `README.md`.
 
 ## Repo conventions
 
 - `plugins/` is the source of truth: one plugin per domain, skills at `plugins/<plugin>/skills/<name>/SKILL.md`.
-- After any `plugins/` change, run the quality gates (README "Quality Gates") and reinstall consumers with `./bin/install-skills opencode` (and `codex` if used). OpenCode and Codex read installed copies, not this repo.
+- After any `plugins/` change, run the quality gates (README "Quality Gates") and reinstall with `./bin/install-skills /path/to/this/repo`. OpenCode, Codex, and Pi read `~/.agents/skills/`; Claude reads the marketplace source directly.
 - Pre-commit hooks run on every commit: betterleaks (secrets), asciicheck (Unicode artifacts), check-prose (Vale on markdown diffs), vale-commit-msg (commit message quality). Install with `./bin/setup-hooks`.
 - Behavior checks live in `docs/internal/testing/skill-test-matrix.md`. Score auto-loading separately from manual invocation; model-driven skill routing is not deterministic.
 - `docs/internal/sessions/`, `docs/research/`, `docs/proposals/`, and `feedback/` are gitignored local working documents. Keep them out of commits; never delete them.
