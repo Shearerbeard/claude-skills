@@ -1,12 +1,13 @@
 ---
 name: rust-quality
 description: |
-  Load when writing, reviewing, or planning Rust code to self-correct against
-  LLM-specific failure modes the model tends to repeat: clone escapes to satisfy
-  the borrow checker, speculative fallbacks for failure modes that don't exist,
-  god modules, verbose match chains, and weak error modeling. Provides concrete
-  reference patterns (transpose, Arc::clone, newtypes, parse-don't-validate,
-  sealed traits) and type modeling rules. For formal reviews, use rust-review;
+  Use for any Rust work: writing, planning, reviewing, or editing `.rs` files,
+  Cargo.toml, or clippy fixes. Self-correct against LLM-specific failure modes
+  the model tends to repeat: clone escapes to satisfy the borrow checker,
+  speculative fallbacks for failure modes that don't exist, god modules,
+  verbose match chains, and weak error modeling. Provides concrete reference
+  patterns (transpose, Arc::clone, newtypes, parse-don't-validate, sealed
+  traits) and type modeling rules. For formal reviews, use rust-review;
   it applies these rules as a gate checklist.
 compatibility: claude-code opencode
 ---
@@ -44,6 +45,26 @@ Reference patterns by name; do not re-explain them. For reviews, use `rust-revie
 **Redundant closures**: `.map_err(|e| Error::Variant(e))` when `Error::Variant` is a function pointer via `#[from]`. The closure is noise.
 
 **Transitive dependency assumptions**: if you `use` a crate, it must be in `[dependencies]`. Compiling via a transitive dep is fragile.
+
+**Guards and temps before iterator chains**: don't add a guard conditional or assign a temp variable just to start an iterator chain. Chain directly on the expression.
+
+**Hand-written derivable impls**: don't hand-write a trait impl that a standard derive already covers (`Default`, `Clone`, `PartialEq`). `#[derive]` it.
+
+## Comments
+
+Comments earn their place by explaining "why" when it is not apparent at face
+value; very light "what" is tolerable at struct or function level. Never
+"how" — the code is the single source of truth for what and how.
+
+- Never restate the type system or the signature ("This is a u32").
+- No narration ("// Return the calculated delay"), no meta-development stubs
+  ("// Validate skill sources"), no reintroductions ("/// Skills
+  configuration - supports directory-based skill discovery").
+- Drift hazards: never describe behavior owned by other code or name specific
+  crates/libraries in a comment — both go stale when the implementation changes.
+- No development-context references — issues, screenshots, "previous behavior"
+  / "new behavior". Change narration belongs in the commit or PR, never source.
+- Never repeat a comment in multiple places or defend the code just written.
 
 ## Type Modeling
 

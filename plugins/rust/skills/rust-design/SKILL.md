@@ -6,6 +6,8 @@ description: |
   "state machine", "make illegal states unrepresentable",
   "constrained type", "typestate", "newtype design", "sketch type
   signatures", "write a Rust struct", "review these Rust types".
+  Also use when authoring `.rs` files that introduce a new struct
+  or enum, or when deciding a public API shape.
   Contains ADT-first workflow, constrained type patterns, railway-
   oriented programming, match semantics, 6-step clone avoidance,
   and ownership restructuring. Pair with rust-quality for anti-pattern
@@ -18,6 +20,10 @@ compatibility: claude-code opencode
 Model the domain with types before writing any logic. Enums represent
 states and variants. Structs hold data within a single state. Newtypes
 enforce semantic boundaries.
+
+Compile and lint the type surface before any implementation;
+`serde(untagged)` over enums with overlapping field shapes is a bug
+class that only surfaces at the typing stage.
 
 ## ADT-First Design
 

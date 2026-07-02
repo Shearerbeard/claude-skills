@@ -23,3 +23,4 @@ If the diff changes public docs, public API doc comments, README content, releas
 5. **Type complexity suppressed?** — Any `#[allow(clippy::type_complexity)]` that should be a type alias?
 6. **Single-arm match?** — Any `match` with one arm + `_ => {}` that should be `if let`?
 7. **Nested match over combinators?** — Nested `match` on `Option`/`Result` where `.map()`, `.and_then()`, `.map_err()` would be flatter and clearer?
+8. **Comment noise?** — Any comment that restates an identifier, type, or the next line, narrates a change ("previously", "now uses"), or describes behavior owned by other code?
