@@ -101,6 +101,8 @@ Never manually `match` on `Result` just to propagate — re-implementing `?`.
 
 **Validation pipelines**: compose constrained types with `?`.
 
+**Error composition**: errors compose via `#[from]` on wrapper enums, not matched-and-rewrapped.
+
 ```rust
 // BAD: gauntlet of if-checks
 if input.email.is_empty() { return Err(/*...*/); }
