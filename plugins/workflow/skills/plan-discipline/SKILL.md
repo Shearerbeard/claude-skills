@@ -83,6 +83,13 @@ the plan must say so.
 - Prescribe specific manual testing steps the user must perform
 - List what to test, how to verify, what edge cases to try
 - Do not assume the user knows how to test — be explicit
+- Output a required handout with six parts:
+  - temp config diff (copy-paste runnable, outside the repo)
+  - exact run command
+  - reference prompt
+  - expected observations in order (observable behaviors — never "verify it works")
+  - failure signatures (what a bad result looks like)
+  - revert steps
 
 ### Gate placement rules
 
@@ -151,6 +158,7 @@ After completing the pre-flight checklist, produce the plan in this format:
 - [ ] Gate A: ...
 - [ ] Gate M: agent exercises feature, reports behavior
 - [ ] Gate T: manual testing steps for user
+- [ ] Gate T handout: config diff, run command, reference prompt, expected observations, failure signatures, revert steps
 
 ### Rollback
 - If stage N fails: <how to revert>
