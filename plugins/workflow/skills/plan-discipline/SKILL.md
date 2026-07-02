@@ -1,29 +1,32 @@
 ---
 name: plan-discipline
 description: |
-  Use when the user asks to add a feature, refactor, migrate, or redesign
-  code. Also use when they say "plan this out", "scope this", "minimal V1",
-  "vet assumptions", "don't assume", "plan with gates", "where should the
-  user review?", or "what gates should this plan have?". Produces a
-  structured plan with scope interview, blast-radius scan, existing building
-  blocks search, and explicit review gates (self-review, agent second
-  opinion, manual testing, user review, user testing) placed at the
-  appropriate stages and prescribing user involvement at key checkpoints.
-  Skip single-file edits, typo fixes, and pure read/answer requests.
+  Your planning discipline FOR plan mode: the user's required data-gathering
+  depth, staging, and review gates. Load it whenever you plan - it layers on
+  plan mode, it does NOT replace it. In Claude Code especially, EnterPlanMode
+  is the container and this skill is the contents; entering plan mode without
+  loading this means planning without the user's gates. Trigger it the moment
+  you decide to plan - or the user says "plan this out", "scope this",
+  "minimal V1", "vet assumptions", "don't assume", "plan with gates", "where
+  should the user review?", or "what gates should this have?" - on any
+  feature, refactor, migration, redesign, new module, public-interface, or
+  3+ file change. It carries the scope interview, blast-radius scan,
+  building-blocks search, and the gate ladder into the plan. Skip single-file
+  edits, typo fixes, and pure read/answer requests.
 compatibility: claude-code opencode
 when_to_use: |
-  Invoke before the first code edit when the task is too broad to safely start
-  coding immediately. This includes multi-file implementation, refactors,
-  migrations, redesigns, public interface changes, new dependencies/modules,
-  and investigation that turns into implementation. Use this skill even if
-  Claude Code is already in native plan mode; native planning does not enforce
-  the user's required gates: scope interview, evidence check, verification
-  framing, blast-radius scan, and gate-probes review boundary.
+  Load this WITH plan mode, never instead of it - it is the preferences layer
+  for HOW to plan (data-gathering depth, staging, gates), not a separate
+  planner. The moment you decide to plan, or enter plan mode, on a multi-file
+  implementation, refactor, migration, redesign, public-interface change, or
+  new module, load this first. Entering plan mode without it means planning
+  without the user's gates: scope interview, evidence check, verification
+  framing, blast-radius scan, and the gate-probes review boundary.
 ---
 
 # Plan Discipline
 
-Enforce the user's pre-coding workflow before writing code. Do not rely on plan mode to enforce it.
+This is the user's discipline layer FOR plan mode - the preferences for HOW to plan (gathering, staging, gates). Load it WITH plan mode, never instead of it. Plan mode is the container; this skill is the contents.
 
 ## Pre-flight checklist
 
