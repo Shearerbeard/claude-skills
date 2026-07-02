@@ -58,3 +58,15 @@ Zero hits = speculative guard. Remove it.
 **No temporary workarounds that outlive the problem.** Don't add fallback code to route around a dev roadblock (missing API, unfinished dependency, broken fixture) — the roadblock may not exist by the time the code ships. Flag blockers explicitly, don't code around them silently.
 
 **Tests assert behavior, not examples.** Test assertions should verify properties and contracts, not hardcoded snapshot values copied from a single run. `assert len(results) > 0` and `assert result.status == "ok"` beat `assert results == [{"id": 1, "name": "test"}]`.
+
+## Comments
+
+**Why, not what.** Inline comments earn their place by explaining "why" when it is not apparent at face value. Light "what" is tolerated only at docstring level — docstrings own the "what"; inline comments don't.
+
+**No drift hazards.** Never describe behavior owned by other code — the comment goes stale when that code changes.
+
+**Never restate the code.** No comments repeating a type, a signature, or the next line.
+
+**No change narration.** Issue references, screenshots, "previously"/"now" comparisons — that history belongs in the commit, never the source.
+
+**No repetition.** Never repeat the same comment in multiple places.
