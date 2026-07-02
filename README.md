@@ -22,6 +22,7 @@ Model-invoked skills for Claude Code, OpenCode, Codex, and Pi. Registered as a l
 | `gate-probes` | workflow | commit / review / PR | 7 universal quality probes + surgical discipline |
 | `skill-retro` | workflow | "retro my skills" | Audit how skills triggered and performed in a session; files retros under `feedback/` |
 | `git-commit` | workflow | committing / commit messages | Conventional commit format, prose quality chain, mandatory user review |
+| `rebase-hygiene` | workflow | explicit invocation only | Fetch-first rebase ritual: pre-vet conflicts, pre-planned resolutions, verify the push |
 
 Two more plugins ship LSP configs rather than skills: `vale-lsp` (Vale prose diagnostics) and `haskell-lsp` (Haskell Language Server).
 
@@ -174,7 +175,7 @@ claude-skills/
 │   ├── python/                  # python-quality, python-review
 │   ├── rust/                    # rust-design, rust-async, rust-quality, rust-review, rust-modules
 │   ├── docs/                    # docs-bustest, adr-review, prose-lint, humanizer, mermaid
-│   ├── workflow/                # plan-discipline, gate-probes, skill-retro, git-commit
+│   ├── workflow/                # plan-discipline, gate-probes, skill-retro, git-commit, rebase-hygiene
 │   ├── vale-lsp/                # Vale LSP config (no skills)
 │   └── haskell-lsp/             # Haskell LSP config (no skills)
 ├── .claude-plugin/
