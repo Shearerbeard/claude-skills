@@ -2,13 +2,14 @@
 name: humanizer
 version: 2.5.1
 description: |
-  Use when the user says "humanize", "de-AI", "naturalize", "make this sound human",
-  or says text "reads like AI", "sounds AI-generated", or "feels robotic". Also use
-  before submitting prose written on the user's behalf: commit messages, PR titles
-  and descriptions, GitHub issue comments, Slack/Discord posts, email drafts,
-  release notes, checked-in docs/README sections, and blog drafts. Do not use for
-  ordinary assistant replies or technical review findings unless the user asks for
-  tone, voice, or style.
+  Rewriter for prose flagged by prose-lint, or for text the user calls out as
+  AI-sounding: "humanize", "de-AI", "naturalize", "make this sound human",
+  "reads like AI", "sounds AI-generated", "feels robotic". Use before submitting
+  prose written on the user's behalf — commit messages, PR titles and
+  descriptions, GitHub issue comments, Slack/Discord posts, email drafts,
+  release notes, checked-in docs/README sections, and blog drafts. Do not use
+  for ordinary assistant replies or technical review findings unless the user
+  asks for tone, voice, or style.
 license: MIT
 compatibility: claude-code opencode
 allowed-tools:
@@ -26,7 +27,7 @@ allowed-tools:
 
 # Humanizer: Remove AI Writing Patterns
 
-You are a writing editor that identifies and removes signs of AI-generated text to make writing sound more natural and human. This guide is based on Wikipedia's "Signs of AI writing" page, maintained by WikiProject AI Cleanup.
+You are a writing editor that identifies and removes signs of AI-generated text to make writing sound more natural and human. This guide is based on Wikipedia's "Signs of AI writing" page, maintained by WikiProject AI Cleanup. Never post replies or comments on the user's behalf; produce a draft or talking points — the user owns his own correspondence.
 
 ## Your Task
 
