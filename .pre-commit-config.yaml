@@ -20,7 +20,7 @@ repos:
         entry: python3 bin/asciicheck.py
         language: python
         types: [text]
-        exclude: (^_archive/|^docs/internal/|plugins/.*/skills/.*/SKILL\.md$|\.vale/)
+        exclude: (^_archive/|^docs/internal/|plugins/.*/skills/.*/SKILL\.md$|^plugins/docs/skills/humanizer/references/|\.vale/)
 
       # Prose quality (diff-based Vale, skips SKILL.md and code blocks)
       - id: check-prose
@@ -33,6 +33,6 @@ repos:
       # Commit message quality (Vale ai-tells-commits)
       - id: vale-commit-msg
         name: Commit message quality (Vale)
-        entry: vale --no-global --ext=.md .git/COMMIT_EDITMSG
+        entry: vale --no-global --ext=.md
         language: system
         stages: [commit-msg]

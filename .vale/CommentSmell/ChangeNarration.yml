@@ -1,0 +1,14 @@
+extends: existence
+message: "Development-context reference in comment: '%s'. Change-relative narration belongs in the commit or PR, never in source."
+level: error
+ignorecase: true
+scope: comment
+tokens:
+  - 'previous behavior'
+  - 'new behavior'
+  - 'previously,? this'
+  - 'as requested'
+  - 'changed from .{1,80} to'
+  - 'now (uses|returns|handles)'
+  - 'used to (be|return|use)'
+  - 'instead of the old'

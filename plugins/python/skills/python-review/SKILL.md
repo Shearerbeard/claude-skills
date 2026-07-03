@@ -34,6 +34,8 @@ Run these probes against every function in the diff:
 
 7. **Dead guards?** — Any `is_dir()`, `exists()`, or name-exclusion guard that protects against a condition with zero real instances in the data?
 
+8. **Comment noise?** — Any comment that restates an identifier, type, or the next line, narrates a change ("previously", "now uses"), or describes behavior owned by other code?
+
 ## Toolchain Check
 
 Verify `pyproject.toml` uses:
@@ -47,4 +49,4 @@ uv run ruff check . && uv run ruff format --check .
 
 ## Report Format
 
-For each finding, report: file, line, which probe (1-7) failed, one-line fix.
+For each finding, report: file, line, which probe (1-8) failed, one-line fix.

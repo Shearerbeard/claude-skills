@@ -1,9 +1,12 @@
 ---
 name: git-commit
-description: Use when writing a commit message or preparing a git commit. Covers conventional commit format, message structure, prose quality, and mandatory user review before committing. Pair with github-workflow for branch naming and PR conventions.
+description: Use when writing a commit message or preparing a git commit. Covers conventional commit format, message structure, prose quality, and mandatory user review before committing. If a github-workflow skill is available, pair with it for branch naming and PR conventions.
+compatibility: claude-code opencode
 ---
 
 # Git Commit Conventions
+
+Run `gate-probes` on the staged diff before writing the message, if it has not already run for this diff.
 
 ## Format
 
@@ -24,6 +27,13 @@ The short description is imperative mood, lowercase, no trailing period: "add re
 ## Body
 
 The body explains *what* changed and *why*, not *how*. Wrap at 72 characters. Use a blank line between the subject and body.
+
+Keep the body brief; details live in the diff:
+
+- Do not restate the diff per file
+- Never count tests or claim "has tests"; the review process owns that
+- Do not narrate the symptom the change fixes
+- Do not replay the task history; describe the result, not the session
 
 For multi-point changes, use a plain list:
 
@@ -68,3 +78,5 @@ npx commitlint --edit
 If commitlint fails, amend the message and re-validate. Do not skip this step or ask whether to run it.
 
 If no commitlint config exists in the project, skip validation silently.
+
+Repos with the ai-tells-commits Vale gate (wired to COMMIT_EDITMSG) enforce the test-count, file-listing, and overexplanation rules deterministically.

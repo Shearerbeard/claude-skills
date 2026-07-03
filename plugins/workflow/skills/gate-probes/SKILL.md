@@ -19,8 +19,10 @@ After the universal probes, route to the next applicable skill without repeating
 - Python diffs (`.py`, `pyproject.toml`, `uv`, `ruff`, `pytest`, `click`): run `python-review`
 - Rust diffs (`.rs`, `Cargo.toml`, `clippy`): run `rust-review`
 - Rust module layout changes: run `rust-modules`
+- ADR / decision-record changes (`docs/adr/`, `DECISIONS.md`): run `adr-review`
 - Checked-in docs changes: run `docs-bustest`
 - User-facing prose without a docs structure review need: run `prose-lint`; then run `humanizer` if the prose will be checked in, published, or sent on the user's behalf
+- Writing the commit message itself: run `git-commit`
 
 ## Quality probes
 

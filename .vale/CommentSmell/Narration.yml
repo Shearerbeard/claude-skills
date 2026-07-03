@@ -1,0 +1,11 @@
+extends: existence
+message: "Comment narrates the code: '%s'. Comments document the non-obvious, not what the next line does."
+level: warning
+ignorecase: true
+scope: comment
+tokens:
+  - 'Returns? the (calculated|new|resulting)'
+  - 'Creates? a new \w+ with the given'
+  - 'This (function|struct|method|field|module) (is|takes|returns|represents|calculates|holds)'
+  - 'This is an? \w+'
+  - '(see|per) (the )?(issue|screenshot|PR #[0-9]+)'
