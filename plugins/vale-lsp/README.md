@@ -4,7 +4,13 @@ Vale prose linter LSP for Claude Code. Catches AI-generated writing patterns
 using the [ai-tells](https://github.com/tbhb/vale-ai-tells) style package.
 
 ## Supported Extensions
-`.md`, `.txt`
+`.md`, `.txt`, `.rs`
+
+`.rs` is wired only to the `CommentSmell` style (comment-scoped narration
+and change-narration rules in `.vale/CommentSmell/`). Prose rules like
+`local.EmDashUsage` and `local.FormalRegister` are not applied to Rust
+source; they govern narrative prose, not code comments. See the
+`[*.rs]` section in `.vale.ini`.
 
 ## Installation
 

@@ -3,7 +3,8 @@
     "command": "vale-ls",
     "extensionToLanguage": {
       ".md": "markdown",
-      ".txt": "plaintext"
+      ".txt": "plaintext",
+      ".rs": "rust"
     }
   }
 }
