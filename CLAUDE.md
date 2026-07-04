@@ -38,6 +38,8 @@ Use `prose-lint` for Vale workflows. Do not lint generated content, code blocks,
 
 Before non-trivial code work, load `plan-discipline`. It enforces the scope interview, verification framing, blast-radius scan, gate placement, and review checkpoints. It is the single source of truth for planning workflow; do not duplicate its rules here.
 
+Audit rounds follow a standing pattern (adopted 2026-07-03): the round's execution plan lives at `docs/proposals/<date>-<topic>-execution-plan.md` (gitignored working doc) with a temporary "Active execution plan" pointer section at the top of this file. Every session updates the plan's SESSION STATE block before it ends; remove the pointer section when the round's closing actions complete.
+
 See: [Skills docs](https://code.claude.com/docs/en/skills), [Plugin marketplaces](https://code.claude.com/docs/en/plugin-marketplaces)
 
 ## Archive Convention
