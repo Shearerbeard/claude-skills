@@ -107,7 +107,7 @@ The installer registers the marketplace with Claude Code and flat-copies skills 
 ```
 
 This does two things:
-1. **Claude Code**: registers the directory marketplace in `~/.claude/settings.json` and enables all plugins
+1. **Claude Code**: registers the directory marketplace with `claude plugin marketplace add` and installs/enables all plugins; if the Claude CLI is unavailable, it falls back to `~/.claude/settings.json`
 2. **Agent tools**: copies skills to `~/.agents/skills/` with a per-source manifest (`.manifest.<marketplace-name>`)
 
 To install only specific skills from a repo (e.g., a shared marketplace where you only want certain skills):

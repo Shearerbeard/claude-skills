@@ -4,57 +4,67 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-ruby <<'RUBY'
-require "psych"
+python3 <<'PY'
+import json
+import pathlib
+import re
+import sys
+
+import yaml
 
 errors = []
 skills = {}
 
-Dir["plugins/*/skills/*/SKILL.md"].sort.each do |path|
-  text = File.read(path)
-  frontmatter = text[/\A---\n(.*?)\n---/m, 1]
-  unless frontmatter
-    errors << "#{path}: missing YAML frontmatter"
-    next
-  end
+for path in sorted(pathlib.Path("plugins").glob("*/skills/*/SKILL.md")):
+    text = path.read_text()
+    if not text.startswith("---\n"):
+        errors.append(f"{path}: missing YAML frontmatter")
+        continue
+    end = text.find("\n---", 4)
+    if end == -1:
+        errors.append(f"{path}: missing YAML frontmatter terminator")
+        continue
+    try:
+        data = yaml.safe_load(text[4:end]) or {}
+    except yaml.YAMLError as exc:
+        errors.append(f"{path}: invalid YAML in frontmatter: {exc}")
+        continue
 
-  data = Psych.safe_load(frontmatter, permitted_classes: [], aliases: false) || {}
-  name = data["name"]
-  description = data["description"]
-  dir = File.basename(File.dirname(path))
+    name = data.get("name")
+    description = data.get("description")
+    skill_dir = path.parent.name
 
-  errors << "#{path}: missing name" if name.nil? || name.empty?
-  errors << "#{path}: name #{name.inspect} does not match directory #{dir.inspect}" if name && name != dir
-  errors << "#{path}: missing description" if description.nil? || description.to_s.strip.empty?
-  if description && description.to_s.length > 1024
-    errors << "#{path}: description is #{description.to_s.length} chars; OpenCode allows 1024"
-  end
-  if description && description.to_s.match?(/\bTriggers when\b|\bauto-triggered\b|\bactivates\b/i)
-    errors << "#{path}: description uses magic-trigger wording"
-  end
+    if not name:
+        errors.append(f"{path}: missing name")
+    elif name != skill_dir:
+        errors.append(f"{path}: name {name!r} does not match directory {skill_dir!r}")
+    if not str(description or "").strip():
+        errors.append(f"{path}: missing description")
+    elif len(str(description)) > 1024:
+        errors.append(f"{path}: description is {len(str(description))} chars; OpenCode allows 1024")
+    if description and re.search(r"\bTriggers when\b|\bauto-triggered\b|\bactivates\b", str(description), re.I):
+        errors.append(f"{path}: description uses magic-trigger wording")
 
-  skills[name] = path if name
-end
+    if name:
+        skills[name] = path
 
-names = skills.keys.compact
-skill_ref = /`([a-z0-9]+(?:-[a-z0-9]+)*)`/
-Dir["plugins/*/skills/*/SKILL.md"].sort.each do |path|
-  text = File.read(path)
-  text.scan(skill_ref).flatten.uniq.each do |name|
-    next if skills.key?(name)
-    next unless name.include?("-")
-    errors << "#{path}: references missing skill `#{name}`"
-  end
-end
+skill_ref = re.compile(r"`([a-z0-9]+(?:-[a-z0-9]+)*)`")
+for path in sorted(pathlib.Path("plugins").glob("*/skills/*/SKILL.md")):
+    text = path.read_text()
+    for name in sorted(set(skill_ref.findall(text))):
+        if name in skills:
+            continue
+        if "-" not in name:
+            continue
+        errors.append(f"{path}: references missing skill `{name}`")
 
-if errors.any?
-  warn errors.join("\n")
-  exit 1
-end
+if errors:
+    sys.stderr.write("\n".join(errors) + "\n")
+    sys.exit(1)
 
-puts "checked #{names.size} skills"
-RUBY
+print(f"checked {len(skills)} skills")
 
-ruby -rjson -e 'ARGV.each { |f| JSON.parse(File.read(f)); puts "ok #{f}" }' \
-  .claude-plugin/marketplace.json \
-  plugins/*/.claude-plugin/plugin.json
+for path in [pathlib.Path(".claude-plugin/marketplace.json"), *sorted(pathlib.Path("plugins").glob("*/.claude-plugin/plugin.json"))]:
+    json.loads(path.read_text())
+    print(f"ok {path}")
+PY

@@ -94,47 +94,61 @@ if [ "$DO_CLAUDE" = true ]; then
   echo ""
   echo "=== Claude Code ==="
 
-  if [ ! -f "$CLAUDE_SETTINGS" ]; then
-    echo "creating $CLAUDE_SETTINGS"
-    mkdir -p "$(dirname "$CLAUDE_SETTINGS")"
-    echo '{}' > "$CLAUDE_SETTINGS"
-  fi
+  plugin_names="$(jq -r '.plugins[].name' "$MARKETPLACE_JSON")"
+  total_plugins="$(echo "$plugin_names" | wc -l | tr -d ' ')"
 
-  # ensure extraKnownMarketplaces.<name> exists (don't overwrite existing source)
-  has_marketplace="$(jq -r --arg name "$MARKETPLACE_NAME" \
-    '.extraKnownMarketplaces[$name] // empty' "$CLAUDE_SETTINGS")"
+  if command -v claude >/dev/null 2>&1 && [ "${INSTALL_SKILLS_CLAUDE_CLI:-1}" != "0" ]; then
+    echo "using Claude plugin CLI"
+    TERM="${TERM:-dumb}" claude plugin marketplace add "$SOURCE_PATH" >/dev/null
 
-  if [ -z "$has_marketplace" ]; then
+    installed=0
+    for plugin in $plugin_names; do
+      key="${plugin}@${MARKETPLACE_NAME}"
+      TERM="${TERM:-dumb}" claude plugin install --scope user "$key" >/dev/null
+      echo "  installed/enabled: $key"
+      installed=$((installed + 1))
+    done
+
+    echo "Claude: $MARKETPLACE_NAME registered, $installed plugin(s) installed/enabled ($total_plugins total)"
+  else
+    if ! command -v claude >/dev/null 2>&1; then
+      echo "Claude CLI not found; falling back to settings.json registration"
+    else
+      echo "Claude CLI disabled by INSTALL_SKILLS_CLAUDE_CLI=0; falling back to settings.json registration"
+    fi
+
+    if [ ! -f "$CLAUDE_SETTINGS" ]; then
+      echo "creating $CLAUDE_SETTINGS"
+      mkdir -p "$(dirname "$CLAUDE_SETTINGS")"
+      echo '{}' > "$CLAUDE_SETTINGS"
+    fi
+
     echo "registering marketplace: $MARKETPLACE_NAME (directory source)"
     jq --arg name "$MARKETPLACE_NAME" --arg path "$SOURCE_PATH" \
       '.extraKnownMarketplaces[$name] = {"source": {"source": "directory", "path": $path}}' \
       "$CLAUDE_SETTINGS" > "$CLAUDE_SETTINGS.tmp" && mv "$CLAUDE_SETTINGS.tmp" "$CLAUDE_SETTINGS"
-  else
-    echo "marketplace already registered: $MARKETPLACE_NAME (leaving source unchanged)"
-  fi
 
-  # enable all plugins from marketplace.json
-  plugin_names="$(jq -r '.plugins[].name' "$MARKETPLACE_JSON")"
-  enabled=0
-  for plugin in $plugin_names; do
-    key="${plugin}@${MARKETPLACE_NAME}"
-    already="$(jq -r --arg key "$key" '.enabledPlugins[$key] // empty' "$CLAUDE_SETTINGS")"
-    if [ -z "$already" ]; then
-      jq --arg key "$key" '.enabledPlugins[$key] = true' \
-        "$CLAUDE_SETTINGS" > "$CLAUDE_SETTINGS.tmp" && mv "$CLAUDE_SETTINGS.tmp" "$CLAUDE_SETTINGS"
-      echo "  enabled: $key"
-      enabled=$((enabled + 1))
+    # enable all plugins from marketplace.json
+    enabled=0
+    for plugin in $plugin_names; do
+      key="${plugin}@${MARKETPLACE_NAME}"
+      already="$(jq -r --arg key "$key" '.enabledPlugins[$key] // empty' "$CLAUDE_SETTINGS")"
+      if [ -z "$already" ]; then
+        jq --arg key "$key" '.enabledPlugins[$key] = true' \
+          "$CLAUDE_SETTINGS" > "$CLAUDE_SETTINGS.tmp" && mv "$CLAUDE_SETTINGS.tmp" "$CLAUDE_SETTINGS"
+        echo "  enabled: $key"
+        enabled=$((enabled + 1))
+      fi
+    done
+
+    # verify valid JSON
+    if ! jq empty "$CLAUDE_SETTINGS" 2>/dev/null; then
+      echo "error: $CLAUDE_SETTINGS is not valid JSON after edits" >&2
+      exit 1
     fi
-  done
 
-  # verify valid JSON
-  if ! jq empty "$CLAUDE_SETTINGS" 2>/dev/null; then
-    echo "error: $CLAUDE_SETTINGS is not valid JSON after edits" >&2
-    exit 1
+    echo "Claude: $MARKETPLACE_NAME registered, $enabled new plugin(s) enabled ($total_plugins total)"
   fi
-
-  total_plugins="$(echo "$plugin_names" | wc -l | tr -d ' ')"
-  echo "Claude: $MARKETPLACE_NAME registered, $enabled new plugin(s) enabled ($total_plugins total)"
 fi
 
 # --- Agents flat-copy ---
@@ -188,31 +202,43 @@ if [ "$DO_AGENTS" = true ]; then
   fi
 
   # validate frontmatter on ALL source skills (not just filtered)
-  ruby -rpsych -e '
-    errors = []
-    Dir[ARGV[0] + "/*/skills/*/SKILL.md"].sort.each do |path|
-      text = File.read(path)
-      fm = text[/\A---\n(.*?)\n---/m, 1]
-      if fm.nil?
-        errors << "#{path}: missing YAML frontmatter"
-        next
-      end
-      begin
-        data = Psych.safe_load(fm, permitted_classes: [], aliases: false) || {}
-      rescue Psych::SyntaxError => e
-        errors << "#{path}: invalid YAML in frontmatter: #{e.message.lines.first&.strip}"
-        next
-      end
-      name = data["name"]
-      abort "#{path}: missing name" if name.nil? || name.to_s.empty?
-      dir = File.basename(File.dirname(path))
-      abort "#{path}: name #{name.inspect} does not match directory #{dir.inspect}" unless name == dir
-      abort "#{path}: missing description" unless data.key?("description") && !data["description"].to_s.strip.empty?
-    end
-    unless errors.empty?
-      abort("frontmatter validation failed:\n  " + errors.join("\n  "))
-    end
-  ' "$PLUGINS_DIR"
+  python3 - "$PLUGINS_DIR" <<'PY'
+import pathlib
+import sys
+
+import yaml
+
+errors = []
+root = pathlib.Path(sys.argv[1])
+for path in sorted(root.glob("*/skills/*/SKILL.md")):
+    text = path.read_text()
+    if not text.startswith("---\n"):
+        errors.append(f"{path}: missing YAML frontmatter")
+        continue
+    end = text.find("\n---", 4)
+    if end == -1:
+        errors.append(f"{path}: missing YAML frontmatter terminator")
+        continue
+    frontmatter = text[4:end]
+    try:
+        data = yaml.safe_load(frontmatter) or {}
+    except yaml.YAMLError as exc:
+        errors.append(f"{path}: invalid YAML in frontmatter: {exc}")
+        continue
+
+    name = data.get("name")
+    skill_dir = path.parent.name
+    if not name:
+        errors.append(f"{path}: missing name")
+    elif name != skill_dir:
+        errors.append(f"{path}: name {name!r} does not match directory {skill_dir!r}")
+    if not str(data.get("description", "")).strip():
+        errors.append(f"{path}: missing description")
+
+if errors:
+    sys.stderr.write("frontmatter validation failed:\n  " + "\n  ".join(errors) + "\n")
+    sys.exit(1)
+PY
 
   # per-source manifest
   mkdir -p "$DEST"
