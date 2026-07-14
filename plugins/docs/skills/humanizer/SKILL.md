@@ -1,6 +1,5 @@
 ---
 name: humanizer
-version: 2.5.1
 description: |
   Rewriter for prose flagged by prose-lint, or for text the user calls out as
   AI-sounding: "humanize", "de-AI", "naturalize", "make this sound human",
@@ -12,14 +11,9 @@ description: |
   asks for tone, voice, or style.
 license: MIT
 compatibility: claude-code opencode
-allowed-tools:
-  - Bash
-  - Read
-  - Write
-  - Edit
-  - Grep
-  - Glob
-  - AskUserQuestion
+allowed-tools: Bash Read Write Edit Grep Glob AskUserQuestion
+metadata:
+  version: "2.5.1"
 ---
 
 > Forked from [blader/humanizer](https://github.com/blader/humanizer) v2.5.1 (MIT, © 2025 Siqi Chen).

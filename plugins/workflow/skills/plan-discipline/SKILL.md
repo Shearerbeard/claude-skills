@@ -105,6 +105,11 @@ the plan must say so.
 | Before integration or merge | S → A → M → U | **Yes** |
 | After full implementation | S → A → M → T | **Yes** |
 
+**Gate economy.** Intermediate coding stages are S → A only. Place a 🛑 USER GATE
+only where this table requires one (interface/schema, auth, integration or merge,
+final implementation) — typically toward the end. A plan that stops for the user
+on every stage is as wrong as one with no gates; it buries the gate that matters.
+
 If a stage triggers user involvement, the plan template must include the 🛑
 USER GATE marker. The agent must STOP and present at that gate — never push past
 without user approval.
@@ -119,7 +124,13 @@ without user approval.
 
 ## Plan Template
 
-After completing the pre-flight checklist, produce the plan in this format:
+After completing the pre-flight checklist, produce the plan in this format.
+
+**Render every stage's gates as the `[ ] Gate X:` checklist below, each with
+named runnable checks. A prose `Gates: S → A → U` line is a scan summary, not the
+gate rendering — a stage carrying only that line reads as gateless and is
+non-compliant.** Give each stage a Goal and a Done-when so the gates have
+something to verify.
 
 ```
 ## Plan: <task summary>
@@ -142,19 +153,24 @@ After completing the pre-flight checklist, produce the plan in this format:
 ### Implementation Stages
 
 #### Stage 1: <description>
+- Goal: ...
 - Changes: ...
 - Gates: S → A
 - [ ] Gate S: load skill `gate-probes`, then <deterministic checks to run>
 - [ ] Gate A: agent review of diff
+- Done when: ...
 
 #### Stage 2: <description> 🛑 USER GATE
+- Goal: ...
 - Changes: ...
 - Gates: S → A → U
 - [ ] Gate S: <checks>
 - [ ] Gate A: agent review
 - [ ] Gate U: present diffs + findings, highlight highest-risk changes, await approval
+- Done when: ...
 
 #### Stage 3: <description> 🛑 USER TEST
+- Goal: ...
 - Changes: ...
 - Gates: S → A → M → T
 - [ ] Gate S: ...
@@ -162,6 +178,7 @@ After completing the pre-flight checklist, produce the plan in this format:
 - [ ] Gate M: agent exercises feature, reports behavior
 - [ ] Gate T: manual testing steps for user
 - [ ] Gate T handout: config diff, run command, reference prompt, expected observations, failure signatures, revert steps
+- Done when: ...
 
 ### Rollback
 - If stage N fails: <how to revert>

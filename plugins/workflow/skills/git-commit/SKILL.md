@@ -50,14 +50,15 @@ Add machine-readable output for CI/CD workflows:
 
 ## Forbidden content
 
-Never add AI attribution to commits:
+Never add sign-off trailers or AI attribution to commits unless the user explicitly requests them or the repository requires them (for example, DCO sign-off):
 
-- No "Generated with Claude Code"
-- No "Co-Authored-By: Claude" or any AI co-author line
-- No footer indicating AI assistance
+- No `Signed-off-by` trailers
+- No `Co-authored-by` lines with AI names
+- No `Generated with` or `Generated-by` footers
+- No AI signatures or attribution of any kind
 - No robot emoji taglines
 
-Commits contain only: type, description, optional body, and optional footers (`Ref:`, `Fixes:`). No `Signed-off-by` lines.
+Commits contain only: type, description, optional body, and optional footers (`Ref:`, `Fixes:`).
 
 ## Prose quality
 

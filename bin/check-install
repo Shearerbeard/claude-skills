@@ -5,6 +5,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TMP_HOME="$(mktemp -d)"
 trap 'rm -rf "$TMP_HOME"' EXIT
 log_file="$TMP_HOME/install.log"
+export INSTALL_SKILLS_CLAUDE_CLI=0
 
 expected="$(find "$ROOT/plugins" -path '*/skills/*/SKILL.md' -type f | wc -l | tr -d ' ')"
 
@@ -153,37 +154,108 @@ echo "  --skills filter OK"
 echo "=== Test 5: Claude idempotency ==="
 HOME="$TMP_HOME" "$ROOT/bin/install-skills" "$ROOT" >"$log_file" 2>&1
 
-if grep -q "registering marketplace" "$log_file"; then
-  echo "FAIL: second run re-registered marketplace" >&2
-  exit 1
-fi
 if grep -q "enabled:" "$log_file"; then
   echo "FAIL: second run re-enabled plugins" >&2
+  exit 1
+fi
+source_path="$(jq -r '.extraKnownMarketplaces["my-skills"].source.path' "$TMP_HOME/.claude/settings.json")"
+if [ "$source_path" != "$ROOT" ]; then
+  echo "FAIL: second run did not preserve absolute marketplace path" >&2
   exit 1
 fi
 
 echo "  Claude idempotency OK"
 
 echo "=== Test 6: Frontmatter validation in installed skills ==="
-ruby -rpsych -e '
-  Dir[ARGV[0] + "/*"].sort.each do |dir|
-    next unless File.directory?(dir)
-    bn = File.basename(dir)
-    next if bn.start_with?(".")
-    next if bn == ARGV[1]
-    path = File.join(dir, "SKILL.md")
-    next unless File.file?(path)
-    text = File.read(path)
-    fm = text[/\A---\n(.*?)\n---/m, 1] or abort("missing frontmatter: #{path}")
-    data = Psych.safe_load(fm, permitted_classes: [], aliases: false) || {}
-    name = data["name"] or abort("missing name: #{path}")
-    skill_dir = File.basename(dir)
-    abort("name mismatch #{path}: #{name} != #{skill_dir}") unless name == skill_dir
-    abort("missing description: #{path}") unless data.key?("description")
-  end
-' "$dest" "$third_party"
+python3 - "$dest" "$third_party" <<'PY'
+import pathlib
+import sys
+
+import yaml
+
+dest = pathlib.Path(sys.argv[1])
+third_party = sys.argv[2]
+for skill_dir in sorted(p for p in dest.iterdir() if p.is_dir()):
+    if skill_dir.name.startswith(".") or skill_dir.name == third_party:
+        continue
+    path = skill_dir / "SKILL.md"
+    if not path.exists():
+        continue
+    text = path.read_text()
+    if not text.startswith("---\n"):
+        raise SystemExit(f"missing frontmatter: {path}")
+    end = text.find("\n---", 4)
+    if end == -1:
+        raise SystemExit(f"missing frontmatter terminator: {path}")
+    data = yaml.safe_load(text[4:end]) or {}
+    name = data.get("name")
+    if not name:
+        raise SystemExit(f"missing name: {path}")
+    if name != skill_dir.name:
+        raise SystemExit(f"name mismatch {path}: {name} != {skill_dir.name}")
+    if "description" not in data:
+        raise SystemExit(f"missing description: {path}")
+PY
 
 echo "  frontmatter validation OK"
+
+echo "=== Test 7: Claude plugin CLI path wiring ==="
+cli_home="$TMP_HOME/cli-home"
+fake_bin="$TMP_HOME/fake-bin"
+mkdir -p "$cli_home/.claude" "$fake_bin"
+echo '{}' > "$cli_home/.claude/settings.json"
+cat > "$fake_bin/claude" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+mkdir -p "$HOME/.claude"
+settings="$HOME/.claude/settings.json"
+[ -f "$settings" ] || echo '{}' > "$settings"
+printf '%s\n' "$*" >> "$HOME/claude-cli.log"
+
+if [ "$1" = "plugin" ] && [ "$2" = "marketplace" ] && [ "$3" = "add" ]; then
+  path="$4"
+  name="$(jq -r '.name' "$path/.claude-plugin/marketplace.json")"
+  jq --arg name "$name" --arg path "$path" \
+    '.extraKnownMarketplaces[$name] = {"source": {"source": "directory", "path": $path}}' \
+    "$settings" > "$settings.tmp" && mv "$settings.tmp" "$settings"
+  exit 0
+fi
+
+if [ "$1" = "plugin" ] && [ "$2" = "install" ] && [ "$3" = "--scope" ]; then
+  plugin="$5"
+  jq --arg plugin "$plugin" '.enabledPlugins[$plugin] = true' \
+    "$settings" > "$settings.tmp" && mv "$settings.tmp" "$settings"
+  exit 0
+fi
+
+echo "unexpected claude args: $*" >&2
+exit 2
+EOF
+chmod +x "$fake_bin/claude"
+
+HOME="$cli_home" PATH="$fake_bin:$PATH" INSTALL_SKILLS_CLAUDE_CLI=1 \
+  "$ROOT/bin/install-skills" "$ROOT" --claude-only >"$log_file" 2>&1
+
+if ! grep -qx "plugin marketplace add $ROOT" "$cli_home/claude-cli.log"; then
+  echo "FAIL: Claude CLI marketplace add was not called with the source path" >&2
+  cat "$cli_home/claude-cli.log" >&2
+  exit 1
+fi
+plugin_count="$(jq '[.enabledPlugins | keys[] | select(endswith("@my-skills"))] | length' \
+  "$cli_home/.claude/settings.json")"
+if [ "$plugin_count" != "$(jq '.plugins | length' "$ROOT/.claude-plugin/marketplace.json")" ]; then
+  echo "FAIL: Claude CLI path did not install all plugins" >&2
+  cat "$log_file" >&2
+  exit 1
+fi
+source_path="$(jq -r '.extraKnownMarketplaces["my-skills"].source.path' \
+  "$cli_home/.claude/settings.json")"
+if [ "$source_path" != "$ROOT" ]; then
+  echo "FAIL: Claude CLI path did not register absolute source path" >&2
+  exit 1
+fi
+
+echo "  Claude plugin CLI path OK"
 
 echo ""
 echo "All install checks passed ($expected skills)"
