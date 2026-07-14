@@ -4,6 +4,10 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
+# Spec-limit frontmatter checks (shared with install-skills). Fails fast.
+python3 "$ROOT/bin/_check-frontmatter.py" plugins
+
+# Repo-specific checks: authoring wording and cross-skill references.
 python3 <<'PY'
 import json
 import pathlib
@@ -17,31 +21,11 @@ skills = {}
 
 for path in sorted(pathlib.Path("plugins").glob("*/skills/*/SKILL.md")):
     text = path.read_text()
-    if not text.startswith("---\n"):
-        errors.append(f"{path}: missing YAML frontmatter")
-        continue
     end = text.find("\n---", 4)
-    if end == -1:
-        errors.append(f"{path}: missing YAML frontmatter terminator")
-        continue
-    try:
-        data = yaml.safe_load(text[4:end]) or {}
-    except yaml.YAMLError as exc:
-        errors.append(f"{path}: invalid YAML in frontmatter: {exc}")
-        continue
+    data = yaml.safe_load(text[4:end]) or {}
 
     name = data.get("name")
     description = data.get("description")
-    skill_dir = path.parent.name
-
-    if not name:
-        errors.append(f"{path}: missing name")
-    elif name != skill_dir:
-        errors.append(f"{path}: name {name!r} does not match directory {skill_dir!r}")
-    if not str(description or "").strip():
-        errors.append(f"{path}: missing description")
-    elif len(str(description)) > 1024:
-        errors.append(f"{path}: description is {len(str(description))} chars; OpenCode allows 1024")
     if description and re.search(r"\bTriggers when\b|\bauto-triggered\b|\bactivates\b", str(description), re.I):
         errors.append(f"{path}: description uses magic-trigger wording")
 

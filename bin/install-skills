@@ -15,6 +15,7 @@ set -euo pipefail
 
 DEST="$HOME/.agents/skills"
 CLAUDE_SETTINGS="$HOME/.claude/settings.json"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 usage() {
   echo "Usage: install-skills <source-path> [options]"
@@ -201,44 +202,10 @@ if [ "$DO_AGENTS" = true ]; then
     fi
   fi
 
-  # validate frontmatter on ALL source skills (not just filtered)
-  python3 - "$PLUGINS_DIR" <<'PY'
-import pathlib
-import sys
-
-import yaml
-
-errors = []
-root = pathlib.Path(sys.argv[1])
-for path in sorted(root.glob("*/skills/*/SKILL.md")):
-    text = path.read_text()
-    if not text.startswith("---\n"):
-        errors.append(f"{path}: missing YAML frontmatter")
-        continue
-    end = text.find("\n---", 4)
-    if end == -1:
-        errors.append(f"{path}: missing YAML frontmatter terminator")
-        continue
-    frontmatter = text[4:end]
-    try:
-        data = yaml.safe_load(frontmatter) or {}
-    except yaml.YAMLError as exc:
-        errors.append(f"{path}: invalid YAML in frontmatter: {exc}")
-        continue
-
-    name = data.get("name")
-    skill_dir = path.parent.name
-    if not name:
-        errors.append(f"{path}: missing name")
-    elif name != skill_dir:
-        errors.append(f"{path}: name {name!r} does not match directory {skill_dir!r}")
-    if not str(data.get("description", "")).strip():
-        errors.append(f"{path}: missing description")
-
-if errors:
-    sys.stderr.write("frontmatter validation failed:\n  " + "\n  ".join(errors) + "\n")
-    sys.exit(1)
-PY
+  # validate frontmatter on ALL source skills (not just filtered), against the
+  # Agent Skills spec limits. Uses the installer's own copy of the validator so
+  # it travels with claude-skills even when installing a third-party source.
+  python3 "$SCRIPT_DIR/_check-frontmatter.py" "$PLUGINS_DIR"
 
   # per-source manifest
   mkdir -p "$DEST"

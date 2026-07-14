@@ -71,6 +71,15 @@ Follow these conventions:
 
 Plan mode hooks exist in Claude Code but are buggy: EnterPlanMode hook output is ignored (claude-code#41051), and user-initiated `/plan` doesn't fire hooks (claude-code#15660). Invoke `plan-discipline` manually when its hard blockers matter; plan-mode prompts often make the skill look redundant to the model.
 
+## Frontmatter Fields
+
+Skills use the [Agent Skills spec](https://agentskills.io/specification) frontmatter: `name`, `description`, `license`, `compatibility`, `metadata`, `allowed-tools`. Two non-spec fields are used deliberately and are **honored by Claude Code but silently ignored by OpenCode**:
+
+- `when_to_use` (`plan-discipline`) - Claude Code routing hint. OpenCode ignores it, so its content is also folded into `description`.
+- `disable-model-invocation` (`rebase-hygiene`) - Claude Code suppresses auto-loading. OpenCode ignores it, so the skill also states "never auto-load" in its `description` as an in-band backstop.
+
+`bin/_check-frontmatter.py` is the single validator for the spec limits OpenCode enforces (description <= 1024 chars, `name` lowercase-alphanumeric-hyphen <= 64, `compatibility` <= 500) and warns on any other unknown key. Both `install-skills` (install-time gate) and `check-skills` (standalone gate) call it, so the two can't drift.
+
 ## CLAUDE.md Guidelines
 
 `CLAUDE.md` files (project-level and repo-level) should route to skills, not duplicate them:
@@ -182,6 +191,7 @@ claude-skills/
 │   └── marketplace.json         # Marketplace registry
 ├── bin/
 │   ├── install-skills           # Register Claude marketplace + install to ~/.agents/skills/
+│   ├── _check-frontmatter.py    # Shared Agent Skills spec-limit validator (install + check)
 │   ├── check-skills             # Static skill/frontmatter checks
 │   ├── check-install            # Temp-home install checks
 │   └── check-prose              # Vale/prose lint smoke checks
