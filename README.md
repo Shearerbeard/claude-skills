@@ -12,6 +12,7 @@ Model-invoked skills for Claude Code, OpenCode, Codex, and Pi. Registered as a l
 | `rust-async` | rust | async, tokio, Send+Sync | Cooperative scheduling, Send+'static, spawn_blocking vs rayon, async Drop |
 | `rust-design` | rust | writing/designing/reviewing types | ADT-first workflow, constrained types, railway programming, 6-step clone avoidance |
 | `rust-review` | rust | reviewing Rust | 7 Rust-specific gate probes |
+| `typed-holes` | rust | typed holes, `todo!()` skeleton, golden frames | Two-layer practice: compiler-tracked skeleton + design panel, then goldens written to fail first |
 | `rust-modules` | rust | Rust module layout | Modern file layout, re-exports, type co-location |
 | `docs-bustest` | docs | docs review / updates | 24-item bus test for documentation quality |
 | `adr-review` | docs | writing / reviewing an ADR | MADR rubric + premise-freshness; chains prose-lint then humanizer |
@@ -23,6 +24,7 @@ Model-invoked skills for Claude Code, OpenCode, Codex, and Pi. Registered as a l
 | `skill-retro` | workflow | "retro my skills" | Audit how skills triggered and performed in a session; files retros under `feedback/` |
 | `git-commit` | workflow | committing / commit messages | Conventional commit format, prose quality chain, mandatory user review |
 | `rebase-hygiene` | workflow | explicit invocation only | Fetch-first rebase ritual: pre-vet conflicts, pre-planned resolutions, verify the push |
+| `opencode-cli` | workflow | delegating code work / review to OpenCode | CLI-only delegation: staging recipe, model pins from config, `--agent` trap, deadlines, validity rule |
 
 Two more plugins ship LSP configs rather than skills: `vale-lsp` (Vale prose diagnostics) and `haskell-lsp` (Haskell Language Server).
 
@@ -184,7 +186,7 @@ claude-skills/
 │   ├── python/                  # python-quality, python-review
 │   ├── rust/                    # rust-design, rust-async, rust-quality, rust-review, rust-modules
 │   ├── docs/                    # docs-bustest, adr-review, prose-lint, humanizer, mermaid
-│   ├── workflow/                # plan-discipline, gate-probes, skill-retro, git-commit, rebase-hygiene
+│   ├── workflow/                # plan-discipline, gate-probes, skill-retro, git-commit, rebase-hygiene, opencode-cli
 │   ├── vale-lsp/                # Vale LSP config (no skills)
 │   └── haskell-lsp/             # Haskell LSP config (no skills)
 ├── .claude-plugin/
@@ -199,7 +201,8 @@ claude-skills/
 │   └── internal/testing/        # Manual Claude/OpenCode test matrix
 ├── feedback/                    # Session retros (gitignored local working docs)
 └── _archive/
-    └── legacy-slash-commands/   # v1 slash commands (2025-11)
+    ├── legacy-slash-commands/   # v1 slash commands (2025-11)
+    └── collaborating-with-opencode-mcp/  # retired MCP-first OpenCode skill (2026-07)
 ```
 
 ## Archive

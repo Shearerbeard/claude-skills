@@ -22,8 +22,18 @@ states and variants. Structs hold data within a single state. Newtypes
 enforce semantic boundaries.
 
 Compile and lint the type surface before any implementation;
-`serde(untagged)` over enums with overlapping field shapes is a bug
-class that only surfaces at the typing stage.
+`serde(untagged)` over enums with overlapping field shapes is a class of
+bug you catch at the typing stage by inspection, because serde picks the
+first matching variant in declaration order at runtime and the compiler
+never flags it.
+
+A skeleton that lands ahead of its bodies enters with a module-level
+`#![allow(dead_code)]`, removed per phase as the holes fill. Prefer
+`#[expect(...)]` wherever the lint will stop firing once the body lands,
+so the marker warns when it stops being true; sweep the markers by hand
+anyway, because one still-unused parameter keeps it quiet. `typed-holes`
+carries the full workflow: skeleton commit and design panel, plus the
+golden frames that track what the compiler cannot see.
 
 ## ADT-First Design
 
