@@ -36,6 +36,7 @@ Before any file edit, complete this checklist. Do not proceed until all items ar
 - [ ] **Verification method stated**: how will this be verified? Include smoke test plan for the happy path
 - [ ] **Blast radius identified**: which files change, which docs update, what tests exist, what coverage is needed
 - [ ] **Existing building blocks searched**: grep/glob for reusable functions before implementing
+- [ ] **Delegation inventory taken (before the plan is written)**: read the harness's agent or subagent configuration and record which executors and reviewers exist and what model each one is pinned to. Agent names drift from the models underneath them, so read the configuration rather than trusting the name. Do this before allocating work: the rule that a reviewer's model must differ from the author's shapes the plan itself, deciding who may write each stage and who is left able to review it, rather than being checked after the diff exists. If the plan depends on a particular reviewer, confirm it is reachable and authenticated during planning, not at the gate
 - [ ] **Gate-probes invoked**: if this is a gate boundary (plan review, pre-implementation checkpoint), run `gate-probes` first
 
 ## Gate-probes routing
@@ -70,6 +71,7 @@ the plan must say so.
 - Dispatch a fresh subagent with no prior implementation context
 - Give it the diff, the plan, and the success criteria
 - It must find issues or explicitly sign off
+- Its model must differ from the model that authored the work under review; the pre-flight delegation inventory is what makes that allocation possible, so a reviewer this gate depends on was already named and confirmed reachable at planning time
 - Combine its findings with Gate S results
 
 **Gate M — Manual testing by agent**
