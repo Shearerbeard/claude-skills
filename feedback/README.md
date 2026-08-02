@@ -15,9 +15,10 @@ feedback/<YYYY-MM-DD>-<harness>-<topic-slug>/
 └── transcript.md      # supporting excerpts (when applicable)
 ```
 
-- `harness` is the tool that ran the session: `claude-code`, `opencode`, or
-  `antigravity`. Same vocabulary as the session-tracking wiki's event `tool:`
-  field, so retros and handoff events cross-reference.
+- `harness` is the tool that ran the session: `claude-code`, `opencode`,
+  `codex`, or `antigravity`. This tracks the session-tracking wiki's event
+  `tool:` vocabulary so retros and handoff events cross-reference
+  (`antigravity` is the one local addition the wiki enum does not carry).
 - `topic-slug` is short kebab-case for the session's subject.
 - Same-day collisions take a `-2` suffix.
 - File names inside stay type-based; the directory carries the session identity.

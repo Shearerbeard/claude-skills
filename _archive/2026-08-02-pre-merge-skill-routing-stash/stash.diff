@@ -1,0 +1,133 @@
+diff --git a/.gitignore b/.gitignore
+index 551d47a..d99a032 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -18,5 +18,8 @@ scripts/temp/
+ docs/internal/sessions/*.tmp.md
+ *.backup.*
+ 
++# Vale styles (downloaded by vale sync)
++.vale/
++
+ # Temporary test repositories
+ temp-*/
+diff --git a/CLAUDE.md b/CLAUDE.md
+index 960a459..6bdc537 100644
+--- a/CLAUDE.md
++++ b/CLAUDE.md
+@@ -17,7 +17,7 @@ claude-skills/
+ │   │       ├── python-quality/SKILL.md
+ │   │       └── python-review/SKILL.md
+ │   ├── rust/                         # rust-quality, rust-review, rust-modules
+-│   ├── docs/                         # docs-bustest, mermaid
++│   ├── docs/                         # docs-bustest, humanizer, prose-lint, mermaid
+ │   │   └── bin/                      # Scripts added to $PATH when plugin is enabled
+ │   └── workflow/                     # gate-probes, plan-discipline
+ ├── bin/
+@@ -61,7 +61,7 @@ See: [Plugin structure docs](https://code.claude.com/docs/en/plugins)
+ 
+ ## Writing Effective Trigger Descriptions
+ 
+-The `description` field in SKILL.md frontmatter controls auto-triggering. Claude Code uses LLM reasoning; OpenCode uses semantic embedding similarity (cosine, threshold 0.35).
++The `description` field in SKILL.md frontmatter controls auto-triggering. Both Claude Code and OpenCode use LLM judgment — all enabled skills are listed in the system prompt, and the model selects via the skill tool based on description matching.
+ 
+ - Lead with concrete actions: "Use when creating .rs files" not "Triggers when working with Rust"
+ - Reference file types, tool names, and user-facing verbs the LLM can match against
+diff --git a/README.md b/README.md
+index 239495b..a406df0 100644
+--- a/README.md
++++ b/README.md
+@@ -11,6 +11,8 @@ Auto-triggered skills for Claude Code, OpenCode, and Codex. Registered as a loca
+ | `rust-quality` | rust | writing `.rs` | Idioms, anti-patterns, type modeling |
+ | `rust-review` | rust | reviewing Rust | 7 Rust-specific gate probes |
+ | `docs-busttest` | docs | docs review / updates | 18-item bus test for documentation quality |
++| `prose-lint` | docs | prose / .md / commit messages | Deterministic Vale-based prose linting for AI-tells and style |
++| `humanizer` | docs | public-facing prose | LLM-based rewrite to remove AI writing patterns |
+ | `mermaid` | docs | `.mmd` files / diagrams | Render and open Mermaid diagrams |
+ | `plan-discipline` | workflow | planning / plan mode | Verification-first, scope interview, blast radius |
+ | `gate-probes` | workflow | commit / review / PR | 7 universal quality probes + surgical discipline |
+@@ -51,7 +53,7 @@ claude-skills/
+ ├── plugins/                     # Source of truth — one plugin per domain
+ │   ├── python/                  # python-quality, python-review
+ │   ├── rust/                    # rust-quality, rust-review
+-│   ├── docs/                    # docs-busttest, mermaid
++│   ├── docs/                    # docs-busttest, humanizer, prose-lint, mermaid
+ │   └── workflow/                # plan-discipline, gate-probes
+ ├── .claude-plugin/
+ │   └── marketplace.json         # Marketplace registry
+diff --git a/plugins/docs/skills/docs-bustest/SKILL.md b/plugins/docs/skills/docs-bustest/SKILL.md
+index 34dd0b8..8fd319a 100644
+--- a/plugins/docs/skills/docs-bustest/SKILL.md
++++ b/plugins/docs/skills/docs-bustest/SKILL.md
+@@ -106,7 +106,8 @@ Score: X/24 (<rating>)
+ ## After editing docs
+ 
+ - **Coherence check**: re-read the full document after edits. LLMs edit in diff-mode and produce sections that look good in isolation but create disjointed flow, repeated context, or contradictory statements when read end-to-end. The file must read as a coherent narrative, not a patchwork of additions.
+-- **Humanizer**: run `/humanizer` on the changed sections (not the whole file) to strip AI writing patterns before committing.
++- **Prose-lint**: run `prose-lint` (Vale) on changed sections to catch deterministic AI-tells and style issues. Safe for all docs — no LLM rewriting.
++- **Humanizer**: for user/public-facing prose (README, CLAUDE.md, release notes, external API docs), run `humanizer` on changed sections to strip AI writing patterns that require human judgment.
+ 
+ ## References
+ 
+diff --git a/plugins/docs/skills/humanizer/SKILL.md b/plugins/docs/skills/humanizer/SKILL.md
+index e403108..fbc06a5 100644
+--- a/plugins/docs/skills/humanizer/SKILL.md
++++ b/plugins/docs/skills/humanizer/SKILL.md
+@@ -24,7 +24,7 @@ allowed-tools:
+ ---
+ 
+ > Forked from [blader/humanizer](https://github.com/blader/humanizer) v2.5.1 (MIT, © 2025 Siqi Chen).
+-> Sole modification: trigger description rewritten for reliable auto-invocation. Body unchanged.
++> Modifications: trigger description rewritten for reliable auto-invocation; Vale pre-pass added to Process section.
+ 
+ # Humanizer: Remove AI Writing Patterns
+ 
+@@ -472,6 +472,8 @@ Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as
+ 
+ ## Process
+ 
++0. **Pre-pass with Vale.** If the `vale` binary is available, run it on the text to catch deterministic AI-tells before the LLM rewrite. For files: `vale --output=JSON file.md`. For snippets: `echo "$text" | vale --ext=.md --output=JSON`. Fix any flagged issues directly (word replacements, hyphenation, filler removal). Then proceed to step 1. If vale is not installed, skip this step — do not install it.
++
+ 1. Read the input text carefully
+ 2. Identify all instances of the patterns above
+ 3. Rewrite each problematic section
+diff --git a/plugins/python/skills/python-review/SKILL.md b/plugins/python/skills/python-review/SKILL.md
+index cc2fc99..0a35cdb 100644
+--- a/plugins/python/skills/python-review/SKILL.md
++++ b/plugins/python/skills/python-review/SKILL.md
+@@ -7,7 +7,7 @@ description: Use when reviewing Python code, preparing PRs with .py changes, run
+ 
+ Review checklist applied after Python work is complete. Rules are defined in `/python-quality` — this skill applies them as gate probes.
+ 
+-Load `python-quality` for the quality rules being checked. Run `gate-probes` first for universal checks. Then apply these Python-specific probes.
++Load `python-quality` for the quality rules being checked. Run `gate-probes` first for universal checks. If docstrings or comments changed, consider loading `prose-lint`. Then apply these Python-specific probes.
+ 
+ ## Python Gate Checklist
+ 
+diff --git a/plugins/rust/skills/rust-review/SKILL.md b/plugins/rust/skills/rust-review/SKILL.md
+index 4de0fdd..46ae7b6 100644
+--- a/plugins/rust/skills/rust-review/SKILL.md
++++ b/plugins/rust/skills/rust-review/SKILL.md
+@@ -5,7 +5,7 @@ description: Use when reviewing Rust code, preparing PRs with .rs changes, runni
+ 
+ # Rust Review Gates
+ 
+-Load `rust-quality` for the quality rules being checked. Run `gate-probes` first for universal checks. Then apply these Rust-specific probes against the diff.
++Load `rust-quality` for the quality rules being checked. Run `gate-probes` first for universal checks. If doc comments changed, consider loading `prose-lint`. Then apply these Rust-specific probes against the diff.
+ 
+ ## Rust probes
+ 
+diff --git a/plugins/workflow/skills/gate-probes/SKILL.md b/plugins/workflow/skills/gate-probes/SKILL.md
+index 2acf1fc..2e6694c 100644
+--- a/plugins/workflow/skills/gate-probes/SKILL.md
++++ b/plugins/workflow/skills/gate-probes/SKILL.md
+@@ -22,3 +22,9 @@ Run at every commit boundary and review gate. Language-specific skills add their
+ ## Coherence check
+ 
+ 7. Re-read modified files in full after editing — diffs that look correct in isolation can create duplicated logic, inconsistent naming, orphaned imports, or functions that no longer fit the module's flow
++
++## Documentation quality
++
++When the diff includes `.md` files, README changes, or documentation updates:
++- Consider loading `docs-bustest` for structural review — is the information findable, current, and complete?
++- Consider loading `prose-lint` for deterministic grammar/style checks — Vale pattern matching, no LLM rewriting

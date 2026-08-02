@@ -45,7 +45,7 @@ current working directory.
 4. File the retro under the marketplace repo's feedback/ directory (retro
    contents stay untracked; only the convention README is published):
    - One directory per session: feedback/<YYYY-MM-DD>-<harness>-<topic-slug>/
-     where harness is claude-code, opencode, or antigravity; same-day
+     where harness is claude-code, opencode, codex, or antigravity; same-day
      collisions take a -2 suffix.
    - The usual artifact is skill-retro.md; add plan-retro.md and
      transcript.md when applicable.
