@@ -56,9 +56,9 @@ document. Plan reviews, prose, specs, architecture, product, and
 marketing review land in `collaborating-with-antigravity`, but naming
 that destination is not the same as picking the lane.
 
-Within code, a card or gate review goes to the opencode pinned
-reviewers, while ad-hoc adversarial review and the fallback after a
-stall go to the codex CLI (`codex-cli`).
+Within code, which reviews go to the opencode pinned reviewers and
+which to the codex CLI (`codex-cli`) is the repo review-tooling
+document's call; read it before dispatching either.
 
 ## Model selection
 

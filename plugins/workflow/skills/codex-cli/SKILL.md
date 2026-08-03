@@ -21,15 +21,16 @@ what decide whether the result counts.
 
 ## Role
 
-codex is the un-gated default for ad-hoc adversarial review: no
-per-session spend approval stands between you and a dispatch, which is
-also why it is the fallback when another reviewer stalls. Where a repo's
-review-tooling document binds it, it is that repo's doc-card prose
-reviewer too.
+Which role codex serves in a repo is that repo's review-tooling
+document's call; read it before dispatching. Bindings such a document
+commonly makes: ad-hoc adversarial review, and the doc-card prose
+reviewer. A property worth knowing when the document weighs its
+options: no per-session spend approval gates a codex dispatch.
 
-That document outranks this skill on **which** role codex serves. This
-skill owns **how** to drive it. Read the repo's document first and treat
-any role named here as a default it may overwrite.
+Where neither a review-tooling document nor a delegating-work router
+is installed, codex is a workable second opinion - that is this
+skill's degrade path, not a topology decision it gets to make. This
+skill owns **how** to drive codex, never which lane gets it.
 
 ## Artifact class and routing
 

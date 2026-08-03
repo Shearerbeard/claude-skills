@@ -113,10 +113,9 @@ true` when it does. A machine-wide default-on leaves a branch and a
 directory behind after every execute run, whether or not that run
 wanted one (see references/security.md for the settings).
 
-When a run does create a worktree, the cleanup duty applies: nothing
-auto-cleans it, so fold the diff back and remove the worktree before
-the session closes. references/prompt-patterns.md carries that duty
-next to the execute prompt scaffold.
+When a run does create a worktree, nothing auto-cleans it;
+references/prompt-patterns.md carries the cleanup duty next to the
+execute prompt scaffold.
 
 ## Multi-turn
 

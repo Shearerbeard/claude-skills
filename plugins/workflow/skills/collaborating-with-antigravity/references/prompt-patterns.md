@@ -65,7 +65,7 @@ Output: a numbered list; give each item a P0-P3 severity and a
 section or line reference. Skip nits.
 ```
 
-## execute - apply changes in an isolated worktree
+## execute - apply changes (worktree optional)
 
 Use only when you've already reviewed a prototype and want it applied.
 
@@ -73,10 +73,12 @@ Use only when you've already reviewed a prototype and want it applied.
 Apply: <previously-reviewed diff or change description>
 Workspace: <root>
 Constraints:
-- Run inside a worktree; do not touch the main checkout.
+- When isolating, run inside a worktree (--worktree true) and do not
+  touch the main checkout; otherwise apply in place.
 - Run <command, e.g. `pytest tests/test_xxx.py`> after applying.
 - If tests fail, revert and report the failure; do not "fix and continue".
-Deliverable: list of touched files + test exit code + worktree path.
+Deliverable: list of touched files + test exit code + the worktree path
+when one was used.
 ```
 
 `--mode execute --allow-write` is required. Pair it with a worktree
