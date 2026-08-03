@@ -119,8 +119,9 @@ wrap it (`timeout 600 opencode run ...`) and pick a bound you are willing
 to wait out.
 
 If it stalls, switch tools rather than retrying blind. Two runs have been
-killed at the deadline, one at 10 minutes and one at 50; that pattern is
-why the codex CLI became the default adversarial reviewer.
+killed at the deadline, one at 10 minutes and one at 50; a stall record
+like that is exactly what a repo's review-tooling document weighs when
+it picks its reviewers.
 
 ## Validity rule
 
