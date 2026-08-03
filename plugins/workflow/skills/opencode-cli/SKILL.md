@@ -9,7 +9,7 @@ description: |
   recipe, model selection from config, the --agent trap, permission and
   deadline handling, and the validity rule for a delegated review. Code
   only; for plan, prose, spec, architecture, product, or marketing review
-  use the collaborating-with-antigravity skill instead. Never for a
+  use the `collaborating-with-antigravity` skill instead. Never for a
   session already running inside OpenCode, which dispatches its
   subagents in-session instead.
 compatibility: claude-code opencode
@@ -49,7 +49,7 @@ cd /tmp && timeout 120 opencode run -m <provider>/<model> "Reply with: OK"
 ```
 
 **3. This skill is for code.** Plan reviews, prose, specs, architecture,
-product, and marketing review route to the collaborating-with-antigravity
+product, and marketing review route to the `collaborating-with-antigravity`
 skill. Sending those here wastes a turn and gets a worse answer.
 
 Within code, split the adversarial reviewers by where the request comes

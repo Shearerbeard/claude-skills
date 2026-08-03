@@ -25,6 +25,7 @@ Model-invoked skills for Claude Code, OpenCode, Codex, and Pi. Registered as a l
 | `git-commit` | workflow | committing / commit messages | Conventional commit format, prose quality chain, mandatory user review |
 | `rebase-hygiene` | workflow | explicit invocation only | Fetch-first rebase ritual: pre-vet conflicts, pre-planned resolutions, verify the push |
 | `opencode-cli` | workflow | delegating code work / review to OpenCode | CLI-only delegation: staging recipe, model pins from config, `--agent` trap, deadlines, validity rule |
+| `collaborating-with-antigravity` | workflow | delegating plan / prose / spec / architecture review to agy | Budget-gated Antigravity delegation: MCP or bridge transport, the mode table, long-job supervision, the safety floor |
 | `process-feedback` | workflow | upstream toolkit friction | Record a process finding locally and mirror it append-only into the upstream repo's FEEDBACK.md inbox |
 
 Two more plugins ship LSP configs rather than skills: `vale-lsp` (Vale prose diagnostics) and `haskell-lsp` (Haskell Language Server).
@@ -187,7 +188,7 @@ claude-skills/
 │   ├── python/                  # python-quality, python-review
 │   ├── rust/                    # rust-design, rust-async, rust-quality, rust-review, rust-modules
 │   ├── docs/                    # docs-bustest, adr-review, prose-lint, humanizer, mermaid
-│   ├── workflow/                # plan-discipline, gate-probes, skill-retro, git-commit, rebase-hygiene, opencode-cli, process-feedback
+│   ├── workflow/                # plan-discipline, gate-probes, skill-retro, git-commit, rebase-hygiene, opencode-cli, collaborating-with-antigravity, process-feedback
 │   ├── vale-lsp/                # Vale LSP config (no skills)
 │   └── haskell-lsp/             # Haskell LSP config (no skills)
 ├── .claude-plugin/
