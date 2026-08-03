@@ -48,8 +48,7 @@ a capability difference.
 Do not trust any install-state claim written into this file. Run the
 `agy_doctor` tool at the moment you use the skill and read its report as
 authoritative: it confirms the agy version, the auth state, whether the
-`gemini` CLI fallback is present, and the current `timeout` default and
-session-store path.
+`gemini` CLI fallback is present, and the session-store path.
 
 ## When to use
 

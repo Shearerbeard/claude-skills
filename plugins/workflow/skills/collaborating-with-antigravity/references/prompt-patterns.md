@@ -82,6 +82,11 @@ Deliverable: list of touched files + test exit code + worktree path.
 `--mode execute --allow-write` is required. Always pair with a worktree
 (default-on) so a misfire doesn't dirty the main checkout.
 
+Execute-run worktrees are never auto-cleaned. When the run ends, fold
+the diff back and remove the job worktree (`git worktree remove
+<path>`) before the session closes; a forgotten one lingers under
+`.agy-mcp/worktrees/`.
+
 ## long - multi-hour agent loop
 
 Use only when the work exceeds your turn budget. Always
