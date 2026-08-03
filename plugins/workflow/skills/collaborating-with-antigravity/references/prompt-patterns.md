@@ -79,8 +79,9 @@ Constraints:
 Deliverable: list of touched files + test exit code + worktree path.
 ```
 
-`--mode execute --allow-write` is required. Always pair with a worktree
-(default-on) so a misfire doesn't dirty the main checkout.
+`--mode execute --allow-write` is required. Pair it with a worktree
+when the change wants isolating from the main checkout; otherwise leave
+the machine's worktree default off (SKILL.md, Modes).
 
 Execute-run worktrees are never auto-cleaned. When the run ends, fold
 the diff back and remove the job worktree (`git worktree remove

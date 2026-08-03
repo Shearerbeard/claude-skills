@@ -10,23 +10,42 @@ Google Antigravity (`agy`) CLI plus an optional `gemini` CLI fallback. It
 produces stable `BridgeResponse` envelopes so this skill can drive
 Antigravity sessions deterministically.
 
-## Reserved for language-shaped review
+## Artifact class and routing
 
-agy/Antigravity is **reserved for plan reviews, prose, spec,
-architecture, product, and marketing review**. It handles human language
-more naturally than Anthropic and Anthropic-inspired models, which is
-exactly what those artifacts are judged on.
+This skill serves one artifact class: **plan, prose, spec, architecture,
+product, and marketing review**. agy handles human language more
+naturally than Anthropic and Anthropic-inspired models, and those
+artifacts are judged on exactly that.
 
-It is **not** the default for code review. Low-level code review routes
-to the OpenCode CLI reviewers (load `opencode-cli`) or the codex CLI.
+Work outside that class is not this skill's to place. Hand it back to
+the delegating-work router when a board process installs one; with no
+router present, follow the repo's review-tooling document. Code review
+in particular is out of scope here, and its destinations are the
+OpenCode CLI reviewers (`opencode-cli`) and the codex CLI (`codex-cli`).
+Naming a destination is not the same as picking the lane, and picking
+the lane stays the router's job. Where a repo's review-tooling document
+routes prose review somewhere else, that document decides, not this
+file.
 
-The budget gate still applies: get explicit user approval for agy spend
-once per session before dispatching.
+## Preflight, in order
 
-That gate is also the tiebreaker where two documents claim prose review:
-the codex CLI stays the un-gated default for card and gate prose legs,
-and agy takes plan and prose review only once the user has approved
-spend for this session.
+Both steps run before this session's **first** dispatch, in this order.
+
+1. **Confirm the spend approval is logged.** agy spend is budget-gated.
+   The session needs explicit per-session user approval for agy spend,
+   recorded in the session itself, before anything is dispatched. An
+   approval carried over from an earlier session does not count, and
+   neither does an inference from the user asking for a review.
+2. **Run the `agy_doctor` probe and read its report.** It confirms the
+   agy version, the auth state, whether the `gemini` CLI fallback is
+   present, and the session-store path. Do not trust any install-state
+   claim written into this file; where the two disagree, the report is
+   authoritative.
+
+Outcome rule: a probe reporting auth trouble, an exhausted quota, or
+config that is missing means the reviewer is unreachable. The dispatch
+does not happen. The gate it would have served stays open as a
+deferral, and that deferral is surfaced at the next user gate.
 
 ## MCP or bridge
 
@@ -45,18 +64,13 @@ Two frontends, one backend. Pick by what your harness can reach:
 Both drive the same agy-mcp backend, so this is a transport choice, not
 a capability difference.
 
-Do not trust any install-state claim written into this file. Run the
-`agy_doctor` tool at the moment you use the skill and read its report as
-authoritative: it confirms the agy version, the auth state, whether the
-`gemini` CLI fallback is present, and the session-store path.
-
 ## When to use
 
 - You need a **second opinion** on a plan, spec, architecture note, or
   other language-shaped artifact.
 - You are delegating **execution** of a change and want it kept in
-  isolation (auto-worktree). This is execution delegation, not review,
-  and it stays behind the budget gate.
+  isolation (opt into a worktree). This is execution delegation, not
+  review, and it stays behind the budget gate.
 - You need to **run a long agent loop** (planning, large refactors) without
   blocking your own conversation: start a background job and poll.
 - You want code Antigravity proposes **run in a sandbox** so its side
@@ -88,13 +102,21 @@ Output is a single JSON line on stdout: `{"success": true, "SESSION_ID":
 | `plan` | Multi-step planning, breakdown | no | no |
 | `prototype` | Generate diffs to hand back (execution delegation, not review) | optional | no |
 | `review` | Review of a plan, prose, or spec artifact | no | no |
-| `execute` | Make file edits in the workspace | **yes** | requires `--allow-write` |
+| `execute` | Make file edits in the workspace | opt-in | requires `--allow-write` |
 | `browser` | Interactive browsing / research | no | no |
 | `long` | Multi-hour agent loop, expect to poll status | no | no |
 
-`execute` always creates a worktree by default; combine with
-`--allow-write` to opt in to mutations. The worktree default is
-configurable in `~/.config/agy-mcp/config.toml` (see references/security.md).
+`execute` needs `--allow-write` to opt in to mutations. Keep
+`worktree_default` off in `~/.config/agy-mcp/config.toml` unless a run
+genuinely needs isolation, and turn it on per call with `--worktree
+true` when it does. A machine-wide default-on leaves a branch and a
+directory behind after every execute run, whether or not that run
+wanted one (see references/security.md for the settings).
+
+When a run does create a worktree, the cleanup duty applies: nothing
+auto-cleans it, so fold the diff back and remove the worktree before
+the session closes. references/prompt-patterns.md carries that duty
+next to the execute prompt scaffold.
 
 ## Multi-turn
 

@@ -48,14 +48,17 @@ credit, or mis-pinned fails silently at the moment you need it most.
 cd /tmp && timeout 120 opencode run -m <provider>/<model> "Reply with: OK"
 ```
 
-**3. This skill is for code.** Plan reviews, prose, specs, architecture,
-product, and marketing review route to the `collaborating-with-antigravity`
-skill. Sending those here wastes a turn and gets a worse answer.
+**3. This skill's artifact class is code**: code writing and code review
+through the opencode CLI. Work outside that class is not this skill's to
+place. Hand it back to the delegating-work router when a board process
+installs one; with no router present, follow the repo's review-tooling
+document. Plan reviews, prose, specs, architecture, product, and
+marketing review land in `collaborating-with-antigravity`, but naming
+that destination is not the same as picking the lane.
 
-Within code, split the adversarial reviewers by where the request comes
-from: a card or gate review goes to the opencode pinned reviewers, while
-ad-hoc adversarial review and the fallback after a stall go to the codex
-CLI.
+Within code, a card or gate review goes to the opencode pinned
+reviewers, while ad-hoc adversarial review and the fallback after a
+stall go to the codex CLI (`codex-cli`).
 
 ## Model selection
 
