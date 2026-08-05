@@ -20,6 +20,7 @@ fi
 
 pre-commit install
 pre-commit install --hook-type commit-msg
+pre-commit install --hook-type post-commit
 
 echo ""
 echo "Done. Hooks will run on every commit:"
@@ -27,5 +28,6 @@ echo "  - betterleaks: secret scanning"
 echo "  - asciicheck:  non-ASCII artifact detection"
 echo "  - check-prose: Vale prose quality (diff-based)"
 echo "  - vale-commit-msg: commit message quality"
+echo "  - sync-agent-skills: refresh ~/.agents/skills (post-commit)"
 echo ""
 echo "Run 'pre-commit run --all-files' to test all hooks now."
