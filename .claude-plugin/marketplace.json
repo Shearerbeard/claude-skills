@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "my-skills",
-  "description": "Personal skills library for Python, Rust, documentation, and workflow quality",
+  "description": "Personal skills library for Python, Rust, documentation, design artifacts, and workflow quality",
   "owner": {
     "name": "Mike Shearer",
     "email": "shearerbeard@gmail.com"
@@ -26,6 +26,12 @@
       "name": "workflow",
       "description": "Planning discipline and universal quality gate probes",
       "source": "./plugins/workflow"
+    },
+    {
+      "name": "design",
+      "description": "Design system tokens and shareable web artifacts (infographics, flow charts) published to GitHub Pages or Netlify",
+      "version": "1.0.0",
+      "source": "./plugins/design"
     },
     {
       "name": "vale-lsp",

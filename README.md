@@ -1,6 +1,6 @@
 # Personal Skills Library
 
-Model-invoked skills for Claude Code, OpenCode, Codex, and Pi. Registered as a local marketplace (`my-skills`) for Claude Code, and installed to `~/.agents/skills/` for OpenCode, Codex, and Pi.
+Model-invoked skills for Claude Code, OpenCode, Codex, Pi, and Kimi Code. Registered as a local marketplace (`my-skills`) for Claude Code, and installed to `~/.agents/skills/` for OpenCode, Codex, Pi, and Kimi Code.
 
 ## Skills
 
@@ -28,6 +28,8 @@ Model-invoked skills for Claude Code, OpenCode, Codex, and Pi. Registered as a l
 | `codex-cli` | workflow | "codex review" / second opinion / adversarial review | Un-gated codex delegation: sandboxed invocation, caller-owned deadline, prompt contract, validity rule, no model pins |
 | `collaborating-with-antigravity` | workflow | delegating plan / prose / spec / architecture review to agy | Budget-gated Antigravity delegation: ordered spend-and-doctor preflight, MCP or bridge transport, long-job supervision, the mode table |
 | `process-feedback` | workflow | upstream toolkit friction | Record a process finding locally and file it as a GitHub issue on the upstream repo |
+| `design-system` | design | brand colors, design tokens, visual identity, theme | Three-pass token authoring (philosophy, tokens, critique) into a harness-neutral store; anti-slop calibration |
+| `web-artifact` | design | infographic, flow chart, shareable visual page | Self-contained HTML artifacts published to GitHub Pages or Netlify, with config registry and refresh deltas |
 
 Two more plugins ship LSP configs rather than skills: `vale-lsp` (Vale prose diagnostics) and `haskell-lsp` (Haskell Language Server).
 
@@ -114,7 +116,7 @@ This pattern keeps the skill as the single source of truth. Duplicating skill ru
 
 ## Installation
 
-The installer registers the marketplace with Claude Code and flat-copies skills to `~/.agents/skills/` for [OpenCode](https://opencode.ai/docs/skills/), [Codex](https://developers.openai.com/codex/skills/), and [Pi](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/skills.md). All three read `~/.agents/skills/` as a global user-scope location per the [Agent Skills standard](https://agentskills.io/specification).
+The installer registers the marketplace with Claude Code and flat-copies skills to `~/.agents/skills/` for [OpenCode](https://opencode.ai/docs/skills/), [Codex](https://developers.openai.com/codex/skills/), [Pi](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/skills.md), and [Kimi Code](https://github.com/MoonshotAI/kimi-cli). All four read `~/.agents/skills/` as a global user-scope location per the [Agent Skills standard](https://agentskills.io/specification); Kimi Code's parser accepts the same frontmatter spellings (`when_to_use`, `disable-model-invocation`) via its metadata aliases.
 
 ```bash
 ./bin/install-skills /path/to/this/repo
@@ -190,6 +192,7 @@ claude-skills/
 │   ├── rust/                    # rust-design, rust-async, rust-quality, rust-review, rust-modules
 │   ├── docs/                    # docs-bustest, adr-review, prose-lint, humanizer, mermaid
 │   ├── workflow/                # plan-discipline, gate-probes, skill-retro, git-commit, rebase-hygiene, opencode-cli, codex-cli, collaborating-with-antigravity, process-feedback
+│   ├── design/                  # design-system, web-artifact
 │   ├── vale-lsp/                # Vale LSP config (no skills)
 │   └── haskell-lsp/             # Haskell LSP config (no skills)
 ├── .claude-plugin/

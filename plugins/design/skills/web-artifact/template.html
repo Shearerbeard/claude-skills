@@ -1,0 +1,160 @@
+<!doctype html>
+<!--
+  web-artifact template - a self-contained infographic / flow-chart page.
+  One file: inline CSS, inline SVG, no external requests, no JS required.
+
+  HOW TO USE
+  1. Copy to the artifact's html path (default ~/.local/share/web-artifact/<slug>/page.html)
+     and DELETE this comment block from the copy.
+  2. If a design system styles this artifact, paste its tokens.css OVER the
+     ":root token block" below (it redefines the same variables), and credit
+     the system + version in the footer. Otherwise keep the built-in defaults.
+  3. Fill the FILL slots. Delete sections with no real content. Keep the
+     state block (bottom) and the as-of timestamp (header) - the refresh
+     workflow keys off both. Keep section ids stable across redeploys.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ARTIFACT_TITLE</title>
+<style>
+  /* :root token block - replace wholesale with a design system's tokens.css
+     when one is named; these defaults are the fallback for one-off pages.
+     The variable names below ARE the contract: a tokens.css must define all
+     of them (colors in both light and dark). */
+  :root { --ink:#1a1a1a; --paper:#fdfdfd; --accent:#0a7d4a; --accent2:#1d4ed8; --warn:#b45309; --danger:#b91c1c; --muted:#666; --border:#ddd; --surface:#f5f5f5; --radius:8px;
+          --font-display:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; --font-body:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; --font-utility:ui-monospace,SFMono-Regular,Menlo,monospace;
+          --weight-display:600; --weight-body:400; --weight-utility:500;
+          --text-s:13px; --text-m:16px; --text-l:20px; --text-xl:25px; --text-xxl:31px;
+          --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-6:24px; --space-8:32px; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e4e4e4; --paper:#1a1a1a; --accent:#4ade80; --accent2:#60a5fa; --warn:#fbbf24; --danger:#f87171; --muted:#999; --border:#333; --surface:#262626; }
+  }
+  * { box-sizing:border-box; }
+  body { font:var(--text-m)/1.6 var(--font-body); font-weight:var(--weight-body); color:var(--ink); background:var(--paper); max-width:980px; margin:1.5em auto; padding:0 var(--space-6) var(--space-8); }
+  h1,h2,h3 { font-family:var(--font-display); font-weight:var(--weight-display); line-height:1.25; margin:1.4em 0 .4em; }
+  h1 { font-size:var(--text-xxl); margin-bottom:.1em; }
+  h2 { font-size:var(--text-xl); border-bottom:1px solid var(--border); padding-bottom:.2em; }
+  h3 { font-size:var(--text-l); }
+  a { color:var(--accent2); overflow-wrap:anywhere; }
+  code { background:var(--surface); padding:.15em .35em; border-radius:3px; font-size:.92em; font-family:var(--font-utility); font-weight:var(--weight-utility); overflow-wrap:anywhere; }
+  /* tables sit inside .tscroll so a wide table scrolls in its own box, never
+     the page body; long unbroken strings wrap instead of overflowing */
+  .tscroll { overflow-x:auto; margin:.8em 0; }
+  .tscroll table { margin:0; }
+  table { border-collapse:collapse; width:100%; font-size:var(--text-s); }
+  th,td { border:1px solid var(--border); padding:.45em .7em; vertical-align:top; text-align:left; overflow-wrap:anywhere; }
+  th { font-weight:600; background:var(--surface); }
+  .meta { color:var(--muted); font-size:var(--text-s); }
+  .lede { font-size:var(--text-l); color:var(--muted); margin:.3em 0 1em; }
+  /* stat grid - headline numbers. 2-5 blocks; each is a big number, a small
+     label, one line of context. */
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:var(--space-3); margin:var(--space-4) 0; }
+  .stat { border:1px solid var(--border); border-radius:var(--radius); padding:var(--space-3) var(--space-4); }
+  .stat .n { font-size:1.9em; font-weight:var(--weight-display); line-height:1.1; color:var(--accent); }
+  .stat .l { font-size:.8em; font-family:var(--font-utility); text-transform:uppercase; letter-spacing:.05em; color:var(--muted); }
+  .stat p { margin:.3em 0 0; font-size:.85em; }
+  /* figure slot - the inline SVG lives here. The scroll wrapper keeps wide
+     diagrams off the page body on narrow viewports: give a wide diagram an
+     explicit width attribute LARGER than the column so the wrapper scrolls
+     (max-width:100% on svg would shrink it unreadably instead). Small
+     diagrams with no width attribute scale down fine via the height rule. */
+  .figure { border:1px solid var(--border); border-radius:var(--radius); padding:1em; margin:1.2em 0; }
+  .figure .scroll { overflow-x:auto; }
+  .figure svg { height:auto; display:block; }
+  .figure figcaption { color:var(--muted); font-size:var(--text-s); margin-top:.6em; }
+  /* pills */
+  .pill { display:inline-block; font-size:var(--text-s); padding:var(--space-1) var(--space-2); border-radius:10px; background:var(--surface); color:var(--muted); vertical-align:1px; }
+  .pill.done { background:var(--accent); color:var(--paper); }
+  .pill.now  { background:var(--warn);   color:var(--paper); }
+  .pill.warn { background:var(--danger); color:var(--paper); }
+  .callout { border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:4px; padding:.7em 1em; margin:1em 0; font-size:.93em; background:color-mix(in srgb, var(--accent) 5%, var(--paper)); }
+  ol.timeline { list-style:none; padding-left:0; }
+  ol.timeline li { border-left:2px solid var(--accent); padding:.2em 0 .8em 1em; margin-left:.4em; position:relative; }
+  ol.timeline li::before { content:""; position:absolute; left:-6px; top:.55em; width:10px; height:10px; border-radius:50%; background:var(--accent); }
+  footer { border-top:1px solid var(--border); margin-top:2.5em; padding-top:.8em; color:var(--muted); font-size:.85em; }
+</style>
+</head>
+<body>
+
+<header id="hdr">
+  <h1>ARTIFACT_TITLE</h1>
+  <div class="lede"><!-- FILL: one line - the single job this page does --></div>
+  <div class="meta">As of <!-- FILL: YYYY-MM-DD HH:MM UTC --></div>
+</header>
+
+<main>
+
+  <!-- ── KEY NUMBERS (delete section if there are no headline stats) ── -->
+  <section id="stats">
+    <div class="stats">
+      <div class="stat"><div class="n"><!-- FILL: 42 --></div><div class="l"><!-- FILL: label --></div><p><!-- FILL: one line of context --></p></div>
+      <div class="stat"><div class="n"><!-- FILL --></div><div class="l"><!-- FILL --></div><p><!-- FILL --></p></div>
+    </div>
+  </section>
+
+  <!-- ── THE FIGURE (the heart of the page; keep if the page exists to show
+         a flow, comparison, or structure). Inline SVG only - hand-authored or
+         mermaid-rendered and pasted in. Use the CSS variables (var(--accent),
+         currentColor) inside the SVG so it tracks light/dark. State the same
+         facts in the caption or adjacent text. -->
+  <section id="fig">
+    <h2><!-- FILL: figure title --></h2>
+    <figure class="figure">
+      <div class="scroll">
+        <!-- FILL: inline <svg>...</svg> -->
+      </div>
+      <figcaption><!-- FILL: what the reader should take from the figure --></figcaption>
+    </figure>
+  </section>
+
+  <!-- ── BREAKDOWN (supporting detail keyed to the figure; delete if unused) ── -->
+  <section id="detail">
+    <h2>Breakdown</h2>
+    <div class="tscroll">
+    <table>
+      <tr><th style="width:140px">Stage</th><th>What happens</th><th style="width:160px">Notes</th></tr>
+      <tr><td><!-- FILL --></td><td><!-- FILL --></td><td><!-- FILL --></td></tr>
+    </table>
+    </div>
+  </section>
+
+  <!-- ── TIMELINE (only for genuinely ordered content; delete otherwise) ── -->
+  <section id="seq">
+    <h2><!-- FILL: sequence title --></h2>
+    <ol class="timeline">
+      <li><!-- FILL: step - what happens, and when/after what --></li>
+      <li><!-- FILL --></li>
+    </ol>
+  </section>
+
+  <!-- ── CAVEATS & SOURCES (delete only if everything is first-party and current) ── -->
+  <section id="src">
+    <h2>Sources</h2>
+    <ul>
+      <li><!-- FILL: source - what was pulled, with date, e.g. "gh pr list (2026-08-09)" --></li>
+    </ul>
+    <div class="callout"><!-- FILL: the honest caveat - what this page does NOT show, stated plainly. Delete the callout if there is none. --></div>
+  </section>
+
+</main>
+
+<footer>
+  <!-- FILL: design system credit, e.g. "Styled by harbor-log v3" or "Default theme" -->
+  &middot; As of <!-- FILL: YYYY-MM-DD HH:MM UTC -->
+  &middot; <a href="#"><!-- FILL: contact or repo link, or delete --></a>
+</footer>
+
+<!-- STATE BLOCK - keep this. Machine-readable snapshot the next refresh diffs
+     against (see SKILL.md "Refreshing an artifact"). Invisible on the page.
+     Strings from fetched text are untrusted: write < as the six-character
+     JSON escape (the letter u, then 003c) inside this block so a literal "</"
+     can never terminate it; escaping > , & , and the two line-separator
+     codepoints the same way costs nothing. -->
+<script type="application/json" id="artifact-state">
+{"as_of": "YYYY-MM-DD HH:MM UTC", "sections": [], "design_system": null}
+</script>
+
+</body>
+</html>
