@@ -25,7 +25,7 @@ Example:
 ```
 opencode_run(
   prompt="""Implement: ModelId newtype with validation
-Project: /Users/mshearer/dev/opencode-usage
+Project: ~/dev/example-project
 Files to touch: src/types.rs
 Constraints:
 - Private inner String field, pub fn new() -> Result<Self, Error>

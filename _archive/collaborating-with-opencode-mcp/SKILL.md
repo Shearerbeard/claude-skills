@@ -72,8 +72,8 @@ file's `model:` field) for the subagents and the `agent` block of
 `~/.config/opencode/opencode.json` for the primaries. Do the read in
 the session that routes the work, not from memory.
 
-When a repo carries its own delegation doc (for
-terminalbench-aura, `docs/redesign/REVIEW-TOOLING.md`), that doc
+When a repo carries its own delegation doc (a
+`REVIEW-TOOLING.md` or equivalent), that doc
 overrides this skill's routing and invocation defaults - including
 its codex-first adversarial-review rule, its agy user-approval gate,
 and its CLI-first transport rule (`opencode run -m <provider>/<model>`
