@@ -41,7 +41,11 @@ testing.
 
 Everything needed to run the practice is in this skill. A private
 companion repo of templates and worked exemplars augments it where the
-user has one; its absence changes nothing about the workflow below.
+user has one; its absence changes nothing about the workflow below. When
+writing or updating that companion repo's playbook, templates, or
+exemplars, load this skill first and treat it as the canonical statement
+of the practice; divergence between the two is a defect in the
+companion, not a fork of the practice.
 
 ## Layer 1: the typed-holes skeleton
 
