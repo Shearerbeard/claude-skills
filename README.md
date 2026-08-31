@@ -27,7 +27,7 @@ Model-invoked skills for Claude Code, OpenCode, Codex, and Pi. Registered as a l
 | `opencode-cli` | workflow | delegating code work / review to OpenCode | CLI-only delegation: staging recipe, model pins from config, `--agent` trap, deadlines, validity rule |
 | `codex-cli` | workflow | "codex review" / second opinion / adversarial review | Un-gated codex delegation: sandboxed invocation, caller-owned deadline, prompt contract, validity rule, no model pins |
 | `collaborating-with-antigravity` | workflow | delegating plan / prose / spec / architecture review to agy | Budget-gated Antigravity delegation: ordered spend-and-doctor preflight, MCP or bridge transport, long-job supervision, the mode table |
-| `process-feedback` | workflow | upstream toolkit friction | Record a process finding locally and mirror it append-only into the upstream repo's FEEDBACK.md inbox |
+| `process-feedback` | workflow | upstream toolkit friction | Record a process finding locally and file it as a GitHub issue on the upstream repo |
 
 Two more plugins ship LSP configs rather than skills: `vale-lsp` (Vale prose diagnostics) and `haskell-lsp` (Haskell Language Server).
 
