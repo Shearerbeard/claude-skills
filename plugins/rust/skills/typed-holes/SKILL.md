@@ -39,9 +39,9 @@ golden tests track rendering holes. Layer 1 alone is a complete practice
 for a module with no rendered output. Layer 2 alone is just snapshot
 testing.
 
-Everything needed to run the practice is in this skill. A private
-companion repo of templates and worked exemplars augments it where the
-user has one; its absence changes nothing about the workflow below. When
+Everything needed to run the practice is in this skill. A companion
+repo of templates and worked exemplars augments it where the user has
+one; its absence changes nothing about the workflow below. When
 writing or updating that companion repo's playbook, templates, or
 exemplars, load this skill first and treat it as the canonical statement
 of the practice; divergence between the two is a defect in the
