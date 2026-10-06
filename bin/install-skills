@@ -3,7 +3,9 @@ set -euo pipefail
 
 # Install skills from a plugin marketplace repo to:
 #   1. Claude Code - register marketplace + enable plugins in ~/.claude/settings.json
-#   2. Agent tools - flat-copy skills to ~/.agents/skills/ (OpenCode, Codex, Pi)
+#   2. Agent tools - flat-copy skills to ~/.agents/skills/
+#      (OpenCode, Codex, Pi, and Kimi Code - all four read ~/.agents/skills/
+#      as a user-scope dir; Kimi's parser aliases the same frontmatter spellings)
 #
 # Usage:
 #   install-skills <source-path> [--skills name1,name2] [--claude-only] [--agents-only]
