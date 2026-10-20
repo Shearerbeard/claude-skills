@@ -149,7 +149,7 @@
 <!-- STATE BLOCK - keep this. Machine-readable snapshot the next refresh diffs
      against (see SKILL.md "Refreshing an artifact"). Invisible on the page.
      Strings from fetched text are untrusted: write < as the six-character
-     JSON escape (the letter u, then 003c) inside this block so a literal "</"
+     JSON escape (backslash, u, 0, 0, 3, c) inside this block so a literal "</"
      can never terminate it; escaping > , & , and the two line-separator
      codepoints the same way costs nothing. -->
 <script type="application/json" id="artifact-state">
